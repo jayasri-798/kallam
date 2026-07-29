@@ -318,6 +318,25 @@ Total Student Body Size: 3500+ active students on an 11-acre campus.
 Campus Location: Guntur-Chennai Highway, Dasaripalem, Guntur, Andhra Pradesh, 522019.
 Official Communication Channels: Phone: +91-9885604528 or 0863-2119726. Web: khitguntur.ac.in
 
+[FOUNDER & LEADERSHIP]
+Founder and Chairman: Sri Haranadha Reddy Kallam, M.A., B.L.
+- Sponsor/Founder of KHIT Guntur.
+- Founder of Kallam Group of Industries (with an annual turnover of Rs. 250 Crores).
+- Industries under the group include:
+  1) Kallam Agro products & Oils (P) Limited
+  2) a) Kallam Spinning Mills Limited, b) Power division at Nelakondapalli
+  3) Kallam Brothers Cottons Private Limited
+  4) Janapadu Hydro Power Project Ltd., Nereducherla, Nalgonda District.
+  5) Agriculture Divisions at Obulanaidupalem & Kandulavaripalem.
+- Distinctions: Awarded the prestigious "UDYOG PATRA" in 1996 by the Institute of Trade and Industrial Development. Honoured with the "ALL TIME ACHIEVEMENT" award in 2002 by the East India Cotton Association, Mumbai.
+
+Director: Dr. Umasankara Reddy Movva, M.Sc., Ph.D.
+- Bio: Son of Chimpa Reddy, aged 50.
+- Education: Applied Mathematics (M.Sc., Ph.D.) from Banaras Hindu University (BHU). Research Associate in Mechanical Engineering Department, Institute of Technology, BHU.
+- Research: Published 13 papers in National and International Journals, presented papers at National/International Conferences.
+- Experience & Former Role: 25+ years academic experience. Former Professor and H.O.D. of S&H at Lakireddy Bali Reddy College of Engineering, Mylavaram.
+- Competencies & Responsibilities: Mobilizes qualified human resources, counsels students on projects and guides them to pursue studies abroad, manages native/foreign academic networks, conducts periodic pedagogy classes, manages campus discipline and exam coordination (both paper-based and online), manages institutional revenues.
+
 [ACADEMICS & INTAKE CAPACITY]
 B.Tech Seats for CSE: 540 seats available annually.
 B.Tech Seats for CSE AI-ML: 360 seats available annually.
@@ -1000,6 +1019,7 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             'who created you', 'who developed you', 'who made you', 'who built you',
             'who is your creator', 'who is your founder', 'who is amareswar',
             'address', 'location', 'phone', 'contact', 'jntu', 'naac',
+            'director', 'chairman', 'haranadha', 'umasankara', 'movva', 'kallam group',
             'hi', 'hello', 'hey', 'help', 'good morning', 'good evening', 'thanks', 'thank you'
         ];
 
