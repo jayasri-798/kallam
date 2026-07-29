@@ -1412,6 +1412,20 @@ function solve(input) {
             placeholders.push(replacement);
             return `___PLACEHOLDER_${placeholders.length - 1}___`;
         });
+
+        // 1.5. Markdown Images: ![alt](url)
+        html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+            const replacement = `<div class="mt-4 flex justify-center"><img src="${url}" alt="${alt}" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>`;
+            placeholders.push(replacement);
+            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+        });
+
+        // 1.6. Markdown Links: [text](url)
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
+            const replacement = `<a href="${url}" target="_blank" class="text-blue-400 hover:text-blue-300 underline font-semibold transition duration-150">${linkText}</a>`;
+            placeholders.push(replacement);
+            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+        });
         
         // 2. Inline code: `code`
         html = html.replace(/`([^`\n]+)`/g, (match, code) => {
