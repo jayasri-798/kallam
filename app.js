@@ -1507,7 +1507,7 @@ function solve(input) {
         scrollToBottom();
         
         const textBox = bubble.querySelector(".streaming-text-box");
-        const tokens = text.match(/[^<> \n]+|\s+|\n/g) || [];
+        const tokens = text.match(/<[^>]*>|[^< \n]+|\s+|\n/g) || [];
         let tokenIndex = 0;
         let currentRawText = "";
         
