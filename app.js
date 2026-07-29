@@ -1059,20 +1059,6 @@ Amareswar is focused on building software solutions, developing web and mobile a
         
         const indicator = showTypingIndicator();
 
-        // 2. Strict Off-Topic Guardrail Check
-        const isQueryValid = validateQueryRelevance(text);
-        if (!isQueryValid) {
-            const offTopicResponse = "I don't have any details specific to what you have asked. Please ask a campus-related or academic query.";
-            setTimeout(() => {
-                removeTypingIndicator(indicator);
-                appendStreamingBubble(offTopicResponse, () => {
-                    setLogoProcessing(false);
-                    if (voiceModeOverlayActive) vocalizeResponse(offTopicResponse);
-                });
-            }, 300);
-            return;
-        }
-
         // Retrieve relevant circulars using high-precision RAG
         const retrievedCirculars = getRelevantCircularsForQuery(text);
         
@@ -1105,20 +1091,25 @@ Amareswar is focused on building software solutions, developing web and mobile a
 You must follow these strict operational rules:
 
 1. ZERO HALLUCINATION & FACTUAL GROUNDING:
-   - You are allowed to answer queries ONLY using the verified context, official records, and real-time Firestore circulars provided to you via the RAG pipeline.
-   - Do not guess, invent, or make up any dates, statistics, placement packages, or criteria.
+   - For queries about the college (KHIT), events, circulars, hostels, principal, leadership, or administrative facts, you MUST answer ONLY using the provided records and Firestore circulars.
+   - Do not guess, invent, or extrapolate any dates, schedules, or statistics.
 
-2. UNKNOWN & IRRELEVANT DETAILS PROTOCOL:
-   - If the user asks about any matter, event, circular, off-topic question, or detail that is NOT explicitly present in the provided context documents or relevant to KHIT/academics/programming, you MUST NOT pull from other unrelated answers or repeat a default script.
-   - Instead, reply exactly with: "I don't have any details specific to what you have asked."
+2. UNKNOWN DETAILS PROTOCOL:
+   - If the user asks about a campus-related matter, specific notice, student record, exam, or detail that is NOT explicitly present in the provided context documents, reply exactly with:
+     "I don't have the specific answer you have asked."
 
-3. STRICT DIPLOMA FILTERING:
-   - If the user explicitly asks about "Diploma" or Poly-technic courses/notices, you must filter the context strictly.
-   - Provide ONLY the specific information regarding the Diploma program. Do not mix it up with, or substitute answers from, B.Tech or other unrelated branches.
+3. GENERAL ACADEMICS & PROGRAMMING CAPABILITY:
+   - If the query is related to general academics, programming/coding logic, general logic, mathematics, or conversational greetings (e.g. "hi", "how are you"), you should answer perfectly, accurately, and efficiently. Do not block these.
 
-4. TOPIC RESTRICTION & IRRELEVANT FALLBACK:
-   - If a query is off-topic, unknown, or irrelevant, reply ONLY with: "I don't have any details specific to what you have asked."
-   - Keep your responses precise, direct, and completely accurate to the provided text blocks.
+4. OFF-TOPIC OR IRRELEVANT SAFETY PROTOCOL:
+   - If a query is completely off-topic (e.g. asking about entertainment, news, movies, unrelated gossip), you MUST NOT pull from default college summaries or show college headers. Reply exactly with:
+     "I don't have the specific answer you have asked."
+
+5. STRICT DIPLOMA FILTERING:
+   - If the user query is about the "Diploma" stream, filter context strictly and do not mix B.Tech data.
+
+6. UI COMPLIANCE & NO MARKDOWN HEADERS:
+   - Do NOT output raw markdown tags like "###" in section headers. Format titles in clean plain text or bold uppercase text without hash symbols.
 
 --- KHIT COLLEGE OFFICIAL RECORDS ---
 ${KHIT_COLLEGE_INFO}
