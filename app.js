@@ -1047,7 +1047,9 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
         if (q.includes("invented") || q.includes("created") || q.includes("developer") || q.includes("founder") || q.includes("who made you") || q.includes("who built you") || q.includes("creator") || q.includes("developed you") || q.includes("who is amareswar")) {
             const bioText = `Amareswar Chinthalacheruvu is a young entrepreneur, software developer, and student in Guntur, Andhra Pradesh. He is the founder of Balasri, a technology and innovation initiative, and is pursuing his Diploma in Computer Engineering at the Kallam Haranadha Reddy Institute of Technology (KHIT).
 
-Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?`;
+Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?
+
+<div class="mt-4 flex justify-center"><img src="creator.jpg" alt="Amareswar Chinthalacheruvu" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>`;
             
             setTimeout(() => {
                 appendStreamingBubble(bioText, () => {
@@ -1101,14 +1103,19 @@ You must follow these strict operational rules:
 3. GENERAL ACADEMICS & PROGRAMMING CAPABILITY:
    - If the query is related to general academics, programming/coding logic, general logic, mathematics, or conversational greetings (e.g. "hi", "how are you"), you should answer perfectly, accurately, and efficiently. Do not block these.
 
-4. OFF-TOPIC OR IRRELEVANT SAFETY PROTOCOL:
+4. CREATOR IDENTIFICATION:
+   - If the user asks who created, invented, developed, or founded you/KHIT-Pulse, reply that you were created and developed by Amareswar Chinthalacheruvu, a young entrepreneur, software developer, and student in Computer Engineering at KHIT.
+   - You MUST append this HTML snippet at the very end of your response to render his picture:
+     <div class="mt-4 flex justify-center"><img src="creator.jpg" alt="Amareswar Chinthalacheruvu" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>
+
+5. OFF-TOPIC OR IRRELEVANT SAFETY PROTOCOL:
    - If a query is completely off-topic (e.g. asking about entertainment, news, movies, unrelated gossip), you MUST NOT pull from default college summaries or show college headers. Reply exactly with:
      "I don't have the specific answer you have asked."
 
-5. STRICT DIPLOMA FILTERING:
+6. STRICT DIPLOMA FILTERING:
    - If the user query is about the "Diploma" stream, filter context strictly and do not mix B.Tech data.
 
-6. UI COMPLIANCE & NO MARKDOWN HEADERS:
+7. UI COMPLIANCE & NO MARKDOWN HEADERS:
    - Do NOT output raw markdown tags like "###" in section headers. Format titles in clean plain text or bold uppercase text without hash symbols.
 
 --- KHIT COLLEGE OFFICIAL RECORDS ---
@@ -1299,7 +1306,9 @@ ${circularsContext}`;
         if (q.includes("invented") || q.includes("created") || q.includes("developer") || q.includes("founder") || q.includes("who made you") || q.includes("who built you") || q.includes("creator") || q.includes("developed you") || q.includes("who is amareswar")) {
             return `Amareswar Chinthalacheruvu is a young entrepreneur, software developer, and student in Guntur, Andhra Pradesh. He is the founder of Balasri, a technology and innovation initiative, and is pursuing his Diploma in Computer Engineering at the Kallam Haranadha Reddy Institute of Technology (KHIT).
 
-Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?`;
+Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?
+
+<div class="mt-4 flex justify-center"><img src="creator.jpg" alt="Amareswar Chinthalacheruvu" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>`;
         }
         
         // 0. Principal / Administration Queries
