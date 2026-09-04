@@ -349,6 +349,12 @@ Dean of Diploma (Polytechnic): Dr. D. Venkata Rao
 - Date of Joining: 06-05-2021 (May 6, 2021).
 - Leadership & Academic Administration: Oversees diploma curriculum delivery, faculty coordination, laboratory instruction, student mentorship, and academic progress across all five diploma departments: DCME, DECE, DEEE, DCE, and DME.
 
+Head of Department (HOD) - Computer Science & Engineering (CSE): Dr. G. J. Sunny Deol
+- Qualification: Ph.D.
+- Specialization: Big Data
+- Date of Joining: 14-08-2020 (August 14, 2020)
+- Leadership & Academic Administration: Oversees the flagship Department of Computer Science & Engineering (540 B.Tech seats), advanced Big Data analytics laboratories, high-performance computing centers, curriculum delivery, and Campus Recruitment Training (CRT).
+
 [ACADEMICS & INTAKE CAPACITY]
 B.Tech Seats for CSE: 540 seats available annually.
 B.Tech Seats for CSE AI-ML: 360 seats available annually.
@@ -1036,6 +1042,7 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             'address', 'location', 'phone', 'contact', 'jntu', 'naac',
             'director', 'chairman', 'haranadha', 'umasankara', 'movva', 'kallam group',
             'dean', 'venkata rao', 'd venkata rao', 'dean of diploma',
+            'sunny deol', 'sunny', 'hod', 'cse hod',
             'hi', 'hello', 'hey', 'help', 'good morning', 'good evening', 'thanks', 'thank you'
         ];
 
@@ -1092,6 +1099,14 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
         const isDeanOfDiploma = (
             q.includes("dean") || q.includes("venkata rao") || q.includes("d venkata rao") || q.includes("d. venkata rao") ||
             q.includes("dean of diploma") || q.includes("diploma dean") || q.includes("who is dean") || q.includes("diploma principal") || q.includes("diploma head")
+        );
+
+        // 4. CSE HOD Intent Check (Dr. G. J. Sunny Deol)
+        const isCseHod = (
+            q.includes("sunny deol") || q.includes("g. j. sunny deol") || q.includes("g j sunny deol") || q.includes("sunny") ||
+            ((q.includes("cse") || q.includes("computer science") || q.includes("cme")) && (q.includes("hod") || q.includes("head") || q.includes("incharge") || q.includes("in-charge") || q.includes("leader"))) ||
+            q.includes("cse hod") || q.includes("hod of cse") || q.includes("head of cse") || q.includes("head of computer science") ||
+            (q.includes("big data") && (q.includes("hod") || q.includes("professor") || q.includes("faculty") || q.includes("specialization") || q.includes("phd") || q.includes("ph.d") || q.includes("who")))
         );
 
         if (isCollegeFounder) {
@@ -1172,6 +1187,33 @@ Amareswar is focused on building software solutions, developing web and mobile a
             }, 300);
             return;
         }
+
+        if (isCseHod) {
+            const hodText = `**Head of Department (HOD) - Computer Science & Engineering (CSE):**
+**Dr. G. J. Sunny Deol, Ph.D.**
+
+- **Designation:** Professor & Head of Department (HOD), Department of CSE
+- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
+- **Highest Qualification:** **Ph.D.**
+- **Academic Specialization:** **Big Data**
+- **Date of Joining:** **14-08-2020** (August 14, 2020)
+- **Department Leadership & Research Governance:**
+  - Leads KHIT's premier engineering department with an annual intake of **540 B.Tech seats**.
+  - Directs advanced Big Data analytics laboratories, high-performance computing clusters (1000+ workstations), and Cloud Computing / AI innovation tracks.
+  - Oversees curriculum execution, faculty development, research publications, and 3rd-year Campus Recruitment Training (CRT) in competitive coding (DSA) with top tier-1 recruiters like Amazon, TCS, Infosys, and Wipro.`;
+
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
+            chatHistory.push({ role: "model", parts: [{ text: hodText }] });
+            saveChatHistoryToFirestore();
+
+            setTimeout(() => {
+                appendStreamingBubble(hodText, () => {
+                    setLogoProcessing(false);
+                    if (voiceModeOverlayActive) vocalizeResponse(hodText);
+                });
+            }, 300);
+            return;
+        }
         
         const indicator = showTypingIndicator();
 
@@ -1216,6 +1258,7 @@ CORE OPERATIONAL PRINCIPLES:
    - College Director: Dr. Umasankara Reddy Movva, M.Sc., Ph.D. (Applied Mathematics, BHU, 25+ years experience).
    - College Principal: Dr. B. S. B. Reddy.
    - Dean of Diploma (Polytechnic): Dr. D. Venkata Rao (Date of Joining: 06-05-2021 / May 6, 2021. Leads academic administration and student development for the Polytechnic Diploma programs).
+   - Head of Department (HOD) - CSE: Dr. G. J. Sunny Deol (Ph.D., Specialization: Big Data, Date of Joining: 14-08-2020. Leads the Department of Computer Science & Engineering, computing laboratories, and CRT training).
    - AI / Website Creator & Developer: Amareswar Chinthalacheruvu (young entrepreneur, software developer, and student in Computer Engineering at KHIT). When asked who invented, developed, or created you/KHIT-Pulse or for creator/developer photo, always include his photo card directly:
      <div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950 aspect-square"><img src="creator.jpg?v=3.3.3" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-full object-cover object-center hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>
 
@@ -1524,12 +1567,31 @@ Amareswar is focused on building software solutions, developing web and mobile a
   - Coordinates state-of-the-art diploma laboratory infrastructure, AP POLYCET admissions, state board compliance (SBTET), semester examinations, and lateral entry pathways (AP ECET) to B.Tech.`;
         }
 
+        // 4.6. CSE HOD Queries (Dr. G. J. Sunny Deol)
+        if (q.includes("sunny deol") || q.includes("g. j. sunny deol") || q.includes("g j sunny deol") || q.includes("sunny") ||
+            ((q.includes("cse") || q.includes("computer science") || q.includes("cme")) && (q.includes("hod") || q.includes("head") || q.includes("incharge") || q.includes("in-charge") || q.includes("leader"))) ||
+            q.includes("cse hod") || q.includes("hod of cse") || q.includes("head of cse") || q.includes("head of computer science") ||
+            (q.includes("big data") && (q.includes("hod") || q.includes("professor") || q.includes("faculty") || q.includes("specialization") || q.includes("phd") || q.includes("ph.d") || q.includes("who")))) {
+            return `**Head of Department (HOD) - Computer Science & Engineering (CSE):**
+**Dr. G. J. Sunny Deol, Ph.D.**
+
+- **Designation:** Professor & Head of Department (HOD), Department of CSE
+- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
+- **Highest Qualification:** **Ph.D.**
+- **Academic Specialization:** **Big Data**
+- **Date of Joining:** **14-08-2020** (August 14, 2020)
+- **Department Leadership & Research Governance:**
+  - Leads KHIT's premier engineering department with an annual intake of **540 B.Tech seats**.
+  - Directs advanced Big Data analytics laboratories, high-performance computing clusters (1000+ workstations), and Cloud Computing / AI innovation tracks.
+  - Oversees curriculum execution, faculty development, research publications, and 3rd-year Campus Recruitment Training (CRT) in competitive coding (DSA) with top tier-1 recruiters like Amazon, TCS, Infosys, and Wipro.`;
+        }
+
         // 5. Greetings & Assistant Introduction
         if (/^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|namaste|who are you|what can you do|help)\b/i.test(q) || q === "hi" || q === "hello" || q === "hey") {
             return `**Hello! I am KHIT-Pulse**, your autonomous AI academic assistant for **Kallam Haranadhareddy Institute of Technology (KHIT)**, Guntur.
 
 Here are key campus topics you can explore with me:
-- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, Principal Dr. B. S. B. Reddy, or Dean of Diploma Dr. D. Venkata Rao.
+- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, Principal Dr. B. S. B. Reddy, Dean of Diploma Dr. D. Venkata Rao, or CSE HOD Dr. G. J. Sunny Deol.
 - **Academic Departments & Seats:** CSE (540 seats), AI-ML (360), IT (180), ECE (180), EEE (60), Civil (30), Mechanical (30), Diploma (360), and PG.
 - **Admissions & Fees:** B.Tech convenor fees (₹41,000/yr), Diploma costs (₹75,000), JVD 100% fee reimbursement eligibility, and EAMCET/POLYCET procedures.
 - **Placements & High Packages:** Stellar 88%–94%+ placement record, highest packages up to 22 LPA and 12 LPA, 5.0 - 7.2 LPA premier average, and top MNC recruiters (TCS, Wipro, Infosys, Capgemini, Amazon).
@@ -1646,6 +1708,7 @@ What would you like to know about KHIT?`;
         if (q.includes("cse") || q.includes("computer science")) {
             return `**B.Tech in Computer Science and Engineering (CSE) at KHIT**
 
+- **Head of Department (HOD):** **Dr. G. J. Sunny Deol**, Ph.D. (Specialization: **Big Data** | Date of Joining: **14-08-2020**)
 - **Annual Intake Capacity:** **540 seats** (Largest department at KHIT).
 - **Key Focus Areas:** Full-Stack Web Development, Data Structures & Algorithms, Cloud Computing, Database Management Systems (DBMS), Operating Systems, and Cybersecurity.
 - **Laboratory Facilities:**
