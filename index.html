@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=3.2.2">
+    <link rel="stylesheet" href="styles.css?v=3.2.3">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -109,12 +109,6 @@
                 <button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold py-3.5 px-5 rounded-xl shadow-lg cursor-pointer hover:bg-slate-100 hover:scale-[1.01] transition duration-200 text-sm">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google Logo">
                     Sign in with Institutional Account
-                </button>
-                <button id="btn-apple-login" class="w-full flex items-center justify-center gap-3 bg-black text-white font-semibold py-3.5 px-5 rounded-xl border border-white/15 shadow-lg cursor-pointer hover:bg-neutral-900 hover:scale-[1.01] transition duration-200 text-sm">
-                    <svg class="w-4 h-4 fill-current mb-0.5" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.58-7.7-11.64-13.98-5.77-9.01-10.37-19.46-13.79-31.33-3.42-11.87-5.13-22.97-5.13-33.31 0-14.79 3.73-26.68 11.19-35.68 7.46-8.99 16.74-13.59 27.84-13.79 5.23 0 10.87 1.41 16.92 4.23 6.05 2.82 10.15 4.29 12.3 4.41 1.74-.24 5.92-1.74 12.54-4.51 6.62-2.77 12.35-4.08 17.19-3.92 12.51.54 22.56 5.17 30.15 13.9-10.97 6.62-16.35 15.74-16.14 27.36.21 9.34 3.72 17.15 10.53 23.42 6.81 6.28 14.86 9.87 24.15 10.78-2.6 7.82-5.71 15.75-9.34 23.79zM119.22 31.84c0-7.39 2.66-14.41 7.98-21.05 5.32-6.64 11.85-10.59 19.59-11.85.22 1.3.33 2.49.33 3.58 0 7.39-2.77 14.4-8.31 21.03-5.54 6.63-12.08 10.53-19.62 11.71-.1-.98-.16-1.94-.16-2.88z"/>
-                    </svg>
-                    Sign in with Apple
                 </button>
             </div>
             
@@ -445,59 +439,8 @@
                     </div>
                 </div>
 
-                <!-- Middle Card: AI Engine & Grounding Settings -->
-                <div class="max-w-md w-full framer-neon-card p-8 space-y-6 relative h-fit">
-                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
-                    
-                    <div class="space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-                                AI Engine & Grounding
-                            </h3>
-                            <span id="ai-engine-status-badge" class="text-[9px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
-                                Local RAG Active
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-400 leading-relaxed font-normal">
-                            KHIT-Pulse features a comprehensive local semantic RAG knowledge engine. You can optionally supply your Google AI Studio key to enable live Google Search Grounding for real-time web capabilities.
-                        </p>
-                    </div>
-
-                    <div class="space-y-3 pt-2">
-                        <label for="input-gemini-api-key" class="text-xs font-medium text-slate-300 flex items-center justify-between">
-                            <span>Google Gemini API Key</span>
-                            <span class="text-[10px] text-slate-500">Stored locally in browser</span>
-                        </label>
-                        <div class="relative">
-                            <input id="input-gemini-api-key" type="password" placeholder="Paste AIzaSy... API key" autocomplete="off" spellcheck="false" class="w-full bg-slate-950/80 border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/80 font-mono transition-colors pr-14">
-                            <button id="btn-toggle-key-visibility" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 hover:text-white transition-colors cursor-pointer">
-                                Show
-                            </button>
-                        </div>
-                        <div class="flex gap-2 pt-1">
-                            <button id="btn-save-gemini-key" type="button" class="flex-1 py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-sky-600/20 transition-all cursor-pointer flex items-center justify-center gap-1.5">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                <span>Save Key</span>
-                            </button>
-                            <button id="btn-clear-gemini-key" type="button" class="py-2 px-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 font-medium text-xs rounded-xl transition-all cursor-pointer">
-                                Clear
-                            </button>
-                        </div>
-                        <p id="gemini-key-feedback" class="text-[11px] text-slate-400 italic min-h-[1rem]"></p>
-                    </div>
-
-                    <div class="p-3 rounded-xl border border-slate-900 bg-slate-950/40 space-y-1 text-[11px] text-slate-400">
-                        <div class="font-medium text-slate-300 flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Key Privacy Notice
-                        </div>
-                        <p class="leading-relaxed text-slate-500">Your key is kept safe in client storage and is never committed to Git or exposed publicly.</p>
-                    </div>
-                </div>
-
                 <!-- Right Card: Bookmarked Notices / Quick Actions -->
-                <div class="w-full md:w-80 framer-neon-card p-8 space-y-6 relative h-fit min-h-[350px]">
+                <div class="max-w-md w-full framer-neon-card p-8 space-y-6 relative h-fit min-h-[350px]">
                     <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
                     
                     <div class="space-y-1">
@@ -592,6 +535,42 @@
                                 <p class="text-[10px] text-slate-400 font-medium mt-0.5">Full System Privileges</p>
                             </div>
                         </div>
+                    </div>
+                <!-- AI Engine & Grounding Key Settings (Admin Console Only) -->
+                <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+                    
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                        <div>
+                            <h2 class="text-lg md:text-xl font-bold text-white uppercase flex items-center gap-2.5">
+                                <span>AI Engine & Grounding Key</span>
+                                <span id="ai-engine-status-badge" class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 font-bold">Local RAG Active</span>
+                            </h2>
+                            <p class="text-xs text-slate-300 font-medium mt-0.5">Admin-only credential configuration for Gemini 1.5 Flash streaming and live Google Search Grounding.</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 pt-1 max-w-xl">
+                        <label for="input-gemini-api-key" class="text-xs font-medium text-slate-300 flex items-center justify-between">
+                            <span>Google Gemini API Key</span>
+                            <span class="text-[10px] text-slate-500">Admin credentials (never exposed to students)</span>
+                        </label>
+                        <div class="relative">
+                            <input id="input-gemini-api-key" type="password" placeholder="Paste AIzaSy... API key" autocomplete="off" spellcheck="false" class="w-full bg-slate-950/80 border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/80 font-mono transition-colors pr-14">
+                            <button id="btn-toggle-key-visibility" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 hover:text-white transition-colors cursor-pointer">
+                                Show
+                            </button>
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button id="btn-save-gemini-key" type="button" class="flex-1 py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-sky-600/20 transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>Save Key</span>
+                            </button>
+                            <button id="btn-clear-gemini-key" type="button" class="py-2 px-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 font-medium text-xs rounded-xl transition-all cursor-pointer">
+                                Clear
+                            </button>
+                        </div>
+                        <p id="gemini-key-feedback" class="text-[11px] text-slate-400 italic min-h-[1rem]"></p>
                     </div>
                 </div>
 
@@ -913,6 +892,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.3.8"></script>
+    <script type="module" src="app.js?v=3.3.9"></script>
 </body>
 </html>
