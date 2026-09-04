@@ -344,6 +344,11 @@ Director: Dr. Umasankara Reddy Movva, M.Sc., Ph.D.
 - Experience & Former Role: 25+ years academic experience. Former Professor and H.O.D. of S&H at Lakireddy Bali Reddy College of Engineering, Mylavaram.
 - Competencies & Responsibilities: Mobilizes qualified human resources, counsels students on projects and guides them to pursue studies abroad, manages native/foreign academic networks, conducts periodic pedagogy classes, manages campus discipline and exam coordination (both paper-based and online), manages institutional revenues.
 
+Dean of Diploma (Polytechnic): Dr. D. Venkata Rao
+- Designation: Dean of Diploma / Polytechnic Programs at KHIT.
+- Date of Joining: 06-05-2021 (May 6, 2021).
+- Leadership & Academic Administration: Oversees diploma curriculum delivery, faculty coordination, laboratory instruction, student mentorship, and academic progress across all five diploma departments: DCME, DECE, DEEE, DCE, and DME.
+
 [ACADEMICS & INTAKE CAPACITY]
 B.Tech Seats for CSE: 540 seats available annually.
 B.Tech Seats for CSE AI-ML: 360 seats available annually.
@@ -1030,6 +1035,7 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             'photo', 'picture', 'image', 'pic', 'who created',
             'address', 'location', 'phone', 'contact', 'jntu', 'naac',
             'director', 'chairman', 'haranadha', 'umasankara', 'movva', 'kallam group',
+            'dean', 'venkata rao', 'd venkata rao', 'dean of diploma',
             'hi', 'hello', 'hey', 'help', 'good morning', 'good evening', 'thanks', 'thank you'
         ];
 
@@ -1082,6 +1088,12 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             q.includes("ninnu evaru chesaru") || q.includes("ninnu evaru create chesaru") || q.includes("creator evaru") || q.includes("developer evaru")
         );
 
+        // 3. Dean of Diploma Intent Check (Dr. D. Venkata Rao)
+        const isDeanOfDiploma = (
+            q.includes("dean") || q.includes("venkata rao") || q.includes("d venkata rao") || q.includes("d. venkata rao") ||
+            q.includes("dean of diploma") || q.includes("diploma dean") || q.includes("who is dean") || q.includes("diploma principal") || q.includes("diploma head")
+        );
+
         if (isCollegeFounder) {
             const founderText = `**Founder and Chairman of KHIT:**
 **Sri Haranadha Reddy Kallam, M.A., B.L.**
@@ -1131,6 +1143,35 @@ Amareswar is focused on building software solutions, developing web and mobile a
             }, 300);
             return;
         }
+
+        if (isDeanOfDiploma) {
+            const deanText = `**Dean of Diploma (Polytechnic) at KHIT:**
+**Dr. D. Venkata Rao**
+
+- **Designation:** Dean of Diploma / Polytechnic Programs
+- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
+- **Date of Joining:** **06-05-2021** (May 6, 2021)
+- **Academic Governance & Leadership:**
+  - Leads academic administration, curriculum enforcement, and faculty supervision for all Polytechnic Diploma departments:
+    1. Diploma in Computer Engineering (DCME)
+    2. Diploma in Electronics & Communication Engineering (DECE)
+    3. Diploma in Electrical & Electronics Engineering (DEEE)
+    4. Diploma in Civil Engineering (DCE)
+    5. Diploma in Mechanical Engineering (DME)
+  - Coordinates state-of-the-art diploma laboratory infrastructure, AP POLYCET admissions, state board compliance (SBTET), semester examinations, and lateral entry pathways (AP ECET) to B.Tech.`;
+
+            chatHistory.push({ role: "user", parts: [{ text: text }] });
+            chatHistory.push({ role: "model", parts: [{ text: deanText }] });
+            saveChatHistoryToFirestore();
+
+            setTimeout(() => {
+                appendStreamingBubble(deanText, () => {
+                    setLogoProcessing(false);
+                    if (voiceModeOverlayActive) vocalizeResponse(deanText);
+                });
+            }, 300);
+            return;
+        }
         
         const indicator = showTypingIndicator();
 
@@ -1174,6 +1215,7 @@ CORE OPERATIONAL PRINCIPLES:
    - College Founder & Chairman: Sri Haranadha Reddy Kallam, M.A., B.L. (Founder of KHIT and Kallam Group of Industries, turnover Rs. 250 Crores, Udyog Patra awardee).
    - College Director: Dr. Umasankara Reddy Movva, M.Sc., Ph.D. (Applied Mathematics, BHU, 25+ years experience).
    - College Principal: Dr. B. S. B. Reddy.
+   - Dean of Diploma (Polytechnic): Dr. D. Venkata Rao (Date of Joining: 06-05-2021 / May 6, 2021. Leads academic administration and student development for the Polytechnic Diploma programs).
    - AI / Website Creator & Developer: Amareswar Chinthalacheruvu (young entrepreneur, software developer, and student in Computer Engineering at KHIT). When asked who invented, developed, or created you/KHIT-Pulse or for creator/developer photo, always include his photo card directly:
      <div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950 aspect-square"><img src="creator.jpg?v=3.3.3" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-full object-cover object-center hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>
 
@@ -1464,12 +1506,30 @@ Amareswar is focused on building software solutions, developing web and mobile a
 - **Office Location:** Principal's Secretariat, Ground Floor, Main Administrative Block.`;
         }
 
+        // 4.5. Dean of Diploma Queries (Dr. D. Venkata Rao)
+        if (q.includes("dean") || q.includes("venkata rao") || q.includes("d venkata rao") || q.includes("d. venkata rao") || q.includes("dean of diploma") || q.includes("diploma dean") || q.includes("who is dean") || q.includes("diploma principal") || q.includes("diploma head")) {
+            return `**Dean of Diploma (Polytechnic) at KHIT:**
+**Dr. D. Venkata Rao**
+
+- **Designation:** Dean of Diploma / Polytechnic Programs
+- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
+- **Date of Joining:** **06-05-2021** (May 6, 2021)
+- **Academic Governance & Leadership:**
+  - Leads academic administration, curriculum enforcement, and faculty supervision for all Polytechnic Diploma departments:
+    1. Diploma in Computer Engineering (DCME)
+    2. Diploma in Electronics & Communication Engineering (DECE)
+    3. Diploma in Electrical & Electronics Engineering (DEEE)
+    4. Diploma in Civil Engineering (DCE)
+    5. Diploma in Mechanical Engineering (DME)
+  - Coordinates state-of-the-art diploma laboratory infrastructure, AP POLYCET admissions, state board compliance (SBTET), semester examinations, and lateral entry pathways (AP ECET) to B.Tech.`;
+        }
+
         // 5. Greetings & Assistant Introduction
         if (/^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|namaste|who are you|what can you do|help)\b/i.test(q) || q === "hi" || q === "hello" || q === "hey") {
             return `**Hello! I am KHIT-Pulse**, your autonomous AI academic assistant for **Kallam Haranadhareddy Institute of Technology (KHIT)**, Guntur.
 
 Here are key campus topics you can explore with me:
-- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, or Principal Dr. B. S. B. Reddy.
+- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, Principal Dr. B. S. B. Reddy, or Dean of Diploma Dr. D. Venkata Rao.
 - **Academic Departments & Seats:** CSE (540 seats), AI-ML (360), IT (180), ECE (180), EEE (60), Civil (30), Mechanical (30), Diploma (360), and PG.
 - **Admissions & Fees:** B.Tech convenor fees (₹41,000/yr), Diploma costs (₹75,000), JVD 100% fee reimbursement eligibility, and EAMCET/POLYCET procedures.
 - **Placements & High Packages:** Stellar 88%–94%+ placement record, highest packages up to 22 LPA and 12 LPA, 5.0 - 7.2 LPA premier average, and top MNC recruiters (TCS, Wipro, Infosys, Capgemini, Amazon).
@@ -1653,6 +1713,7 @@ What would you like to know about KHIT?`;
         if (q.includes("diploma") || q.includes("polytechnic") || q.includes("polycet")) {
             return `**Polytechnic Diploma Programs at KHIT**
 
+- **Dean of Diploma:** **Dr. D. Venkata Rao** (Date of Joining: **06-05-2021**)
 - **Total Annual Intake:** **360 seats** across engineering branches:
   - Diploma in Computer Engineering (DCME)
   - Diploma in Electronics & Communication Engineering (DECE)
