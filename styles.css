@@ -309,9 +309,19 @@ html, body {
 /* --- Official KHIT Logo Animations and Micro-Interactions --- */
 .khit-logo-float-wrapper {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     animation: logo-float-premium 3.8s cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
     will-change: transform;
     transform: translateZ(0);
+}
+
+#login-screen .khit-logo-float-wrapper {
+    display: flex !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 .khit-logo-container {

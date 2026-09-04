@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=3.1.0">
+    <link rel="stylesheet" href="styles.css?v=3.2.0">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -75,25 +75,34 @@
             <!-- Subtle sapphire accent line -->
             <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500/70 to-transparent"></div>
             
-            <div class="space-y-4">
-                <div class="inline-flex items-center justify-center gap-2 px-3.5 py-1 rounded-full bg-sky-500/10 border border-sky-400/25 text-[10px] font-semibold text-sky-400 tracking-wider uppercase mb-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Official Campus Intelligence
-                </div>
-                
-                <div class="khit-logo-float-wrapper my-2">
-                    <div class="khit-logo-container logo-size-lg mx-auto shadow-lg">
-                        <div class="khit-logo-outer">
-                            <img src="khit logo.png" alt="KHIT Crest" class="khit-logo-img">
-                        </div>
-                        <div class="khit-logo-inner">
-                            <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
+            <div class="flex flex-col items-center justify-center text-center space-y-4">
+                <!-- KHIT Animated Brand Logo Crest (Dead Center) -->
+                <div class="w-full flex justify-center items-center pt-1 pb-1">
+                    <div class="khit-logo-float-wrapper flex justify-center items-center">
+                        <div class="khit-logo-container logo-size-lg shadow-xl">
+                            <div class="khit-logo-outer">
+                                <img src="khit logo.png" alt="KHIT Crest" class="khit-logo-img">
+                            </div>
+                            <div class="khit-logo-inner">
+                                <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white">KHIT-Pulse</h1>
-                <p class="text-slate-400 text-xs max-w-xs mx-auto leading-relaxed font-normal">Autonomous campus portal for notices, examinations, curriculum, and institutional knowledge.</p>
+                <!-- Official Campus Intelligence Badge (Dead Center) -->
+                <div class="w-full flex justify-center items-center">
+                    <div class="inline-flex items-center justify-center gap-2 px-3.5 py-1 rounded-full bg-sky-500/10 border border-sky-400/25 text-[10px] font-semibold text-sky-400 tracking-wider uppercase">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Official Campus Intelligence
+                    </div>
+                </div>
+
+                <!-- Title & Description (Dead Center) -->
+                <div class="w-full text-center space-y-2">
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white">KHIT-Pulse</h1>
+                    <p class="text-slate-400 text-xs max-w-xs mx-auto leading-relaxed font-normal">Autonomous campus portal for notices, examinations, curriculum, and institutional knowledge.</p>
+                </div>
             </div>
             
             <div class="pt-2 space-y-3">
@@ -898,6 +907,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.3.5"></script>
+    <script type="module" src="app.js?v=3.3.6"></script>
 </body>
 </html>
