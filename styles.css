@@ -473,14 +473,48 @@ html, body {
     border-color: var(--accent-cyan) !important;
 }
 
-/* Voice Mode Overlay transitions */
+/* Voice Mode Overlay transitions & Professional Elevation */
 #voice-overlay {
     transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    background: radial-gradient(circle at 50% 25%, rgba(31, 213, 249, 0.08) 0%, transparent 65%), radial-gradient(circle at 50% 85%, rgba(37, 99, 235, 0.06) 0%, transparent 60%), #05070d !important;
 }
 
 #voice-overlay.voice-overlay-active {
     opacity: 1 !important;
     visibility: visible !important;
+}
+
+.voice-transcript-panel {
+    background: rgba(13, 17, 26, 0.85) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+#voice-overlay-captions {
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.5) !important;
+}
+
+#voice-overlay-captions::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+#voice-overlay-captions::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5) !important;
+    border-radius: 9999px !important;
+}
+
+#voice-overlay-captions::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.4) !important;
+    border-radius: 9999px !important;
+}
+
+#voice-overlay-captions::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.7) !important;
 }
 
 /* Flat white sign in button with subtle outer border that expands/grows on hover */

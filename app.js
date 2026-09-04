@@ -1183,6 +1183,10 @@ ${circularsContext}`;
         
         let activeSystemInstruction = systemInstruction;
         if (voiceModeOverlayActive) {
+            if (voiceOverlayCaptions) {
+                voiceOverlayCaptions.innerHTML = `<div class="p-3.5 bg-sky-950/40 border border-sky-500/25 rounded-2xl mb-3"><div class="text-[11px] font-semibold uppercase tracking-wider text-sky-400 mb-1 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>You Asked</div><p class="text-slate-100 text-sm font-medium">"${text}"</p></div><div class="flex items-center gap-2.5 text-slate-400 text-xs py-2 px-1"><span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span><span>Analyzing academic records & verified ground truth...</span></div>`;
+                voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
+            }
             const langSelector = document.getElementById("sel-voice-lang");
             if (langSelector && langSelector.value === "te-IN") {
                 activeSystemInstruction += `\n\n5. LANGUAGE REQUIREMENT: You MUST answer the user's query in TELUGU language only. Translate all explanations, college statistics, admissions metadata, and circular details into natural, clear Telugu text. Do not use English letters; respond purely in Telugu text so it can be synthesized correctly.`;
@@ -1506,7 +1510,7 @@ function solve(input) {
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
-            const replacement = `<div class="my-3 p-4 rounded-xl bg-slate-950/80 border border-slate-900 font-mono text-xs overflow-x-auto text-[#5aa2fa] whitespace-pre-wrap"><pre><code>${escapedCode}</code></pre></div>`;
+            const replacement = `<div class="my-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800 font-mono text-xs overflow-x-auto text-sky-400 whitespace-pre-wrap"><pre><code>${escapedCode}</code></pre></div>`;
             placeholders.push(replacement);
             return `___PLACEHOLDER_${placeholders.length - 1}___`;
         });
@@ -1520,7 +1524,7 @@ function solve(input) {
 
         // 1.6. Markdown Links: [text](url)
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
-            const replacement = `<a href="${url}" target="_blank" class="text-blue-400 hover:text-blue-300 underline font-semibold transition duration-150">${linkText}</a>`;
+            const replacement = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:text-sky-300 underline font-semibold transition duration-150">${linkText}</a>`;
             placeholders.push(replacement);
             return `___PLACEHOLDER_${placeholders.length - 1}___`;
         });
@@ -1531,42 +1535,157 @@ function solve(input) {
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
-            const replacement = `<code class="px-1.5 py-0.5 rounded bg-slate-950/80 border border-slate-900 font-mono text-xs text-[#5aa2fa]">${escapedCode}</code>`;
+            const replacement = `<code class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 font-mono text-xs text-sky-300">${escapedCode}</code>`;
             placeholders.push(replacement);
             return `___PLACEHOLDER_${placeholders.length - 1}___`;
         });
         
-        // 3. Bold text: **text**
-        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-        
-        // 4. Bullet points: list generation
+        // 3. Bold text: **text** or __text__
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold text-white">$1</strong>');
+        html = html.replace(/__([^_]+)__/g, '<strong class="font-semibold text-white">$1</strong>');
+
+        // 3.5 Italics: *text* (single asterisk)
+        html = html.replace(/(^|[^*])\*([^*]+)\*([^*]|$)/g, '$1<em class="italic text-slate-300">$2</em>$3');
+
+        // 4. Line-by-line processing for Headings, Lists, Blockquotes, HR, and Tables
         const lines = html.split('\n');
-        let inList = false;
+        let inUlList = false;
+        let inOlList = false;
+        let inTable = false;
+        let tableHeaderDone = false;
         const resultLines = [];
         
-        for (let line of lines) {
-            const listMatch = line.match(/^(\s*)[*+-]\s+(.*)$/);
-            if (listMatch) {
-                if (!inList) {
-                    resultLines.push('<ul class="list-disc pl-5 my-2 space-y-1">');
-                    inList = true;
-                }
-                resultLines.push(`<li>${listMatch[2]}</li>`);
-            } else {
-                if (inList) {
-                    resultLines.push('</ul>');
-                    inList = false;
-                }
-                resultLines.push(line);
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+            const trimmed = line.trim();
+
+            // Check for horizontal rule
+            if (/^(?:---|\*\*\*|___)$/.test(trimmed)) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                if (inTable) { resultLines.push('</tbody></table></div>'); inTable = false; }
+                resultLines.push('<hr class="my-3 border-slate-800/80">');
+                continue;
             }
+
+            // Check for Headings: ####, ###, ##, #
+            const h4Match = line.match(/^####\s+(.*)$/);
+            const h3Match = line.match(/^###\s+(.*)$/);
+            const h2Match = line.match(/^##\s+(.*)$/);
+            const h1Match = line.match(/^#\s+(.*)$/);
+
+            if (h4Match) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                resultLines.push(`<h4 class="text-sm font-semibold text-slate-200 mt-3 mb-1 tracking-tight">${h4Match[1]}</h4>`);
+                continue;
+            }
+            if (h3Match) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                resultLines.push(`<h3 class="text-base font-bold text-white mt-3.5 mb-1.5 tracking-tight flex items-center gap-2"><span class="w-1.5 h-3.5 bg-sky-400 rounded-full inline-block shrink-0"></span><span>${h3Match[1]}</span></h3>`);
+                continue;
+            }
+            if (h2Match) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                resultLines.push(`<h2 class="text-lg font-bold text-white mt-4 mb-2 tracking-tight flex items-center gap-2.5"><span class="w-2 h-4 bg-blue-500 rounded-full inline-block shrink-0"></span><span>${h2Match[1]}</span></h2>`);
+                continue;
+            }
+            if (h1Match) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                resultLines.push(`<h1 class="text-xl font-bold text-white mt-4 mb-2 tracking-tight">${h1Match[1]}</h1>`);
+                continue;
+            }
+
+            // Check for Blockquote
+            const bqMatch = line.match(/^>\s+(.*)$/);
+            if (bqMatch) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                resultLines.push(`<blockquote class="border-l-2 border-sky-500 pl-3 my-2 text-slate-300 text-xs italic bg-slate-900/30 py-1.5 rounded-r">${bqMatch[1]}</blockquote>`);
+                continue;
+            }
+
+            // Check for Table Row
+            if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+
+                // Check if divider row (e.g. |---|---|)
+                if (/^\|(?:\s*:?-+:?\s*\|)+$/.test(trimmed)) {
+                    tableHeaderDone = true;
+                    continue;
+                }
+
+                const cells = trimmed.split('|').slice(1, -1).map(c => c.trim());
+                if (!inTable) {
+                    inTable = true;
+                    tableHeaderDone = false;
+                    resultLines.push('<div class="overflow-x-auto my-3 rounded-xl border border-slate-800 bg-slate-950/50"><table class="w-full text-xs text-left">');
+                    resultLines.push('<thead class="bg-slate-900/80 text-slate-300 font-semibold border-b border-slate-800"><tr>');
+                    cells.forEach(c => resultLines.push(`<th class="px-3.5 py-2.5">${c}</th>`));
+                    resultLines.push('</tr></thead><tbody class="divide-y divide-slate-800/60">');
+                } else {
+                    resultLines.push('<tr class="hover:bg-slate-900/40 transition">');
+                    cells.forEach(c => resultLines.push(`<td class="px-3.5 py-2 text-slate-300">${c}</td>`));
+                    resultLines.push('</tr>');
+                }
+                continue;
+            } else if (inTable) {
+                resultLines.push('</tbody></table></div>');
+                inTable = false;
+            }
+
+            // Check for Bullet points: [•*+-]
+            const ulMatch = line.match(/^(\s*)[•*+-]\s+(.*)$/);
+            if (ulMatch) {
+                if (inOlList) { resultLines.push('</ol>'); inOlList = false; }
+                if (!inUlList) {
+                    resultLines.push('<ul class="list-disc pl-5 my-2 space-y-1.5 text-slate-200">');
+                    inUlList = true;
+                }
+                resultLines.push(`<li>${ulMatch[2]}</li>`);
+                continue;
+            }
+
+            // Check for Numbered lists: 1. , 2. 
+            const olMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
+            if (olMatch) {
+                if (inUlList) { resultLines.push('</ul>'); inUlList = false; }
+                if (!inOlList) {
+                    resultLines.push('<ol class="list-decimal pl-5 my-2 space-y-1.5 text-slate-200">');
+                    inOlList = true;
+                }
+                resultLines.push(`<li>${olMatch[2]}</li>`);
+                continue;
+            }
+
+            // Regular line
+            if (inUlList) {
+                resultLines.push('</ul>');
+                inUlList = false;
+            }
+            if (inOlList) {
+                resultLines.push('</ol>');
+                inOlList = false;
+            }
+
+            resultLines.push(line);
         }
-        if (inList) {
-            resultLines.push('</ul>');
-        }
+
+        if (inUlList) resultLines.push('</ul>');
+        if (inOlList) resultLines.push('</ol>');
+        if (inTable) resultLines.push('</tbody></table></div>');
+
         html = resultLines.join('\n');
         
-        // 5. Line breaks: replace single \n with <br>
+        // 5. Line breaks: replace single \n with <br> for non-tag lines
         html = html.replace(/\n/g, '<br>');
+        // Clean up redundant breaks after block elements
+        html = html.replace(/(<\/(?:ul|ol|table|div|blockquote|h1|h2|h3|h4|hr)>)<br>/gi, '$1');
+        html = html.replace(/<br>(<(?:ul|ol|table|div|blockquote|h1|h2|h3|h4|hr))/gi, '$1');
         
         // Restore placeholders
         for (let i = placeholders.length - 1; i >= 0; i--) {
@@ -1633,11 +1752,15 @@ function solve(input) {
                 if (textBox) textBox.innerHTML = parsedHtml;
                 if (voiceModeOverlayActive && voiceOverlayCaptions) {
                     voiceOverlayCaptions.innerHTML = parsedHtml;
+                    voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
                 }
                 tokenIndex++;
                 scrollToBottom();
             } else {
                 clearInterval(timer);
+                if (voiceModeOverlayActive && voiceOverlayCaptions) {
+                    voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
+                }
                 if (onComplete) onComplete();
             }
         }, 20);
@@ -1742,24 +1865,21 @@ function solve(input) {
         }
 
         if (voiceStatusIndicator) {
-            voiceStatusIndicator.className = "font-bold transition duration-200 uppercase text-slate-500";
-            
             if (voiceMicMuted || state === 'muted') {
-                voiceStatusIndicator.textContent = "Muted";
-                voiceStatusIndicator.classList.remove("text-slate-500");
-                voiceStatusIndicator.classList.add("text-rose-500");
+                voiceStatusIndicator.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 transition duration-200";
+                voiceStatusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span><span>Mic Muted</span>';
             } else if (state === 'listening') {
-                voiceStatusIndicator.textContent = "Listening";
-                voiceStatusIndicator.classList.remove("text-slate-500");
-                voiceStatusIndicator.classList.add("text-emerald-400");
+                voiceStatusIndicator.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition duration-200";
+                voiceStatusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Listening...</span>';
             } else if (state === 'speaking') {
-                voiceStatusIndicator.textContent = "Speaking";
-                voiceStatusIndicator.classList.remove("text-slate-500");
-                voiceStatusIndicator.classList.add("text-[#1FD5F9]");
+                voiceStatusIndicator.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20 transition duration-200";
+                voiceStatusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-ping"></span><span>Speaking...</span>';
+            } else if (state === 'thinking' || state === 'processing') {
+                voiceStatusIndicator.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 transition duration-200";
+                voiceStatusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span><span>Processing...</span>';
             } else {
-                voiceStatusIndicator.textContent = "Processing";
-                voiceStatusIndicator.classList.remove("text-slate-500");
-                voiceStatusIndicator.classList.add("text-purple-400");
+                voiceStatusIndicator.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-800/80 text-slate-400 border border-slate-700/50 transition duration-200";
+                voiceStatusIndicator.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span><span>Idle</span>';
             }
         }
 
@@ -1831,7 +1951,12 @@ function solve(input) {
                 capturedSpeechText = finalTrans || currentText;
                 
                 if (voiceOverlayCaptions) {
-                    voiceOverlayCaptions.textContent = currentText || "Listening... Start speaking.";
+                    if (currentText) {
+                        voiceOverlayCaptions.innerHTML = `<div class="p-3.5 bg-sky-950/40 border border-sky-500/25 rounded-2xl mb-3"><div class="text-[11px] font-semibold uppercase tracking-wider text-sky-400 mb-1 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>You Spoke</div><p class="text-slate-100 text-sm font-medium italic">"${currentText}"</p></div>`;
+                    } else {
+                        voiceOverlayCaptions.innerHTML = `<div class="text-center text-slate-400 py-6"><p class="text-base text-slate-200 font-medium">Listening for your voice...</p><p class="text-xs text-slate-400 mt-1.5">Speak clearly into your microphone.</p></div>`;
+                    }
+                    voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
                 }
             };
 
@@ -2115,7 +2240,7 @@ function solve(input) {
             }
             
             if (voiceOverlayCaptions) {
-                voiceOverlayCaptions.textContent = 'Opening audio channel...';
+                voiceOverlayCaptions.innerHTML = '<div class="text-center text-slate-400 py-6"><p class="text-base text-slate-200 font-medium">Listening for your voice...</p><p class="text-xs text-slate-400 mt-1.5">Ask about KHIT principal, placements, founder, exams, circulars, or fees.</p></div>';
             }
             
             window.speechSynthesis.cancel();
@@ -2276,12 +2401,14 @@ function solve(input) {
         btnVoiceMute.addEventListener("click", () => {
             voiceMicMuted = !voiceMicMuted;
             if (voiceMicMuted) {
-                btnVoiceMute.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> Unmute Mic`;
+                btnVoiceMute.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span><span>Unmute Mic</span>`;
+                btnVoiceMute.classList.add("text-rose-400", "border-rose-500/30");
                 setMicState('muted');
                 stopPassiveWakeListener();
                 stopActiveQueryCapture();
             } else {
-                btnVoiceMute.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Mute Mic`;
+                btnVoiceMute.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>Mute Mic</span>`;
+                btnVoiceMute.classList.remove("text-rose-400", "border-rose-500/30");
                 startActiveQueryCapture();
             }
         });
@@ -2293,7 +2420,18 @@ function solve(input) {
         });
     }
 
-
+    const voiceAuraVisEl = document.getElementById("voice-aura-visualizer");
+    if (voiceAuraVisEl) {
+        voiceAuraVisEl.addEventListener("click", () => {
+            if (voiceModeOverlayActive) {
+                // Click interrupts AI narration and returns to listening mode
+                window.speechSynthesis.cancel();
+                stopActiveAudio();
+                showToast("Speech interrupted. Listening...");
+                triggerWakeActivation();
+            }
+        });
+    }
 
     if (voiceLogoContainer) {
         voiceLogoContainer.addEventListener("click", () => {
