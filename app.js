@@ -1026,6 +1026,8 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             'it', 'ai', 'ml', 'mca', 'mba', 'mtech', 'who invented you',
             'who created you', 'who developed you', 'who made you', 'who built you',
             'who is your creator', 'who is your founder', 'who is amareswar',
+            'creator', 'developer', 'project', 'website', 'bot', 'maker', 'coded',
+            'photo', 'picture', 'image', 'pic', 'who created',
             'address', 'location', 'phone', 'contact', 'jntu', 'naac',
             'director', 'chairman', 'haranadha', 'umasankara', 'movva', 'kallam group',
             'hi', 'hello', 'hey', 'help', 'good morning', 'good evening', 'thanks', 'thank you'
@@ -1064,11 +1066,20 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             q.includes("invented you") || q.includes("created you") || q.includes("developed you") ||
             q.includes("who made you") || q.includes("who built you") || q.includes("who programmed you") ||
             q.includes("who is your creator") || q.includes("who is your developer") || q.includes("who is your founder") ||
-            q.includes("creator of this project") || q.includes("creator of project") || q.includes("who created this website") ||
-            q.includes("who built this website") || q.includes("who developed this website") ||
+            q.includes("creator of this project") || q.includes("creator of project") || q.includes("who created this project") ||
+            q.includes("who developed this project") || q.includes("who built this project") ||
+            q.includes("who created this website") || q.includes("who built this website") || q.includes("who developed this website") ||
+            q.includes("who created this bot") || q.includes("who built this bot") || q.includes("who developed this bot") ||
+            q.includes("who created khit-pulse") || q.includes("who created khit pulse") ||
+            q.includes("who designed you") || q.includes("who coded you") || q.includes("who is your maker") ||
             q.includes("who is amareswar") || q.includes("amareswar chinthalacheruvu") || q.includes("tell me about amareswar") ||
+            q.includes("creator photo") || q.includes("creator pic") || q.includes("creator picture") || q.includes("creator image") ||
+            q.includes("developer photo") || q.includes("developer pic") || q.includes("developer picture") || q.includes("developer image") ||
+            q.includes("amareswar photo") || q.includes("amareswar pic") ||
+            q.includes("show creator") || q.includes("show developer") ||
             (q.includes("creator") && !q.includes("college") && !q.includes("god")) ||
-            (q.includes("developer") && !q.includes("college"))
+            (q.includes("developer") && !q.includes("college")) ||
+            q.includes("ninnu evaru chesaru") || q.includes("ninnu evaru create chesaru") || q.includes("creator evaru") || q.includes("developer evaru")
         );
 
         if (isCollegeFounder) {
@@ -1101,11 +1112,12 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
         }
 
         if (isProjectCreator) {
-            const bioText = `Amareswar Chinthalacheruvu is a young entrepreneur, software developer, and student in Guntur, Andhra Pradesh. He is the founder of Balasri, a technology and innovation initiative, and is pursuing his Diploma in Computer Engineering at the Kallam Haranadha Reddy Institute of Technology (KHIT).
+            const bioText = `**Creator & Developer of KHIT-Pulse:**
+**Amareswar Chinthalacheruvu** is a young entrepreneur, software developer, and student in Guntur, Andhra Pradesh. He is the founder of Balasri, a technology and innovation initiative, and is pursuing his Diploma in Computer Engineering at the Kallam Haranadha Reddy Institute of Technology (KHIT).
 
 Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?
 
-<div class="mt-4 flex justify-center"><img src="creator.jpg" alt="Amareswar Chinthalacheruvu" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>`;
+<div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950"><img src="creator.jpg?v=3.3.2" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-80 sm:h-96 object-cover object-top hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>`;
             
             chatHistory.push({ role: "user", parts: [{ text: text }] });
             chatHistory.push({ role: "model", parts: [{ text: bioText }] });
@@ -1162,8 +1174,8 @@ CORE OPERATIONAL PRINCIPLES:
    - College Founder & Chairman: Sri Haranadha Reddy Kallam, M.A., B.L. (Founder of KHIT and Kallam Group of Industries, turnover Rs. 250 Crores, Udyog Patra awardee).
    - College Director: Dr. Umasankara Reddy Movva, M.Sc., Ph.D. (Applied Mathematics, BHU, 25+ years experience).
    - College Principal: Dr. B. S. B. Reddy.
-   - AI / Website Creator & Developer: Amareswar Chinthalacheruvu (young entrepreneur, software developer, and student in Computer Engineering at KHIT). When asked who invented or developed you/KHIT-Pulse, always include his photo card:
-     <div class="mt-4 flex justify-center"><img src="creator.jpg" alt="Amareswar Chinthalacheruvu" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>
+   - AI / Website Creator & Developer: Amareswar Chinthalacheruvu (young entrepreneur, software developer, and student in Computer Engineering at KHIT). When asked who invented, developed, or created you/KHIT-Pulse or for creator/developer photo, always include his photo card directly:
+     <div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950"><img src="creator.jpg?v=3.3.2" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-80 sm:h-96 object-cover object-top hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>
 
 3. RAG PIPELINE PRIORITY FOR COLLEGE RECORDS:
    - For any KHIT campus-specific queries (courses, admissions, fees, hostel, placements, circulars, rules, exams), treat the provided institutional records and live circulars as the authoritative PRIMARY ground truth.
@@ -1382,11 +1394,20 @@ ${circularsContext}`;
             q.includes("invented you") || q.includes("created you") || q.includes("developed you") ||
             q.includes("who made you") || q.includes("who built you") || q.includes("who programmed you") ||
             q.includes("who is your creator") || q.includes("who is your developer") || q.includes("who is your founder") ||
-            q.includes("creator of this project") || q.includes("creator of project") || q.includes("who created this website") ||
-            q.includes("who built this website") || q.includes("who developed this website") ||
+            q.includes("creator of this project") || q.includes("creator of project") || q.includes("who created this project") ||
+            q.includes("who developed this project") || q.includes("who built this project") ||
+            q.includes("who created this website") || q.includes("who built this website") || q.includes("who developed this website") ||
+            q.includes("who created this bot") || q.includes("who built this bot") || q.includes("who developed this bot") ||
+            q.includes("who created khit-pulse") || q.includes("who created khit pulse") ||
+            q.includes("who designed you") || q.includes("who coded you") || q.includes("who is your maker") ||
             q.includes("who is amareswar") || q.includes("amareswar chinthalacheruvu") || q.includes("tell me about amareswar") ||
+            q.includes("creator photo") || q.includes("creator pic") || q.includes("creator picture") || q.includes("creator image") ||
+            q.includes("developer photo") || q.includes("developer pic") || q.includes("developer picture") || q.includes("developer image") ||
+            q.includes("amareswar photo") || q.includes("amareswar pic") ||
+            q.includes("show creator") || q.includes("show developer") ||
             (q.includes("creator") && !q.includes("college") && !q.includes("god")) ||
-            (q.includes("developer") && !q.includes("college"))
+            (q.includes("developer") && !q.includes("college")) ||
+            q.includes("ninnu evaru chesaru") || q.includes("ninnu evaru create chesaru") || q.includes("creator evaru") || q.includes("developer evaru")
         );
 
         if (isProjectCreator) {
@@ -1395,7 +1416,7 @@ ${circularsContext}`;
 
 Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?
 
-<div class="mt-4 flex justify-center"><img src="creator.jpg" alt="Amareswar Chinthalacheruvu" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>`;
+<div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950"><img src="creator.jpg?v=3.3.2" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-80 sm:h-96 object-cover object-top hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>`;
         }
 
         // 2. College Founder / Chairman / Patron Queries (Sri Haranadha Reddy Kallam)
@@ -1888,7 +1909,7 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
 
         // 1.5. Markdown Images: ![alt](url)
         html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
-            const replacement = `<div class="mt-4 flex justify-center"><img src="${url}" alt="${alt}" class="w-48 h-56 rounded-2xl border border-slate-800/80 object-cover shadow-2xl"></div>`;
+            const replacement = `<div class="mt-4 flex justify-center"><img src="${url}" alt="${alt}" class="w-56 sm:w-64 h-72 sm:h-80 rounded-2xl border-2 border-sky-500/30 object-cover object-top shadow-2xl" loading="eager"></div>`;
             placeholders.push(replacement);
             return `___PLACEHOLDER_${placeholders.length - 1}___`;
         });
