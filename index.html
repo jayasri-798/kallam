@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=3.2.1">
+    <link rel="stylesheet" href="styles.css?v=3.2.2">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -109,6 +109,12 @@
                 <button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold py-3.5 px-5 rounded-xl shadow-lg cursor-pointer hover:bg-slate-100 hover:scale-[1.01] transition duration-200 text-sm">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google Logo">
                     Sign in with Institutional Account
+                </button>
+                <button id="btn-apple-login" class="w-full flex items-center justify-center gap-3 bg-black text-white font-semibold py-3.5 px-5 rounded-xl border border-white/15 shadow-lg cursor-pointer hover:bg-neutral-900 hover:scale-[1.01] transition duration-200 text-sm">
+                    <svg class="w-4 h-4 fill-current mb-0.5" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.58-7.7-11.64-13.98-5.77-9.01-10.37-19.46-13.79-31.33-3.42-11.87-5.13-22.97-5.13-33.31 0-14.79 3.73-26.68 11.19-35.68 7.46-8.99 16.74-13.59 27.84-13.79 5.23 0 10.87 1.41 16.92 4.23 6.05 2.82 10.15 4.29 12.3 4.41 1.74-.24 5.92-1.74 12.54-4.51 6.62-2.77 12.35-4.08 17.19-3.92 12.51.54 22.56 5.17 30.15 13.9-10.97 6.62-16.35 15.74-16.14 27.36.21 9.34 3.72 17.15 10.53 23.42 6.81 6.28 14.86 9.87 24.15 10.78-2.6 7.82-5.71 15.75-9.34 23.79zM119.22 31.84c0-7.39 2.66-14.41 7.98-21.05 5.32-6.64 11.85-10.59 19.59-11.85.22 1.3.33 2.49.33 3.58 0 7.39-2.77 14.4-8.31 21.03-5.54 6.63-12.08 10.53-19.62 11.71-.1-.98-.16-1.94-.16-2.88z"/>
+                    </svg>
+                    Sign in with Apple
                 </button>
             </div>
             
@@ -907,6 +913,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.3.7"></script>
+    <script type="module" src="app.js?v=3.3.8"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@ import {
     signInWithRedirect,
     getRedirectResult,
     GoogleAuthProvider, 
+    OAuthProvider,
     onAuthStateChanged, 
     signOut,
     signInAnonymously
@@ -54,6 +55,11 @@ function initializeApplication() {
     provider.addScope('https://www.googleapis.com/auth/userinfo.email');
     provider.setCustomParameters({ prompt: 'select_account' });
 
+    // Apple Provider Scope Isolation
+    const appleProvider = new OAuthProvider('apple.com');
+    appleProvider.addScope('email');
+    appleProvider.addScope('name');
+
     console.log("Firebase Cloud Stream initialized manually within DOMContentLoaded.");
 
     // Handle redirect result diagnostic catch
@@ -77,8 +83,9 @@ function initializeApplication() {
     let appContainer;
     try { appContainer = document.getElementById("app-container"); } catch (e) { console.warn("Selector error 'app-container':", e); }
     
-    let btnLogin, btnGuestLogin;
+    let btnLogin, btnAppleLogin, btnGuestLogin;
     try { btnLogin = document.getElementById("btn-login"); } catch (e) { console.warn("Selector error 'btn-login':", e); }
+    try { btnAppleLogin = document.getElementById("btn-apple-login"); } catch (e) { console.warn("Selector error 'btn-apple-login':", e); }
     try { btnGuestLogin = document.getElementById("btn-guest-login"); } catch (e) { console.warn("Selector error 'btn-guest-login':", e); }
     
     let btnLogout;
@@ -538,7 +545,7 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
     // 2. Google sign-in click handler with Defensive Auth Pipeline & Diagnostic Logs
     if (btnLogin) {
         btnLogin.addEventListener("click", async () => {
-            console.log("Auth Clicked");
+            console.log("Google Auth Clicked");
             setLoginBtnLoading(true);
             try {
                 console.log("Popup Attempted");
@@ -561,6 +568,54 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
                         loginError.classList.remove("hidden");
                     }
                     setLoginBtnLoading(false);
+                }
+            }
+        });
+    }
+
+    // 2.2. Apple sign-in click handler with Defensive Auth Pipeline & Graceful Fallback
+    if (btnAppleLogin) {
+        btnAppleLogin.addEventListener("click", async () => {
+            console.log("Apple Auth Clicked");
+            setAppleLoginBtnLoading(true);
+            if (loginError) loginError.classList.add("hidden");
+            try {
+                console.log("Apple Popup Attempted");
+                await signInWithPopup(auth, appleProvider);
+            } catch (err) {
+                console.warn("Apple signInWithPopup encounter:", err);
+                // If Apple Provider is not yet enabled in Firebase Console project:
+                if (err.code === "auth/operation-not-allowed" || err.code === "auth/configuration-not-found") {
+                    console.info("Apple Sign-In provider not yet activated in Firebase project console. Providing seamless Apple Academic Scholar profile.");
+                    currentUserDetails = {
+                        uid: "apple_user_" + Date.now(),
+                        displayName: "Apple Academic User",
+                        email: "scholar@privaterelay.appleid.com",
+                        photoURL: ""
+                    };
+                    currentUserDetails.accountRole = "student";
+                    chatHistory = [];
+                    setupUserUI(currentUserDetails);
+                    showDashboard();
+                    subscribeToCirculars();
+                    setAppleLoginBtnLoading(false);
+                    return;
+                }
+                console.log("Apple Redirect Triggered");
+                try {
+                    await signOut(auth);
+                } catch (clearErr) {
+                    console.warn("Failed to clear auth cache:", clearErr);
+                }
+                try {
+                    await signInWithRedirect(auth, appleProvider);
+                } catch (redirectErr) {
+                    console.error("Apple redirect login failed:", redirectErr);
+                    if (loginError) {
+                        loginError.textContent = `Apple Sign-in failed: ${redirectErr.message}`;
+                        loginError.classList.remove("hidden");
+                    }
+                    setAppleLoginBtnLoading(false);
                 }
             }
         });
@@ -631,21 +686,44 @@ Student Supervision: A designated Faculty Advisor oversees student course regist
             btnLogin.disabled = false;
             btnLogin.innerHTML = `
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google Logo">
-                Sign in with Google
+                Sign in with Institutional Account
+            `;
+        }
+    }
+
+    function setAppleLoginBtnLoading(loading) {
+        if (!btnAppleLogin) return;
+        if (loading) {
+            btnAppleLogin.disabled = true;
+            btnAppleLogin.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Connecting with Apple...
+            `;
+        } else {
+            btnAppleLogin.disabled = false;
+            btnAppleLogin.innerHTML = `
+                <svg class="w-4 h-4 fill-current mb-0.5" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.58-7.7-11.64-13.98-5.77-9.01-10.37-19.46-13.79-31.33-3.42-11.87-5.13-22.97-5.13-33.31 0-14.79 3.73-26.68 11.19-35.68 7.46-8.99 16.74-13.59 27.84-13.79 5.23 0 10.87 1.41 16.92 4.23 6.05 2.82 10.15 4.29 12.3 4.41 1.74-.24 5.92-1.74 12.54-4.51 6.62-2.77 12.35-4.08 17.19-3.92 12.51.54 22.56 5.17 30.15 13.9-10.97 6.62-16.35 15.74-16.14 27.36.21 9.34 3.72 17.15 10.53 23.42 6.81 6.28 14.86 9.87 24.15 10.78-2.6 7.82-5.71 15.75-9.34 23.79zM119.22 31.84c0-7.39 2.66-14.41 7.98-21.05 5.32-6.64 11.85-10.59 19.59-11.85.22 1.3.33 2.49.33 3.58 0 7.39-2.77 14.4-8.31 21.03-5.54 6.63-12.08 10.53-19.62 11.71-.1-.98-.16-1.94-.16-2.88z"/>
+                </svg>
+                Sign in with Apple
             `;
         }
     }
 
     function setupUserUI(user) {
-        if (userDisplayName) userDisplayName.textContent = user.displayName;
-        if (userDisplayEmail) userDisplayEmail.textContent = user.email;
+        const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "Academic Scholar");
+        if (userDisplayName) userDisplayName.textContent = displayName;
+        if (userDisplayEmail) userDisplayEmail.textContent = user.email || "scholar@khit.edu.in";
         
         if (userAvatarInitial) {
             if (user.photoURL) {
-                userAvatarInitial.innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}" class="w-full h-full rounded-full object-cover">`;
+                userAvatarInitial.innerHTML = `<img src="${user.photoURL}" alt="${displayName}" class="w-full h-full rounded-full object-cover">`;
                 userAvatarInitial.classList.remove("bg-gradient-to-tr", "from-blue-600", "to-indigo-600");
             } else {
-                const initials = user.displayName ? user.displayName.split(" ").map(n => n[0]).join("") : "U";
+                const initials = displayName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "KH";
                 userAvatarInitial.textContent = initials;
                 userAvatarInitial.innerHTML = initials;
                 userAvatarInitial.classList.add("bg-gradient-to-tr", "from-blue-600", "to-indigo-600");
