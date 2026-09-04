@@ -1,83 +1,82 @@
-/* SYSTEM COMPONENT: styles.css */
-/* Target Focus: VOXA Retro-Futuristic Pixel & Glassmorphic Design System */
+/* ==========================================================================
+   KHIT-PULSE ENTERPRISE DESIGN SYSTEM (styles.css)
+   Target Focus: Modern Executive Academic AI & Realistic Precision Dark Glassmorphism
+   ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Silkscreen:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-    --bg-primary: #020203; /* Obsidian pitch-black */
-    --accent-cobalt: #6366f1;
-    --accent-cyan: #38bdf8;
-    --accent-purple: #8b5cf6;
-    --accent-magenta: #d946ef;
-    --font-body: 'Space Grotesk', sans-serif;
-    --font-header: 'Silkscreen', monospace;
-    --glass-bg: rgba(10, 10, 15, 0.45);
+    --bg-primary: #07090e;        /* Deep executive obsidian */
+    --bg-surface: #0d111a;        /* High-fidelity panel surface */
+    --bg-card: rgba(13, 17, 26, 0.72);
+    --accent-sapphire: #2563eb;   /* Enterprise Sapphire */
+    --accent-cyan: #38bdf8;       /* Precision Sky Cyan */
+    --accent-indigo: #6366f1;     /* Academic Indigo */
+    --accent-emerald: #10b981;    /* Live Status Green */
+    --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --glass-bg: rgba(13, 17, 26, 0.75);
     --glass-border: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-/* --- AMBIENT GRADIENT BLOBS --- */
+/* --- REFINED AMBIENT LIGHTING DEPTH --- */
 .ambient-blob {
     position: absolute !important;
     border-radius: 50% !important;
-    filter: blur(140px) !important;
-    opacity: 0.12 !important;
+    filter: blur(160px) !important;
+    opacity: 0.08 !important;
     mix-blend-mode: screen !important;
     pointer-events: none !important;
-    animation: blobFloat 22s ease-in-out infinite alternate !important;
+    animation: blobFloat 28s ease-in-out infinite alternate !important;
     z-index: 0 !important;
 }
 
 .blob-purple {
-    background: radial-gradient(circle, var(--accent-purple), var(--accent-magenta)) !important;
-    width: 50vw !important;
-    height: 50vw !important;
-    top: -15% !important;
-    left: -15% !important;
+    background: radial-gradient(circle, var(--accent-indigo), var(--accent-sapphire)) !important;
+    width: 45vw !important;
+    height: 45vw !important;
+    top: -10% !important;
+    left: -10% !important;
 }
 
 .blob-cyan {
-    background: radial-gradient(circle, var(--accent-cyan), #3b82f6) !important;
-    width: 45vw !important;
-    height: 45vw !important;
-    bottom: -15% !important;
-    right: -15% !important;
-    animation-delay: -6s !important;
+    background: radial-gradient(circle, var(--accent-cyan), #1d4ed8) !important;
+    width: 40vw !important;
+    height: 40vw !important;
+    bottom: -10% !important;
+    right: -10% !important;
+    animation-delay: -8s !important;
 }
 
 .blob-pink {
-    background: radial-gradient(circle, var(--accent-magenta), var(--accent-purple)) !important;
-    width: 35vw !important;
-    height: 35vw !important;
-    top: 40% !important;
-    left: 45% !important;
-    animation-delay: -12s !important;
+    background: radial-gradient(circle, #3b82f6, var(--accent-indigo)) !important;
+    width: 30vw !important;
+    height: 30vw !important;
+    top: 35% !important;
+    left: 40% !important;
+    animation-delay: -14s !important;
 }
 
 @keyframes blobFloat {
     0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(8%, 10%) scale(1.15); }
-    100% { transform: translate(-5%, -8%) scale(0.95); }
+    50% { transform: translate(5%, 6%) scale(1.08); }
+    100% { transform: translate(-4%, -5%) scale(0.96); }
 }
 
-/* --- GRADIENT RUNNING TEXT --- */
+/* --- EXECUTIVE METALLIC GRADIENT TEXT --- */
 .animated-gradient-text {
-    background: linear-gradient(to right, var(--accent-cyan), var(--accent-purple), var(--accent-magenta), var(--accent-cyan)) !important;
-    background-size: 300% 100% !important;
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 45%, #94a3b8 100%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-    animation: gradientTextRun 8s linear infinite !important;
 }
 
-@keyframes gradientTextRun {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 300% 50%; }
-}
-
-/* Custom global browser scrollbar overrides */
+/* Custom global browser scrollbar */
 ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 5px;
+    height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -85,12 +84,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #121212;
+    background: rgba(148, 163, 184, 0.2);
     border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-cobalt);
+    background: rgba(56, 189, 248, 0.4);
 }
 
 /* Base resets & layout settings */
@@ -100,17 +99,15 @@ html, body {
     padding: 0;
     overflow: hidden;
     background-color: var(--bg-primary) !important;
-    font-family: var(--font-body);
+    font-family: var(--font-sans);
     color-scheme: dark;
     scrollbar-gutter: stable;
+    letter-spacing: -0.01em;
 }
 
-.font-pixel {
-    font-family: var(--font-header) !important;
-}
-
-.font-grotesk {
-    font-family: var(--font-body) !important;
+/* Professional Typography Mapping */
+.font-pixel, .font-grotesk {
+    font-family: var(--font-sans) !important;
 }
 
 /* Glassmorphism containers */
@@ -502,60 +499,51 @@ html, body {
     transform: scale(1.02) !important;
 }
 
-/* --- FRAMER ELECTRIC NEON DESIGN SYSTEM --- */
+/* --- ENTERPRISE PRECISION CARD SYSTEM --- */
 .framer-neon-card {
     position: relative !important;
-    background: rgba(10, 15, 30, 0.5) !important;
+    background: rgba(14, 18, 28, 0.75) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(56, 189, 248, 0.3) !important;
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.15), inset 0 0 15px rgba(56, 189, 248, 0.05) !important;
-    border-radius: 1.5rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    border-radius: 1.25rem !important;
     overflow: hidden !important;
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .framer-neon-card:hover {
     transform: translateY(-2px) !important;
-    border-color: rgba(56, 189, 248, 0.55) !important;
-    box-shadow: 0 10px 40px rgba(56, 189, 248, 0.3), inset 0 0 20px rgba(56, 189, 248, 0.12) !important;
-}
-
-.framer-neon-card::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 90px !important;
-    height: 90px !important;
-    background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.9), transparent 70%) !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
+    border-color: rgba(56, 189, 248, 0.3) !important;
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
 .framer-pill-button {
-    background: rgba(30, 41, 59, 0.7) !important;
-    border: 1px solid rgba(56, 189, 248, 0.3) !important;
-    color: #f8fafc !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.09) !important;
+    color: #e2e8f0 !important;
     border-radius: 9999px !important;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .framer-pill-button:hover {
-    background: rgba(56, 189, 248, 0.2) !important;
-    border-color: rgba(56, 189, 248, 0.7) !important;
-    box-shadow: 0 0 18px rgba(56, 189, 248, 0.4) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(56, 189, 248, 0.4) !important;
+    color: #ffffff !important;
     transform: translateY(-1px) !important;
 }
 
 .framer-pill-active {
-    background: rgba(56, 189, 248, 0.25) !important;
-    border-color: rgba(56, 189, 248, 0.8) !important;
-    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4) !important;
+    background: rgba(37, 99, 235, 0.25) !important;
+    border-color: rgba(56, 189, 248, 0.6) !important;
+    color: #ffffff !important;
 }
 
 .neon-icon-glow {
-    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 16px rgba(2, 132, 199, 0.6)) !important;
+    filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.4)) !important;
 }
 
 /* --- CALENDAR WIDGET SYSTEM --- */

@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="nyuXoPTWsWWQjNWxHUP7gcXCu_CBE3yYdXRH1A2zt6A" />
     <title>KHIT-Pulse: Autonomous Campus Intelligence</title>
-    <!-- Google Fonts: Space Grotesk for clean body, Silkscreen for pixel headers -->
+    <!-- Google Fonts: Plus Jakarta Sans for clean executive typography, Inter for body -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=3.0.0">
+    <link rel="stylesheet" href="styles.css?v=3.1.0">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -33,7 +33,7 @@
         }
 
         /* Mobile-First Responsive Drawer and Calendar Grid Overrides */
-        @media (max-w: 768px) {
+        @media (max-width: 768px) {
             #sidebar {
                 position: fixed !important;
                 top: 0 !important;
@@ -41,8 +41,8 @@
                 left: 0 !important;
                 height: 100vh !important;
                 z-index: 45 !important;
-                background-color: rgba(2, 2, 3, 0.98) !important;
-                border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+                background-color: rgba(7, 9, 14, 0.98) !important;
+                border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
                 box-shadow: 10px 0 30px rgba(0, 0, 0, 0.9) !important;
                 width: 280px !important;
                 transform: translateX(-100%) !important;
@@ -62,7 +62,7 @@
         }
     </style>
 </head>
-<body class="bg-[#020203] text-slate-200 min-h-screen font-grotesk antialiased relative">
+<body class="bg-[#07090e] text-slate-200 min-h-screen font-sans antialiased relative">
     
     <!-- Ambient Glassmorphic Background Blobs -->
     <div class="ambient-blob blob-purple"></div>
@@ -70,30 +70,43 @@
     <div class="ambient-blob blob-pink"></div>
 
     <!-- Centered Landing Screen (Login Overlay) -->
-    <div id="login-screen" class="fixed inset-0 z-50 overflow-y-auto bg-[#020203]/95 backdrop-blur-md transition-all duration-500 flex flex-col items-center justify-center p-4 md:p-6">
-        <div class="my-auto mx-auto max-w-md w-full text-center space-y-8 p-6 md:p-10 framer-neon-card relative">
-            <!-- Neon blue accent indicator -->
-            <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#8b5cf6] to-transparent"></div>
+    <div id="login-screen" class="fixed inset-0 z-50 overflow-y-auto bg-[#07090e]/95 backdrop-blur-xl transition-all duration-500 flex flex-col items-center justify-center p-4 md:p-6">
+        <div class="my-auto mx-auto max-w-md w-full text-center space-y-7 p-7 md:p-10 framer-neon-card relative border border-slate-800/80 shadow-2xl">
+            <!-- Subtle sapphire accent line -->
+            <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500/70 to-transparent"></div>
             
             <div class="space-y-4">
-                <div class="inline-flex items-center justify-center px-3.5 py-1 rounded-full bg-purple-950/60 border border-purple-400/40 text-[10px] font-bold text-purple-300 tracking-wider uppercase mb-1 neon-icon-glow">
-                    Autonomous AI System
+                <div class="inline-flex items-center justify-center gap-2 px-3.5 py-1 rounded-full bg-sky-500/10 border border-sky-400/25 text-[10px] font-semibold text-sky-400 tracking-wider uppercase mb-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Official Campus Intelligence
                 </div>
-                <h1 class="text-4xl md:text-5xl font-pixel font-bold tracking-tight text-white uppercase animated-gradient-text">KHIT Pulse</h1>
-                <p class="text-slate-400 text-xs max-w-xs mx-auto font-grotesk leading-relaxed">Access campus intelligence, dynamic notice analysis, and duplex voice channels through a next-gen terminal.</p>
+                
+                <div class="khit-logo-float-wrapper my-2">
+                    <div class="khit-logo-container logo-size-lg mx-auto shadow-lg">
+                        <div class="khit-logo-outer">
+                            <img src="khit logo.png" alt="KHIT Crest" class="khit-logo-img">
+                        </div>
+                        <div class="khit-logo-inner">
+                            <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white">KHIT-Pulse</h1>
+                <p class="text-slate-400 text-xs max-w-xs mx-auto leading-relaxed font-normal">Autonomous campus portal for notices, examinations, curriculum, and institutional knowledge.</p>
             </div>
             
-            <div class="pt-4 space-y-3">
-                <button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-slate-950 font-bold py-3.5 px-5 rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] cursor-pointer hover:scale-[1.02] transition duration-200">
+            <div class="pt-2 space-y-3">
+                <button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold py-3.5 px-5 rounded-xl shadow-lg cursor-pointer hover:bg-slate-100 hover:scale-[1.01] transition duration-200 text-sm">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google Logo">
-                    Sign in with Google
+                    Sign in with Institutional Account
                 </button>
             </div>
             
-            <p id="login-error" class="text-red-400 text-xs mt-4 hidden bg-red-950/30 border border-red-900/30 p-3 rounded-xl"></p>
+            <p id="login-error" class="text-rose-400 text-xs mt-4 hidden bg-rose-950/30 border border-rose-900/30 p-3 rounded-xl"></p>
             
-            <div class="text-[9px] text-slate-500 pt-2 font-pixel tracking-wide">
-                KALLAM HARANADHAREDDY INSTITUTE OF TECHNOLOGY
+            <div class="text-[10px] text-slate-400 pt-2 font-medium tracking-wide uppercase">
+                Kallam Haranadhareddy Institute of Technology
             </div>
         </div>
     </div>
@@ -105,17 +118,17 @@
         <aside id="sidebar" class="w-72 bg-[#040404]/80 border-r border-slate-900/80 flex flex-col transition-all duration-300 shrink-0">
             <!-- Sidebar Header -->
             <div class="p-5 border-b border-slate-900/80 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#5aa2fa] animate-pulse"></span>
-                    <h2 class="text-xs font-pixel uppercase tracking-wider text-slate-400">Circular Bulletins</h2>
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300">Circular Bulletins</h2>
                 </div>
-                <button id="btn-toggle-sidebar" class="text-slate-500 hover:text-slate-300 p-1.5 rounded-lg hover:bg-slate-900/50 cursor-pointer hidden md:block" title="Toggle Sidebar">
+                <button id="btn-toggle-sidebar" class="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-900/60 cursor-pointer hidden md:block transition" title="Toggle Sidebar">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                     </svg>
                 </button>
                 <!-- Mobile Close button -->
-                <button id="btn-mobile-sidebar-close" class="text-slate-450 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900/50 cursor-pointer md:hidden" title="Close Sidebar">
+                <button id="btn-mobile-sidebar-close" class="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-slate-900/60 cursor-pointer md:hidden transition" title="Close Sidebar">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -130,15 +143,15 @@
             </div>
 
             <!-- User profile status footer -->
-            <div class="p-4 border-t border-slate-900/80 flex items-center gap-3 bg-slate-950/20">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0147a3] to-[#5aa2fa] flex items-center justify-center text-[11px] font-bold text-white avatar-glow" id="user-avatar-initial">
+            <div class="p-4 border-t border-slate-900/80 flex items-center gap-3 bg-slate-950/40">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-[11px] font-bold text-white shadow-md" id="user-avatar-initial">
                     U
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold text-slate-300 truncate" id="user-display-name">Guest User</p>
-                    <p class="text-[10px] text-slate-500 truncate" id="user-display-email">guest@khit.edu.in</p>
+                    <p class="text-xs font-semibold text-slate-200 truncate" id="user-display-name">Guest User</p>
+                    <p class="text-[10px] text-slate-400 truncate" id="user-display-email">guest@khit.edu.in</p>
                 </div>
-                <button id="btn-logout" class="text-slate-500 hover:text-rose-400 transition" title="Logout">
+                <button id="btn-logout" class="text-slate-400 hover:text-rose-400 transition" title="Logout">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4.5 h-4.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                     </svg>
@@ -147,68 +160,66 @@
         </aside>
 
         <!-- Main Conversational Workspace -->
-        <main class="flex-1 min-w-0 flex flex-col bg-[#040404]/30 relative">
+        <main class="flex-1 min-w-0 flex flex-col bg-[#07090e] relative">
             
             <!-- Sleek Top Bar with Status Icons -->
-            <header class="h-16 border-b border-slate-900/85 px-6 flex items-center justify-between shrink-0 bg-[#040404]/50 backdrop-blur-md">
-                <div class="flex items-center gap-3">
+            <header class="h-16 border-b border-slate-900/90 px-6 flex items-center justify-between shrink-0 bg-[#0d111a]/60 backdrop-blur-xl">
+                <div class="flex items-center gap-3.5">
                     <!-- Universal sidebar toggle button (Desktop & Mobile) -->
-                    <button id="btn-mobile-sidebar" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-900/60 transition cursor-pointer flex items-center justify-center" title="Toggle Circular Bulletins Sidebar">
+                    <button id="btn-mobile-sidebar" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800/60 transition cursor-pointer flex items-center justify-center" title="Toggle Circular Bulletins Sidebar">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
                     
                     <div class="khit-logo-float-wrapper">
-                        <div class="khit-logo-container logo-size-sm">
-                            <!-- Outer rotating gear ring -->
+                        <div class="khit-logo-container logo-size-sm shadow-sm">
                             <div class="khit-logo-outer">
                                 <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
                             </div>
-                            <!-- Inner stationary globe + book -->
                             <div class="khit-logo-inner">
                                 <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
                             </div>
                         </div>
                     </div>
                     
-                    <h2 class="text-sm font-pixel tracking-tight text-slate-300 flex items-center gap-2 uppercase">
-                        <span class="hidden sm:inline">KHIT-Pulse</span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#5aa2fa] hidden sm:inline"></span>
+                    <h2 class="text-sm font-bold tracking-tight text-slate-200 flex items-center gap-2">
+                        <span>KHIT-Pulse</span>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-400/20 text-[10px] font-medium text-sky-400 hidden sm:inline-flex">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Campus AI Core
+                        </span>
                     </h2>
                 </div>
 
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-2">
                     <!-- Clear Chat Button -->
-                    <button id="btn-clear-chat" class="text-[10px] framer-pill-button font-pixel py-2 px-2.5 md:px-4 cursor-pointer uppercase flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                    <button id="btn-clear-chat" class="text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.34 9m-4.78 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>
-                        <span class="hidden sm:inline-block md:hidden">Clear</span>
-                        <span class="hidden md:inline-block">Clear Chat</span>
+                        <span class="hidden sm:inline-block">Clear</span>
                     </button>
                     <!-- Calendar View Toggle Button -->
-                    <button id="btn-calendar-toggle" class="text-[10px] framer-pill-button font-pixel py-2 px-2.5 md:px-4 cursor-pointer uppercase flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                    <button id="btn-calendar-toggle" class="text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
                         </svg>
-                        <span class="hidden sm:inline-block md:hidden">Calendar</span>
-                        <span class="hidden md:inline-block">Calendar View</span>
+                        <span class="hidden sm:inline-block">Calendar</span>
                     </button>
                     <!-- Profile View Toggle Button -->
-                    <button id="btn-profile-toggle" class="text-[10px] framer-pill-button font-pixel py-2 px-2.5 md:px-4 cursor-pointer uppercase flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                    <button id="btn-profile-toggle" class="text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
                         <span class="hidden sm:inline-block">Profile</span>
                     </button>
-                    <!-- Admin Console Toggle Button (Completely hidden by default) -->
-                    <button id="btn-admin-toggle" class="hidden text-[10px] framer-pill-button framer-pill-active font-pixel py-2 px-2.5 md:px-4 cursor-pointer uppercase flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                    <!-- Admin Console Toggle Button -->
+                    <button id="btn-admin-toggle" class="hidden text-xs framer-pill-button framer-pill-active py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-sky-400">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.273.805-.108 1.205.166.395.505.71.93.78l.894.15c.542.09.94.56.94 1.11v1.094c0 .55-.398 1.02-.94 1.11l-.894.149c.424-.07.764-.383-.929-.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.804-.273-1.205-.107-.395.166-.71.504-.78.93l-.15.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.149-.894c-.07-.424-.383-.764-.78-.929-.398-.165-.854-.143-1.204.107l-.738.527a1.125 1.125 0 0 1-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.205-.166-.395-.504-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.11v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.764-.383.929-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 0 1 .12-1.45l.774-.773a1.125 1.125 0 0 1 1.449-.12l.738.527c.35.25.804.273 1.205.107.395-.166.71-.504.78-.93l.15-.894Z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
-                        <span class="hidden sm:inline-block md:hidden">Admin</span>
                         <span class="hidden md:inline-block">Admin Console</span>
                     </button>
                 </div>
@@ -221,62 +232,72 @@
                     <div class="max-w-3xl w-full mx-auto flex-1 flex flex-col">
                         
                         <!-- Gemini Welcome Interface (Only visible when chat is empty) -->
-                        <div id="welcome-view" class="my-auto py-10 space-y-8">
-                            <div class="space-y-4">
+                        <div id="welcome-view" class="my-auto py-10 space-y-7">
+                            <div class="space-y-3">
                                 <div class="khit-logo-float-wrapper">
-                                    <div class="khit-logo-container logo-size-lg">
-                                        <!-- Outer rotating gear ring -->
+                                    <div class="khit-logo-container logo-size-lg shadow-lg">
                                         <div class="khit-logo-outer">
-                                            <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
+                                            <img src="khit logo.png" alt="KHIT Crest" class="khit-logo-img">
                                         </div>
-                                        <!-- Inner stationary globe + book -->
                                         <div class="khit-logo-inner">
                                             <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
                                         </div>
                                     </div>
                                 </div>
-                                <h2 class="text-3xl md:text-4xl font-pixel uppercase tracking-tight leading-tight text-white">
-                                    <span>Hello, User.</span><br>
-                                    <span class="text-slate-600 text-2xl md:text-3xl font-grotesk normal-case tracking-normal block mt-2">How can I help you today?</span>
-                                </h2>
+                                <div class="pt-2 space-y-1.5">
+                                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                                        Welcome to <span class="bg-gradient-to-r from-white via-slate-100 to-sky-300 bg-clip-text text-transparent">KHIT-Pulse</span>
+                                    </h2>
+                                    <p class="text-slate-400 text-sm font-normal max-w-lg leading-relaxed">
+                                        Autonomous institutional intelligence for campus notices, admissions, examination schedules, fees, and academic records.
+                                    </p>
+                                </div>
                             </div>
 
-                            <!-- Quick suggestion glassmorphic cards in grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 font-grotesk">
-                                <div class="suggestion-card framer-neon-card p-5 cursor-pointer transition" data-query="Explain Object-Oriented Programming features">
+                            <!-- Quick suggestion cards in grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+                                <div class="suggestion-card p-4.5 cursor-pointer transition border border-slate-800/80 hover:border-sky-500/40" data-query="Who is the founder of the college?">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-lg">💻</span>
-                                        <span class="text-[#38bdf8] text-xs font-bold neon-icon-glow">↗</span>
+                                        <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-400/20 flex items-center justify-center text-sm text-sky-400">
+                                            🏛️
+                                        </div>
+                                        <span class="text-slate-500 hover:text-sky-400 text-xs font-semibold">↗</span>
                                     </div>
-                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Explain OOP Concepts</h3>
-                                    <p class="text-[10px] text-slate-400 leading-relaxed">Learn about classes, inheritance, polymorphism, and encapsulation with code examples.</p>
+                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Founder & Leadership</h3>
+                                    <p class="text-[11px] text-slate-400 leading-relaxed font-normal">Learn about Founder & Chairman Sri Haranadha Reddy Kallam and college administration.</p>
                                 </div>
                                 
-                                <div class="suggestion-card framer-neon-card p-5 cursor-pointer transition" data-query="Check recent exam circulars">
+                                <div class="suggestion-card p-4.5 cursor-pointer transition border border-slate-800/80 hover:border-sky-500/40" data-query="Check recent exam circulars and notices">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-lg">📅</span>
-                                        <span class="text-[#38bdf8] text-xs font-bold neon-icon-glow">↗</span>
+                                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-400/20 flex items-center justify-center text-sm text-indigo-400">
+                                            📅
+                                        </div>
+                                        <span class="text-slate-500 hover:text-sky-400 text-xs font-semibold">↗</span>
                                     </div>
-                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Check Exam Circulars</h3>
-                                    <p class="text-[10px] text-slate-400 leading-relaxed">Retrieve the latest official notices and examination schedules from Firestore.</p>
+                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Exam & Notice Bulletins</h3>
+                                    <p class="text-[11px] text-slate-400 leading-relaxed font-normal">Query official examination timetables, mid-term dates, and live circulars.</p>
                                 </div>
 
-                                <div class="suggestion-card framer-neon-card p-5 cursor-pointer transition" data-query="Draft a technical project README file">
+                                <div class="suggestion-card p-4.5 cursor-pointer transition border border-slate-800/80 hover:border-sky-500/40" data-query="What are the B.Tech and Diploma placement packages and top recruiters?">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-lg">📝</span>
-                                        <span class="text-[#38bdf8] text-xs font-bold neon-icon-glow">↗</span>
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center text-sm text-emerald-400">
+                                            💼
+                                        </div>
+                                        <span class="text-slate-500 hover:text-sky-400 text-xs font-semibold">↗</span>
                                     </div>
-                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Draft Project README</h3>
-                                    <p class="text-[10px] text-slate-400 leading-relaxed">Generate structured markdown layout, configuration details, and install guides.</p>
+                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Placements & Salary</h3>
+                                    <p class="text-[11px] text-slate-400 leading-relaxed font-normal">Explore highest packages (12–22 LPA), recruitment rates, and top visiting MNCs.</p>
                                 </div>
 
-                                <div class="suggestion-card framer-neon-card p-5 cursor-pointer transition" data-query="Solve a complex logical reasoning problem">
+                                <div class="suggestion-card p-4.5 cursor-pointer transition border border-slate-800/80 hover:border-sky-500/40" data-query="What is the tuition fee structure and hostel amenities at KHIT?">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-lg">🧩</span>
-                                        <span class="text-[#38bdf8] text-xs font-bold neon-icon-glow">↗</span>
+                                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-400/20 flex items-center justify-center text-sm text-amber-400">
+                                            🎓
+                                        </div>
+                                        <span class="text-slate-500 hover:text-sky-400 text-xs font-semibold">↗</span>
                                     </div>
-                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Logical Reasoning</h3>
-                                    <p class="text-[10px] text-slate-400 leading-relaxed">Solve coding puzzles, write algorithms, and explore general knowledge queries.</p>
+                                    <h3 class="text-xs font-bold text-slate-200 mt-3 mb-1">Fees & Hostels</h3>
+                                    <p class="text-[11px] text-slate-400 leading-relaxed font-normal">Review tuition fees for B.Tech/Diploma programs, hostel costs, and campus amenities.</p>
                                 </div>
                             </div>
                         </div>
@@ -289,30 +310,31 @@
                 </div>
 
                 <!-- Bottom Floating Input Console -->
-                <footer class="p-6 bg-gradient-to-t from-[#040404] via-[#040404]/90 to-transparent shrink-0">
+                <footer class="p-6 bg-gradient-to-t from-[#07090e] via-[#07090e]/95 to-transparent shrink-0">
                     <div class="max-w-3xl mx-auto">
                         <!-- Text transcription overlay status -->
-                        <div id="interim-overlay" class="text-xs text-[#5aa2fa] font-medium italic mb-2 pl-6 transition duration-200 min-h-4"></div>
+                        <div id="interim-overlay" class="text-xs text-sky-400 font-medium italic mb-2 pl-6 transition duration-200 min-h-4"></div>
                         
-                        <div class="flex items-center gap-3 w-full" id="input-container-group">
-                            <form id="query-form" class="flex-1 relative flex items-center bg-slate-950/80 border border-sky-400/40 rounded-full focus-within:border-sky-400 focus-within:shadow-[0_0_25px_rgba(56,189,248,0.35)] px-6 py-1.5 transition duration-200">
-                                <input type="text" id="input-query" placeholder="Ask KHIT-Pulse anything..." class="flex-1 bg-transparent py-2.5 pr-14 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none font-medium">
+                        <div class="flex items-center gap-2.5 w-full" id="input-container-group">
+                            <form id="query-form" class="flex-1 relative flex items-center bg-[#0d111a]/90 border border-slate-800 focus-within:border-sky-500/60 focus-within:ring-2 focus-within:ring-sky-500/15 rounded-2xl shadow-xl px-5 py-1.5 transition-all duration-200">
+                                <input type="text" id="input-query" placeholder="Ask anything about KHIT (e.g. founder, fees, circulars, placements)..." class="flex-1 bg-transparent py-2.5 pr-12 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none font-normal">
                                 
-                                <button type="submit" id="btn-send" class="absolute right-3.5 w-9 h-9 rounded-full bg-sky-500/20 border border-sky-400/50 text-sky-400 flex items-center justify-center hover:bg-sky-400 hover:text-slate-950 transition duration-200 cursor-pointer shadow-md neon-icon-glow" title="Submit Query">
+                                <button type="submit" id="btn-send" class="absolute right-3 w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center hover:bg-sky-400 transition duration-200 cursor-pointer shadow-md" title="Submit Query">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
                                     </svg>
                                 </button>
                             </form>
                             
-                            <button type="button" id="btn-voice-mode" class="framer-pill-button framer-pill-active h-12 px-4 md:px-6 font-bold text-sm flex items-center justify-center gap-2 shrink-0 shadow-[0_0_20px_rgba(56,189,248,0.3)]">
-                                <span class="neon-icon-glow">🎤</span>
+                            <button type="button" id="btn-voice-mode" class="h-11 px-4 md:px-5 font-semibold text-xs flex items-center justify-center gap-2 rounded-2xl shrink-0 bg-[#0d111a]/90 border border-slate-800 text-slate-200 hover:border-sky-500/40 hover:text-white transition shadow-lg cursor-pointer">
+                                <span>🎤</span>
                                 <span class="hidden md:inline">Voice Mode</span>
                             </button>
                         </div>
                         
-                        <div class="text-[9px] text-slate-600 text-center mt-3 font-medium">
-                            KHIT-Pulse may verify details against official ERP archives. Cross-check critical notices.
+                        <div class="flex items-center justify-between text-[11px] text-slate-500 mt-3 px-2 font-normal">
+                            <span>KHIT-Pulse Grounded Intelligence</span>
+                            <span>Official records cross-verified</span>
                         </div>
                     </div>
                 </footer>
@@ -322,23 +344,23 @@
             <div id="calendar-workspace" class="flex-1 flex flex-col md:flex-row overflow-y-auto p-6 md:p-10 hidden gap-8 pb-16">
                 <!-- Left Column: Interactive Calendar Grid -->
                 <div class="flex-1 framer-neon-card p-6.5 space-y-6 relative h-fit">
-                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent"></div>
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
                     
                     <!-- Month Header Controls -->
                     <div class="flex items-center justify-between">
-                        <button id="btn-prev-month" class="framer-pill-button px-4 py-2 text-xs font-bold cursor-pointer uppercase">
+                        <button id="btn-prev-month" class="framer-pill-button px-4 py-2 text-xs font-semibold cursor-pointer">
                             ← Prev
                         </button>
-                        <h3 id="calendar-month-year" class="text-md font-pixel text-white uppercase tracking-wider text-center">
+                        <h3 id="calendar-month-year" class="text-sm font-bold text-white uppercase tracking-wider text-center">
                             July 2026
                         </h3>
-                        <button id="btn-next-month" class="framer-pill-button px-4 py-2 text-xs font-bold cursor-pointer uppercase">
+                        <button id="btn-next-month" class="framer-pill-button px-4 py-2 text-xs font-semibold cursor-pointer">
                             Next →
                         </button>
                     </div>
 
                     <!-- Days of Week Headers -->
-                    <div class="grid grid-cols-7 text-center text-[10px] font-pixel text-slate-500 uppercase tracking-wider pb-2 border-b border-slate-800/60">
+                    <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-800/60">
                         <div>Sun</div>
                         <div>Mon</div>
                         <div>Tue</div>
@@ -356,10 +378,10 @@
 
                 <!-- Right Column: Selected Date Event Inspector -->
                 <div class="w-full md:w-80 framer-neon-card p-6.5 space-y-6 relative h-fit min-h-[350px]">
-                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent"></div>
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
                     
                     <div class="space-y-1">
-                        <h3 class="text-xs font-pixel text-slate-400 uppercase tracking-wider">Scheduled Events</h3>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Scheduled Events</h3>
                         <p id="calendar-inspector-date" class="text-sm font-bold text-white">Select a date cell to view bulletins</p>
                     </div>
 
@@ -376,16 +398,16 @@
             <div id="profile-workspace" class="flex-1 flex flex-col md:flex-row overflow-y-auto p-6 md:p-10 hidden gap-8 pb-16 justify-center items-start">
                 <!-- Left Card: User Identity & Stats Dashboard -->
                 <div class="max-w-xl w-full framer-neon-card p-8 space-y-6 relative h-fit">
-                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent"></div>
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
                     
                     <!-- Identity Header -->
                     <div class="flex flex-col items-center text-center space-y-4">
-                        <img id="profile-avatar" src="" alt="User Avatar" class="w-24 h-24 rounded-full border-2 border-[#38bdf8]/40 shadow-lg object-cover">
+                        <img id="profile-avatar" src="" alt="User Avatar" class="w-24 h-24 rounded-full border-2 border-sky-400/40 shadow-lg object-cover">
                         <div class="space-y-1">
-                            <h2 id="profile-name" class="text-xl font-bold text-white uppercase tracking-tight">Academic Guest</h2>
-                            <p id="profile-email" class="text-xs text-slate-400 font-medium">guest@khit.edu.in</p>
+                            <h2 id="profile-name" class="text-xl font-bold text-white tracking-tight">Academic Guest</h2>
+                            <p id="profile-email" class="text-xs text-slate-400 font-normal">guest@khit.edu.in</p>
                         </div>
-                        <span id="profile-role-badge" class="text-[10px] uppercase font-bold tracking-wider px-3.5 py-1 rounded-full text-[#38bdf8] bg-sky-500/10 border border-sky-500/20">
+                        <span id="profile-role-badge" class="text-[10px] uppercase font-semibold tracking-wider px-3.5 py-1 rounded-full text-sky-400 bg-sky-500/10 border border-sky-500/20">
                             Student
                         </span>
                     </div>
@@ -394,15 +416,15 @@
 
                     <!-- Statistics Dashboard -->
                     <div class="space-y-4">
-                        <h3 class="text-xs font-pixel text-slate-400 uppercase tracking-wider">User Session Statistics</h3>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">User Session Statistics</h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/20 text-center">
-                                <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Queries Sent</div>
+                            <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 text-center">
+                                <div class="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Queries Sent</div>
                                 <div id="stat-query-count" class="text-2xl font-bold text-white mt-1">0</div>
                             </div>
-                            <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/20 text-center">
-                                <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Last Sync</div>
-                                <div id="stat-last-active" class="text-xs font-bold text-slate-350 mt-2 truncate">Never</div>
+                            <div class="p-4 rounded-xl border border-slate-900 bg-slate-950/40 text-center">
+                                <div class="text-[10px] uppercase font-semibold text-slate-500 tracking-wider">Last Sync</div>
+                                <div id="stat-last-active" class="text-xs font-semibold text-slate-300 mt-2 truncate">Never</div>
                             </div>
                         </div>
                     </div>
@@ -410,11 +432,11 @@
 
                 <!-- Right Card: Bookmarked Notices / Quick Actions -->
                 <div class="w-full md:w-80 framer-neon-card p-8 space-y-6 relative h-fit min-h-[350px]">
-                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent"></div>
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
                     
                     <div class="space-y-1">
-                        <h3 class="text-xs font-pixel text-slate-400 uppercase tracking-wider">Saved Bulletins</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">Quickly reference notices you bookmarked during chat conversations.</p>
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Saved Bulletins</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed font-normal">Quickly reference notices you bookmarked during chat conversations.</p>
                     </div>
 
                     <div id="profile-bookmarks-list" class="space-y-4 overflow-y-auto max-h-[300px]">
@@ -732,13 +754,13 @@
                 </div>
             </div>
 
-            <!-- Dynamic Typography live text captions field -->
+            <!-- Dynamic live text captions field -->
             <div class="space-y-3 w-full">
-                <div class="flex items-center justify-between px-3 text-[10px] font-pixel uppercase tracking-wider">
-                    <span class="text-slate-400">Voice Transmission</span>
+                <div class="flex items-center justify-between px-3 text-[10px] font-semibold uppercase tracking-wider">
+                    <span class="text-slate-400">Live Transcript</span>
                     <span id="voice-status-indicator" class="text-slate-500 font-bold transition duration-200 uppercase">Idle</span>
                 </div>
-                <div id="voice-overlay-captions" class="text-base md:text-lg font-semibold text-slate-200 leading-relaxed min-h-24 max-h-56 overflow-y-auto p-5 bg-slate-950/60 rounded-2xl border border-slate-800/80 backdrop-blur-md shadow-inner font-grotesk text-left whitespace-pre-wrap scroll-smooth">
+                <div id="voice-overlay-captions" class="text-base md:text-lg font-medium text-slate-200 leading-relaxed min-h-24 max-h-56 overflow-y-auto p-5 bg-slate-950/70 rounded-2xl border border-slate-800/80 backdrop-blur-md shadow-inner text-left whitespace-pre-wrap scroll-smooth">
                     Opening voice connection...
                 </div>
             </div>
@@ -746,29 +768,29 @@
             <!-- Voice Mode Action Buttons -->
             <div class="flex flex-wrap items-center justify-center gap-3">
                 <!-- Language Toggle Dropdown -->
-                <select id="sel-voice-lang" class="framer-pill-button bg-slate-950 border border-white/10 text-xs px-4 py-2.5 rounded-full cursor-pointer focus:outline-none focus:border-[#8b5cf6] font-pixel uppercase">
+                <select id="sel-voice-lang" class="framer-pill-button bg-slate-900 border border-slate-800 text-xs px-4 py-2.5 rounded-full cursor-pointer focus:outline-none focus:border-sky-400 font-medium">
                     <option value="en-IN">English (India)</option>
                     <option value="te-IN">తెలుగు (Telugu)</option>
                 </select>
                 <!-- Mute Microphone Toggle Button -->
-                <button id="btn-voice-mute" class="framer-pill-button font-pixel py-2.5 px-6 text-xs cursor-pointer uppercase flex items-center gap-2">
+                <button id="btn-voice-mute" class="framer-pill-button py-2.5 px-6 text-xs cursor-pointer flex items-center gap-2 font-medium">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     Mute Mic
                 </button>
                 <!-- Exit Voice Mode Button -->
-                <button id="btn-voice-exit" class="framer-pill-button font-pixel py-2.5 px-6 text-xs cursor-pointer uppercase text-rose-400 hover:text-rose-350">
+                <button id="btn-voice-exit" class="framer-pill-button py-2.5 px-6 text-xs cursor-pointer text-rose-400 hover:text-rose-300 font-medium">
                     Exit Voice
                 </button>
             </div>
 
-            <div class="flex items-center gap-2 text-xs text-slate-500 font-medium bg-[#040404]/20 border border-slate-900 px-4 py-2 rounded-full">
-                <span class="w-2 h-2 rounded-full bg-[#5aa2fa] animate-pulse"></span>
-                <span>Voice engine active. Continuous duplex channel.</span>
+            <div class="flex items-center gap-2 text-xs text-slate-400 font-normal bg-slate-900/40 border border-slate-800/80 px-4 py-2 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Voice engine ready. Duplex audio channel online.</span>
             </div>
         </div>
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.0.0"></script>
+    <script type="module" src="app.js?v=3.1.0"></script>
 </body>
 </html>

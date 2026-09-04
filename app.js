@@ -1594,10 +1594,10 @@ function solve(input) {
     function appendStreamingBubble(text, onComplete) {
         if (!chatWindow) return;
         const bubble = document.createElement("div");
-        bubble.className = "flex gap-4 p-5 rounded-2xl message-bubble bg-transparent max-w-3xl";
+        bubble.className = "flex gap-3.5 p-4.5 rounded-2xl message-bubble bg-[#0d111a]/50 border border-slate-800/60 max-w-3xl shadow-sm";
         
         const avatar = `<div class="khit-logo-float-wrapper shrink-0">
-                  <div class="khit-logo-container logo-size-sm">
+                  <div class="khit-logo-container logo-size-sm shadow-sm">
                       <div class="khit-logo-outer">
                           <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
                       </div>
@@ -1609,9 +1609,12 @@ function solve(input) {
 
         bubble.innerHTML = `
             ${avatar}
-            <div class="space-y-1.5 flex-1">
-                <h4 class="text-[10px] font-semibold uppercase text-slate-500 tracking-wider">KHIT-Pulse Engine</h4>
-                <p class="text-sm text-slate-300 leading-relaxed font-medium streaming-text-box"></p>
+            <div class="space-y-1 flex-1">
+                <div class="flex items-center gap-2">
+                    <h4 class="text-[11px] font-semibold text-slate-300 tracking-tight">KHIT-Pulse Engine</h4>
+                    <span class="text-[9px] font-medium px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 border border-sky-400/20">Official Grounding</span>
+                </div>
+                <div class="text-sm text-slate-200 leading-relaxed font-normal streaming-text-box pt-1"></div>
             </div>
         `;
         
@@ -1637,22 +1640,22 @@ function solve(input) {
                 clearInterval(timer);
                 if (onComplete) onComplete();
             }
-        }, 22);
+        }, 20);
     }
 
     function appendBubble(sender, text) {
         if (!chatWindow) return;
         const bubble = document.createElement("div");
-        bubble.className = `flex gap-4 p-5 rounded-2xl message-bubble ${
+        bubble.className = `flex gap-3.5 p-4.5 rounded-2xl message-bubble ${
             sender === "user" 
-            ? "ml-auto bg-slate-900/30 border border-slate-900/60 flex-row-reverse max-w-lg" 
-            : "bg-transparent max-w-3xl"
+            ? "ml-auto bg-[#161f33] border border-sky-500/20 flex-row-reverse max-w-xl shadow-md text-slate-100" 
+            : "bg-[#0d111a]/50 border border-slate-800/60 max-w-3xl shadow-sm text-slate-200"
         }`;
         
         const avatar = sender === "user"
-            ? `<div class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shadow-md avatar-glow shrink-0">${(currentUserDetails?.displayName || "Academic Guest").split(" ").map(n => n[0]).join("")}</div>`
+            ? `<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white shadow-md shrink-0">${(currentUserDetails?.displayName || "Academic Guest").split(" ").map(n => n[0]).join("")}</div>`
             : `<div class="khit-logo-float-wrapper shrink-0">
-                  <div class="khit-logo-container logo-size-sm">
+                  <div class="khit-logo-container logo-size-sm shadow-sm">
                       <div class="khit-logo-outer">
                           <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
                       </div>
@@ -1666,9 +1669,12 @@ function solve(input) {
 
         bubble.innerHTML = `
             ${avatar}
-            <div class="space-y-1.5 flex-1">
-                <h4 class="text-[10px] font-semibold uppercase text-slate-500 tracking-wider ${sender === "user" ? "text-right" : ""}">${nameLabel}</h4>
-                <p class="text-sm text-slate-300 leading-relaxed font-medium ${sender === "user" ? "text-right" : ""}">${sender === "user" ? text : parseMarkdownToHTML(text)}</p>
+            <div class="space-y-1 flex-1">
+                <div class="flex items-center gap-2 ${sender === "user" ? "justify-end" : ""}">
+                    <h4 class="text-[11px] font-semibold text-slate-300 tracking-tight">${nameLabel}</h4>
+                    ${sender !== "user" ? '<span class="text-[9px] font-medium px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 border border-sky-400/20">Official Grounding</span>' : ''}
+                </div>
+                <div class="text-sm ${sender === "user" ? "text-slate-100" : "text-slate-200"} leading-relaxed font-normal pt-1">${parseMarkdownToHTML(text)}</div>
             </div>
         `;
         
