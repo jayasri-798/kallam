@@ -430,6 +430,57 @@
                     </div>
                 </div>
 
+                <!-- Middle Card: AI Engine & Grounding Settings -->
+                <div class="max-w-md w-full framer-neon-card p-8 space-y-6 relative h-fit">
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                                AI Engine & Grounding
+                            </h3>
+                            <span id="ai-engine-status-badge" class="text-[9px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+                                Local RAG Active
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed font-normal">
+                            KHIT-Pulse features a comprehensive local semantic RAG knowledge engine. You can optionally supply your Google AI Studio key to enable live Google Search Grounding for real-time web capabilities.
+                        </p>
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <label for="input-gemini-api-key" class="text-xs font-medium text-slate-300 flex items-center justify-between">
+                            <span>Google Gemini API Key</span>
+                            <span class="text-[10px] text-slate-500">Stored locally in browser</span>
+                        </label>
+                        <div class="relative">
+                            <input id="input-gemini-api-key" type="password" placeholder="Paste AIzaSy... API key" autocomplete="off" spellcheck="false" class="w-full bg-slate-950/80 border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/80 font-mono transition-colors pr-14">
+                            <button id="btn-toggle-key-visibility" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 hover:text-white transition-colors cursor-pointer">
+                                Show
+                            </button>
+                        </div>
+                        <div class="flex gap-2 pt-1">
+                            <button id="btn-save-gemini-key" type="button" class="flex-1 py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-sky-600/20 transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>Save Key</span>
+                            </button>
+                            <button id="btn-clear-gemini-key" type="button" class="py-2 px-3 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-rose-400 font-medium text-xs rounded-xl transition-all cursor-pointer">
+                                Clear
+                            </button>
+                        </div>
+                        <p id="gemini-key-feedback" class="text-[11px] text-slate-400 italic min-h-[1rem]"></p>
+                    </div>
+
+                    <div class="p-3 rounded-xl border border-slate-900 bg-slate-950/40 space-y-1 text-[11px] text-slate-400">
+                        <div class="font-medium text-slate-300 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Key Privacy Notice
+                        </div>
+                        <p class="leading-relaxed text-slate-500">Your key is kept safe in client storage and is never committed to Git or exposed publicly.</p>
+                    </div>
+                </div>
+
                 <!-- Right Card: Bookmarked Notices / Quick Actions -->
                 <div class="w-full md:w-80 framer-neon-card p-8 space-y-6 relative h-fit min-h-[350px]">
                     <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500 to-transparent"></div>
@@ -845,6 +896,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.2.0"></script>
+    <script type="module" src="app.js?v=3.3.0"></script>
 </body>
 </html>
