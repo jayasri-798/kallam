@@ -2234,10 +2234,10 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
         const avatar = `<div class="khit-logo-float-wrapper shrink-0">
                   <div class="khit-logo-container logo-size-sm shadow-sm">
                       <div class="khit-logo-outer">
-                          <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
+                          <img src="khit logo.png?v=3.3.0" alt="KHIT Gear" class="khit-logo-img">
                       </div>
                       <div class="khit-logo-inner">
-                          <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
+                          <img src="khit logo.png?v=3.3.0" alt="KHIT Globe" class="khit-logo-img">
                       </div>
                   </div>
                </div>`;
@@ -2296,10 +2296,10 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
             : `<div class="khit-logo-float-wrapper shrink-0">
                   <div class="khit-logo-container logo-size-sm shadow-sm">
                       <div class="khit-logo-outer">
-                          <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
+                          <img src="khit logo.png?v=3.3.0" alt="KHIT Gear" class="khit-logo-img">
                       </div>
                       <div class="khit-logo-inner">
-                          <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
+                          <img src="khit logo.png?v=3.3.0" alt="KHIT Globe" class="khit-logo-img">
                       </div>
                   </div>
                </div>`;
@@ -2329,10 +2329,10 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
             <div class="khit-logo-float-wrapper shrink-0">
                 <div class="khit-logo-container logo-size-sm">
                     <div class="khit-logo-outer">
-                        <img src="khit logo.png" alt="KHIT Gear" class="khit-logo-img">
+                        <img src="khit logo.png?v=3.3.0" alt="KHIT Gear" class="khit-logo-img">
                     </div>
                     <div class="khit-logo-inner">
-                        <img src="khit logo.png" alt="KHIT Globe" class="khit-logo-img">
+                        <img src="khit logo.png?v=3.3.0" alt="KHIT Globe" class="khit-logo-img">
                     </div>
                 </div>
             </div>
