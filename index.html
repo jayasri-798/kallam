@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=3.2.3">
+    <link rel="stylesheet" href="styles.css?v=3.3.0">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -209,6 +209,18 @@
                         </svg>
                         <span class="hidden sm:inline-block">Clear</span>
                     </button>
+                    <!-- Campus Hub Suite Toggle Button -->
+                    <button id="btn-hub-toggle" class="text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-cyan-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-5.25 6.557c0 1.11.895 2.012 2 2.012h6.5c1.105 0 2-.902 2-2.012V11.325" />
+                        </svg>
+                        <span>Campus Hub</span>
+                    </button>
+                    <!-- Bilingual Language Toggle Button -->
+                    <button id="btn-lang-toggle" class="text-xs framer-pill-button py-2 px-2.5 md:px-3 cursor-pointer flex items-center gap-1 font-semibold" title="Toggle English / Telugu Language">
+                        <span class="text-xs">🌐</span>
+                        <span id="lang-toggle-text">EN</span>
+                    </button>
                     <!-- Calendar View Toggle Button -->
                     <button id="btn-calendar-toggle" class="text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
@@ -347,6 +359,470 @@
                         </div>
                     </div>
                 </footer>
+            </div>
+
+            <!-- Campus Hub Workspace Wrapper (Hidden by default) -->
+            <div id="hub-workspace" class="flex-1 flex flex-col overflow-y-auto p-4 sm:p-6 md:p-8 hidden space-y-6 pb-20">
+                <!-- Hub Navigation Header & Sub-Tabs -->
+                <div class="framer-neon-card p-4 sm:p-5 relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-xl shrink-0">
+                            🏛️
+                        </div>
+                        <div>
+                            <h2 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                                <span>KHIT Autonomous Campus Hub</span>
+                                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full text-cyan-400 bg-cyan-500/10 border border-cyan-500/30">Phase 2</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 font-normal">Academic Calculators, Career Acceleration, Transit Directory & AI Notes Analyzer</p>
+                        </div>
+                    </div>
+                    <!-- 4 Sub-Tabs Navigation Pills -->
+                    <div class="flex items-center flex-wrap gap-2">
+                        <button id="hub-tab-academics" class="hub-subtab active px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer border border-cyan-500/40 bg-sky-600 text-white flex items-center gap-1.5 shadow-md">
+                            <span>🎓</span>
+                            <span>Academics & SGPA</span>
+                        </button>
+                        <button id="hub-tab-placements" class="hub-subtab px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-1.5 transition">
+                            <span>💼</span>
+                            <span>Placements & CRT</span>
+                        </button>
+                        <button id="hub-tab-transit" class="hub-subtab px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-1.5 transition">
+                            <span>🚌</span>
+                            <span>Transit & Hostel</span>
+                        </button>
+                        <button id="hub-tab-analyzer" class="hub-subtab px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-1.5 transition">
+                            <span>📝</span>
+                            <span>Notes Analyzer</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB-PANEL 1: ACADEMICS & EXAMINATION -->
+                <div id="hub-panel-academics" class="space-y-6">
+                    <!-- Grid: SGPA Calculator + Leave Generator -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Left: Autonomous R20 / R23 SGPA & CGPA Calculator (7 cols) -->
+                        <div class="lg:col-span-7 hub-card p-5 sm:p-6 space-y-5">
+                            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>📊</span>
+                                        <span>R20 / R23 Autonomous SGPA Calculator</span>
+                                    </h3>
+                                    <p class="text-[11px] text-slate-400">JNTUK autonomous credit-based grade point evaluation</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-slate-400">Regulation:</span>
+                                    <select id="calc-regulation" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-2.5 py-1 focus:outline-none focus:border-cyan-500">
+                                        <option value="R23">R23 (Autonomous)</option>
+                                        <option value="R20">R20 (Autonomous)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Course Rows Container -->
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-12 gap-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1">
+                                    <div class="col-span-6 sm:col-span-6">Course / Subject Name</div>
+                                    <div class="col-span-3 sm:col-span-3">Credits</div>
+                                    <div class="col-span-3 sm:col-span-2">Grade</div>
+                                    <div class="hidden sm:block sm:col-span-1 text-center">Action</div>
+                                </div>
+                                <div id="sgpa-courses-list" class="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+                                    <!-- Dynamic Rows populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Calculator Actions & Results -->
+                            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+                                <div class="flex items-center gap-2">
+                                    <button id="btn-add-course" type="button" class="text-xs framer-pill-button py-2 px-3 cursor-pointer flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 font-medium">
+                                        <span>➕</span> Add Subject
+                                    </button>
+                                    <button id="btn-reset-sgpa" type="button" class="text-xs framer-pill-button py-2 px-3 cursor-pointer text-slate-400 hover:text-rose-400 font-medium">
+                                        Reset
+                                    </button>
+                                </div>
+                                <button id="btn-calculate-sgpa" type="button" class="text-xs font-bold py-2.5 px-5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg hover:from-cyan-400 hover:to-blue-500 cursor-pointer flex items-center gap-2 transition">
+                                    <span>⚡ Calculate SGPA</span>
+                                </button>
+                            </div>
+
+                            <!-- SGPA Output Result Card -->
+                            <div id="sgpa-result-card" class="hidden p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/30 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold text-cyan-300 uppercase tracking-wider">Semester Performance Score</span>
+                                    <span id="sgpa-classification" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">First Class with Distinction</span>
+                                </div>
+                                <div class="flex items-baseline gap-3">
+                                    <span id="sgpa-value-display" class="text-3xl font-extrabold text-white">9.12</span>
+                                    <span class="text-xs text-slate-400">/ 10.0 SGPA</span>
+                                    <span class="text-xs text-slate-500">•</span>
+                                    <span id="sgpa-percent-display" class="text-sm font-semibold text-cyan-400">83.7% Equivalent</span>
+                                </div>
+                                <p id="sgpa-advice-display" class="text-xs text-slate-300 italic">Outstanding academic milestone! High eligibility for Super Dream recruitment drives.</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: Formal Leave & On-Duty Application Generator (5 cols) -->
+                        <div class="lg:col-span-5 hub-card p-5 sm:p-6 space-y-5">
+                            <div class="border-b border-slate-800/80 pb-3">
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>✉️</span>
+                                    <span>Formal Leave & On-Duty (OD) Generator</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Official college format addressed to HOD or Dean</p>
+                            </div>
+
+                            <form id="leave-generator-form" class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Student Name</label>
+                                        <input type="text" id="leave-student-name" placeholder="Amareswar C." required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Roll Number</label>
+                                        <input type="text" id="leave-roll-no" placeholder="228X1A05XX" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Branch & Year</label>
+                                        <input type="text" id="leave-branch" placeholder="B.Tech CSE - 3rd Year" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Application Type</label>
+                                        <select id="leave-type" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500">
+                                            <option value="Medical / Sick Leave">Medical / Sick Leave</option>
+                                            <option value="Academic On-Duty (OD) - Hackathon/Symposium">Academic On-Duty (OD)</option>
+                                            <option value="Internship / CRT Training">Internship / CRT Training</option>
+                                            <option value="Personal / Family Emergency">Personal / Family Emergency</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">From Date</label>
+                                        <input type="date" id="leave-start-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">To Date</label>
+                                        <input type="date" id="leave-end-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Addressed To Authority</label>
+                                    <select id="leave-addressed-to" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                                        <option value="HOD_CSE">Dr. G. J. Sunny Deol, Head of Department - CSE</option>
+                                        <option value="DEAN_DIPLOMA">Dr. D. Venkata Rao, Dean of Diploma (Polytechnic)</option>
+                                        <option value="HOD_AIDS">Head of Department - AI & DS</option>
+                                        <option value="HOD_ECE">Head of Department - ECE</option>
+                                        <option value="DEAN_ACADEMICS">Dean of Academic Affairs</option>
+                                        <option value="PRINCIPAL">Principal, KHIT</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Reason / Subject Details</label>
+                                    <textarea id="leave-reason" rows="2" placeholder="Brief reason (e.g. Diagnosed with viral fever / Selected for Smart India Hackathon final round)..." class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500"></textarea>
+                                </div>
+
+                                <button type="submit" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                                    <span>📄 Generate Official Letter</span>
+                                </button>
+                            </form>
+
+                            <!-- Generated Letter Modal / Card -->
+                            <div id="leave-preview-container" class="hidden space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Official Letter Preview</span>
+                                    <div class="flex items-center gap-2">
+                                        <button id="btn-copy-leave" type="button" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer border border-slate-700 transition">
+                                            📋 Copy
+                                        </button>
+                                        <button id="btn-print-leave" type="button" class="text-[11px] px-2.5 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer transition">
+                                            🖨️ Print / PDF
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="leave-letter-text" class="formal-letter-preview p-4 text-xs text-slate-200 max-h-[220px] overflow-y-auto whitespace-pre-wrap select-text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part B: Autonomous Curriculum & Syllabus Explorer -->
+                    <div class="hub-card p-5 sm:p-6 space-y-5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>📚</span>
+                                    <span>Autonomous Syllabus & Curriculum Explorer</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Interactive course outlines, laboratory practicals, and credit distribution</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <select id="syllabus-branch" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500">
+                                    <option value="CSE">CSE (Computer Science)</option>
+                                    <option value="AIDS">AI & Data Science</option>
+                                    <option value="ECE">ECE (Electronics & Comm)</option>
+                                    <option value="EEE">EEE (Electrical & Electronics)</option>
+                                    <option value="MECH">Mechanical Engineering</option>
+                                    <option value="CIVIL">Civil Engineering</option>
+                                    <option value="DIPLOMA">Diploma (Polytechnic - CME)</option>
+                                </select>
+                                <select id="syllabus-semester" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500">
+                                    <option value="3-1">III B.Tech - Sem I (3-1)</option>
+                                    <option value="3-2">III B.Tech - Sem II (3-2)</option>
+                                    <option value="4-1">IV B.Tech - Sem I (4-1)</option>
+                                    <option value="4-2">IV B.Tech - Sem II (4-2)</option>
+                                    <option value="2-1">II B.Tech - Sem I (2-1)</option>
+                                    <option value="2-2">II B.Tech - Sem II (2-2)</option>
+                                    <option value="1-1">I B.Tech - Sem I (1-1)</option>
+                                    <option value="1-2">I B.Tech - Sem II (1-2)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Syllabus Cards Grid -->
+                        <div id="syllabus-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PANEL 2: PLACEMENTS & CRT SUITE -->
+                <div id="hub-panel-placements" class="space-y-6 hidden">
+                    <!-- Placement Stats Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="hub-card p-4 space-y-1 text-center">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Highest Package</span>
+                            <div class="text-xl sm:text-2xl font-extrabold text-emerald-400">₹14.5 LPA</div>
+                            <span class="text-[10px] text-slate-500">Amazon / Cisco AWS</span>
+                        </div>
+                        <div class="hub-card p-4 space-y-1 text-center">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Average CTC</span>
+                            <div class="text-xl sm:text-2xl font-extrabold text-cyan-400">₹5.2 LPA</div>
+                            <span class="text-[10px] text-slate-500">Autonomous Batch 2024-25</span>
+                        </div>
+                        <div class="hub-card p-4 space-y-1 text-center">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Offers</span>
+                            <div class="text-xl sm:text-2xl font-extrabold text-amber-400">480+</div>
+                            <span class="text-[10px] text-slate-500">88.6% Conversion Rate</span>
+                        </div>
+                        <div class="hub-card p-4 space-y-1 text-center">
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Active Recruiters</span>
+                            <div class="text-xl sm:text-2xl font-extrabold text-purple-400">42+ MNCs</div>
+                            <span class="text-[10px] text-slate-500">Tier-1 & Product Startups</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive CRT Technical Prep Launcher -->
+                    <div class="hub-card p-5 sm:p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>🚀</span>
+                                    <span>Interactive CRT & Technical Interview Practice Engine</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Launch real-time AI mock interviews and targeted competitive coding rounds</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">AI Powered</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <button type="button" class="btn-crt-prep text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/60 transition group cursor-pointer" data-topic="DSA & Problem Solving (LeetCode / Arrays, Trees, Dynamic Programming)">
+                                <div class="text-xs font-bold text-white group-hover:text-cyan-400 transition flex items-center justify-between">
+                                    <span>🧠 DSA & Problem Solving</span>
+                                    <span>→</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">Striver SDE Sheet, Trees, Graphs, Two Pointers & Big-O</p>
+                            </button>
+
+                            <button type="button" class="btn-crt-prep text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/60 transition group cursor-pointer" data-topic="Core Java, OOPs, Collections & Exception Handling">
+                                <div class="text-xs font-bold text-white group-hover:text-cyan-400 transition flex items-center justify-between">
+                                    <span>☕ Core Java & OOPs</span>
+                                    <span>→</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">Polymorphism, Interfaces, Multi-threading, JVM architecture</p>
+                            </button>
+
+                            <button type="button" class="btn-crt-prep text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/60 transition group cursor-pointer" data-topic="Python Programming, Data Structures & Pandas">
+                                <div class="text-xs font-bold text-white group-hover:text-cyan-400 transition flex items-center justify-between">
+                                    <span>🐍 Python & Data Science</span>
+                                    <span>→</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">Generators, Decorators, Lambda, NumPy, Pandas analytics</p>
+                            </button>
+
+                            <button type="button" class="btn-crt-prep text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/60 transition group cursor-pointer" data-topic="DBMS, SQL Queries, Joins, Indexing & ACID properties">
+                                <div class="text-xs font-bold text-white group-hover:text-cyan-400 transition flex items-center justify-between">
+                                    <span>💾 DBMS & Complex SQL</span>
+                                    <span>→</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">2nd highest salary, Joins, Normalization 3NF/BCNF, Triggers</p>
+                            </button>
+
+                            <button type="button" class="btn-crt-prep text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/60 transition group cursor-pointer" data-topic="Quantitative Aptitude, Logical Reasoning & Speed Math">
+                                <div class="text-xs font-bold text-white group-hover:text-cyan-400 transition flex items-center justify-between">
+                                    <span>📈 Aptitude & Logical Reasoning</span>
+                                    <span>→</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">Time & Work, Percentages, Syllogisms, Speed Math tricks</p>
+                            </button>
+
+                            <button type="button" class="btn-crt-prep text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/60 transition group cursor-pointer" data-topic="HR Interview, Strengths, Weaknesses, Behavioral Questions & KHIT Leadership">
+                                <div class="text-xs font-bold text-white group-hover:text-cyan-400 transition flex items-center justify-between">
+                                    <span>🤝 HR & Behavioral Rounds</span>
+                                    <span>→</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mt-1">STAR method, "Tell me about yourself", situational ethics</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filterable Recruiter Directory -->
+                    <div class="hub-card p-5 sm:p-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>🏢</span>
+                                    <span>Tier-1 Recruiter Directory & Hiring Profiles</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Detailed packages, eligibility requirements, and selection process</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="recruiter-search" placeholder="Search company or skill..." class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500 w-44 sm:w-56">
+                            </div>
+                        </div>
+
+                        <!-- Company Cards Grid -->
+                        <div id="recruiters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PANEL 3: TRANSIT & HOSTEL NAVIGATOR -->
+                <div id="hub-panel-transit" class="space-y-6 hidden">
+                    <!-- Bus Transit Directory -->
+                    <div class="hub-card p-5 sm:p-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>🚌</span>
+                                    <span>KHIT College Bus Routes Directory</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Comprehensive coverage across Guntur, Vijayawada, Tenali, Chilakaluripet & surrounding areas</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="transit-search-input" placeholder="Search route, stop, driver (e.g. Vijayawada, Tenali, Arundalpet)..." class="bg-slate-900 border border-slate-700 text-xs text-white rounded-lg px-3.5 py-1.5 focus:outline-none focus:border-cyan-500 w-full sm:w-72">
+                            </div>
+                        </div>
+
+                        <!-- Bus Routes Table / Cards Container -->
+                        <div id="transit-routes-list" class="space-y-3">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Campus Hostel & Facility Guide -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Hostel Rules & Mess Timetable -->
+                        <div class="hub-card p-5 sm:p-6 space-y-3">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span>🏠</span>
+                                <span>Hostel Rules & Mess Schedule</span>
+                            </h3>
+                            <div class="space-y-2 text-xs text-slate-300">
+                                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                                    <span class="font-bold text-cyan-400">🍽️ Daily Mess Timings:</span>
+                                    <ul class="list-disc list-inside text-slate-400 space-y-0.5 text-[11px]">
+                                        <li>Breakfast: 07:30 AM – 08:30 AM (South Indian tiffin)</li>
+                                        <li>Lunch: 12:30 PM – 01:30 PM (Nutritious meals & curd)</li>
+                                        <li>Evening Snacks: 05:00 PM – 05:45 PM (Tea & Snacks)</li>
+                                        <li>Dinner: 07:30 PM – 08:45 PM (Special non-veg/veg twice weekly)</li>
+                                    </ul>
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                                    <span class="font-bold text-cyan-400">🔒 Hostel In-Time & Gate Pass:</span>
+                                    <p class="text-slate-400 text-[11px]">Students must report before 06:30 PM (Girls) / 07:00 PM (Boys). Outing passes require warden approval and SMS parent consent.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Central Facilities & Dispensary -->
+                        <div class="hub-card p-5 sm:p-6 space-y-3">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span>🏥</span>
+                                <span>Central Facilities & Health Center</span>
+                            </h3>
+                            <div class="space-y-2 text-xs text-slate-300">
+                                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                                    <span class="font-bold text-cyan-400">📖 Central Library:</span>
+                                    <p class="text-slate-400 text-[11px]">Open 08:00 AM – 08:00 PM on all working days. 45,000+ volumes, IEEE/DELNET digital journals, high-speed Wi-Fi, air-conditioned reading hall.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-1">
+                                    <span class="font-bold text-cyan-400">🚑 Dispensary & First Aid:</span>
+                                    <p class="text-slate-400 text-[11px]">24/7 dedicated medical assistant on campus with visiting medical officer. Dedicated emergency campus ambulance on standby.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-PANEL 4: NOTES & EXAM ANALYZER -->
+                <div id="hub-panel-analyzer" class="space-y-6 hidden">
+                    <div class="hub-card p-5 sm:p-6 space-y-4">
+                        <div class="border-b border-slate-800/80 pb-3">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span>📝</span>
+                                <span>Academic Notes, Syllabus & Question Paper Analyzer</span>
+                            </h3>
+                            <p class="text-[11px] text-slate-400">Paste syllabus topics, lecture notes, or past questions to synthesize exam summaries, quizzes, or Telugu translations instantly</p>
+                        </div>
+
+                        <div>
+                            <textarea id="analyzer-input-text" rows="5" placeholder="Paste your academic text, complex concept, or exam question paper content here..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20"></textarea>
+                        </div>
+
+                        <!-- 4 Action Buttons -->
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <button type="button" id="btn-analyzer-summary" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
+                                <span>💡</span> 3-Minute Exam Summary
+                            </button>
+                            <button type="button" id="btn-analyzer-questions" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
+                                <span>🎯</span> 5 Probable Exam Questions
+                            </button>
+                            <button type="button" id="btn-analyzer-elif" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
+                                <span>🧠</span> Explain Like I'm 5 (ELIF)
+                            </button>
+                            <button type="button" id="btn-analyzer-telugu" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
+                                <span>🇮🇳</span> తెలుగు సారాంశం (Telugu)
+                            </button>
+                            <button type="button" id="btn-analyzer-clear" class="text-xs font-semibold py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer transition ml-auto">
+                                Clear
+                            </button>
+                        </div>
+
+                        <!-- Analysis Output Card -->
+                        <div id="analyzer-output-container" class="hidden space-y-3 pt-3 border-t border-slate-800/80">
+                            <div class="flex items-center justify-between">
+                                <span id="analyzer-output-title" class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Analysis Result</span>
+                                <button type="button" id="btn-copy-analyzer" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer border border-slate-700 transition">
+                                    📋 Copy Result
+                                </button>
+                            </div>
+                            <div id="analyzer-output-content" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-200 leading-relaxed max-h-[350px] overflow-y-auto whitespace-pre-wrap select-text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Calendar Workspace Wrapper (Hidden by default) -->
@@ -892,6 +1368,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.3.9"></script>
+    <script type="module" src="app.js?v=3.4.0"></script>
 </body>
 </html>

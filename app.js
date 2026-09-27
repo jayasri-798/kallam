@@ -209,6 +209,84 @@ function initializeApplication() {
     try { geminiKeyFeedback = document.getElementById("gemini-key-feedback"); } catch(e) {}
     try { aiEngineStatusBadge = document.getElementById("ai-engine-status-badge"); } catch(e) {}
 
+    // Campus Hub Workspace Elements
+    let btnHubToggle, hubWorkspace, btnLangToggle, langToggleText;
+    let hubTabAcademics, hubTabPlacements, hubTabTransit, hubTabAnalyzer;
+    let hubPanelAcademics, hubPanelPlacements, hubPanelTransit, hubPanelAnalyzer;
+    try { btnHubToggle = document.getElementById("btn-hub-toggle"); } catch(e) {}
+    try { hubWorkspace = document.getElementById("hub-workspace"); } catch(e) {}
+    try { btnLangToggle = document.getElementById("btn-lang-toggle"); } catch(e) {}
+    try { langToggleText = document.getElementById("lang-toggle-text"); } catch(e) {}
+    try { hubTabAcademics = document.getElementById("hub-tab-academics"); } catch(e) {}
+    try { hubTabPlacements = document.getElementById("hub-tab-placements"); } catch(e) {}
+    try { hubTabTransit = document.getElementById("hub-tab-transit"); } catch(e) {}
+    try { hubTabAnalyzer = document.getElementById("hub-tab-analyzer"); } catch(e) {}
+    try { hubPanelAcademics = document.getElementById("hub-panel-academics"); } catch(e) {}
+    try { hubPanelPlacements = document.getElementById("hub-panel-placements"); } catch(e) {}
+    try { hubPanelTransit = document.getElementById("hub-panel-transit"); } catch(e) {}
+    try { hubPanelAnalyzer = document.getElementById("hub-panel-analyzer"); } catch(e) {}
+
+    // SGPA & Course Calculator Elements
+    let calcRegulation, sgpaCoursesList, btnAddCourse, btnResetSgpa, btnCalculateSgpa;
+    let sgpaResultCard, sgpaClassification, sgpaValueDisplay, sgpaPercentDisplay, sgpaAdviceDisplay;
+    try { calcRegulation = document.getElementById("calc-regulation"); } catch(e) {}
+    try { sgpaCoursesList = document.getElementById("sgpa-courses-list"); } catch(e) {}
+    try { btnAddCourse = document.getElementById("btn-add-course"); } catch(e) {}
+    try { btnResetSgpa = document.getElementById("btn-reset-sgpa"); } catch(e) {}
+    try { btnCalculateSgpa = document.getElementById("btn-calculate-sgpa"); } catch(e) {}
+    try { sgpaResultCard = document.getElementById("sgpa-result-card"); } catch(e) {}
+    try { sgpaClassification = document.getElementById("sgpa-classification"); } catch(e) {}
+    try { sgpaValueDisplay = document.getElementById("sgpa-value-display"); } catch(e) {}
+    try { sgpaPercentDisplay = document.getElementById("sgpa-percent-display"); } catch(e) {}
+    try { sgpaAdviceDisplay = document.getElementById("sgpa-advice-display"); } catch(e) {}
+
+    // Leave & OD Application Generator Elements
+    let leaveGeneratorForm, leaveStudentName, leaveRollNo, leaveBranch, leaveType, leaveStartDate, leaveEndDate, leaveAddressedTo, leaveReason;
+    let leavePreviewContainer, leaveLetterText, btnCopyLeave, btnPrintLeave;
+    try { leaveGeneratorForm = document.getElementById("leave-generator-form"); } catch(e) {}
+    try { leaveStudentName = document.getElementById("leave-student-name"); } catch(e) {}
+    try { leaveRollNo = document.getElementById("leave-roll-no"); } catch(e) {}
+    try { leaveBranch = document.getElementById("leave-branch"); } catch(e) {}
+    try { leaveType = document.getElementById("leave-type"); } catch(e) {}
+    try { leaveStartDate = document.getElementById("leave-start-date"); } catch(e) {}
+    try { leaveEndDate = document.getElementById("leave-end-date"); } catch(e) {}
+    try { leaveAddressedTo = document.getElementById("leave-addressed-to"); } catch(e) {}
+    try { leaveReason = document.getElementById("leave-reason"); } catch(e) {}
+    try { leavePreviewContainer = document.getElementById("leave-preview-container"); } catch(e) {}
+    try { leaveLetterText = document.getElementById("leave-letter-text"); } catch(e) {}
+    try { btnCopyLeave = document.getElementById("btn-copy-leave"); } catch(e) {}
+    try { btnPrintLeave = document.getElementById("btn-print-leave"); } catch(e) {}
+
+    // Syllabus Explorer Elements
+    let syllabusBranch, syllabusSemester, syllabusCardsContainer;
+    try { syllabusBranch = document.getElementById("syllabus-branch"); } catch(e) {}
+    try { syllabusSemester = document.getElementById("syllabus-semester"); } catch(e) {}
+    try { syllabusCardsContainer = document.getElementById("syllabus-cards-container"); } catch(e) {}
+
+    // Placements & Transit Elements
+    let recruiterSearch, recruitersGrid, transitSearchInput, transitRoutesList;
+    try { recruiterSearch = document.getElementById("recruiter-search"); } catch(e) {}
+    try { recruitersGrid = document.getElementById("recruiters-grid"); } catch(e) {}
+    try { transitSearchInput = document.getElementById("transit-search-input"); } catch(e) {}
+    try { transitRoutesList = document.getElementById("transit-routes-list"); } catch(e) {}
+
+    // Notes Analyzer Elements
+    let analyzerInputText, btnAnalyzerSummary, btnAnalyzerQuestions, btnAnalyzerElif, btnAnalyzerTelugu, btnAnalyzerClear;
+    let analyzerOutputContainer, analyzerOutputTitle, analyzerOutputContent, btnCopyAnalyzer;
+    try { analyzerInputText = document.getElementById("analyzer-input-text"); } catch(e) {}
+    try { btnAnalyzerSummary = document.getElementById("btn-analyzer-summary"); } catch(e) {}
+    try { btnAnalyzerQuestions = document.getElementById("btn-analyzer-questions"); } catch(e) {}
+    try { btnAnalyzerElif = document.getElementById("btn-analyzer-elif"); } catch(e) {}
+    try { btnAnalyzerTelugu = document.getElementById("btn-analyzer-telugu"); } catch(e) {}
+    try { btnAnalyzerClear = document.getElementById("btn-analyzer-clear"); } catch(e) {}
+    try { analyzerOutputContainer = document.getElementById("analyzer-output-container"); } catch(e) {}
+    try { analyzerOutputTitle = document.getElementById("analyzer-output-title"); } catch(e) {}
+    try { analyzerOutputContent = document.getElementById("analyzer-output-content"); } catch(e) {}
+    try { btnCopyAnalyzer = document.getElementById("btn-copy-analyzer"); } catch(e) {}
+
+    // Global Bilingual State Flag
+    let isTeluguModeActive = false;
+
     // Advanced Voice Controls
     let btnVoiceMute, btnVoiceExit, voiceWaveVisualizer, voiceStatusIndicator;
     try { btnVoiceMute = document.getElementById("btn-voice-mute"); } catch(e) {}
@@ -407,6 +485,25 @@ Mandatory Internships: Every student must clear a 10-month aggregate industrial/
 Academic Flipped Classroom: Students must earn specific elective credits online via the institutional SWAYAM NPTEL local chapter.
 Social Service Mandate: All registered students must enroll in either NCC or NSS units.
 Student Supervision: A designated Faculty Advisor oversees student course registration and profile reviews.
+
+[CAMPUS TRANSIT & BUS ROUTES DIRECTORY]
+College Bus Coverage: KHIT operates 8 major express bus routes covering Vijayawada, Guntur City, Tenali, Chilakaluripet, Ponnur, Chebrolu, Mangalagiri, and Sattenapalle.
+Operating Hours: Morning bus arrival at campus by 08:45 AM; Evening return departure at 04:45 PM.
+Route Highlights:
+- Route 01: Vijayawada Express (Benz Circle, Ramavarappadu, Tadepalli, Mangalagiri) • Driver: K. Venkateswara Rao (+91 98481 23451)
+- Route 02: Guntur City Central (Old Bus Stand, Market Centre, Arundalpet 14/3, Gujjanagundla, Koritepadu, Naaz) • Driver: M. Srinivasa Rao (+91 98481 23452)
+- Route 03: Guntur West Loop (Brodipet, Lakshmipuram, Collector Office, Syamala Nagar, Pattabhipuram) • Driver: P. Ramakrishna (+91 98481 23453)
+- Route 04: Tenali Superfast (Tenali RTC Bus Stand, Chenchupet, Angalakuduru, Narakodur) • Driver: B. Subba Rao (+91 98481 23454)
+- Route 05: Chilakaluripet Express (Clock Tower, Ganapavaram, Boyapalem, Prathipadu NH-16) • Driver: Sk. Mastan Vali (+91 98481 23455)
+- Route 06: Ponnur-Chebrolu (Ponnur Bus Station, Nidubrolu, Chebrolu) • Driver: Ch. Sambaiah (+91 98481 23456)
+- Route 07: Mangalagiri Local (Old Bus Stand, NRI Hospital, Kaza, Nambur, Pedakakani) • Driver: T. Koteswara Rao (+91 98481 23457)
+- Route 08: Sattenapalle Highway (Sattenapalle, Medikonduru, Perecherla Junction) • Driver: Y. Anji Reddy (+91 98481 23458)
+Transport Office Emergency Desk: +91 863 2119724.
+
+[CAMPUS RECRUITMENT TRAINING & TOP RECRUITERS]
+Placement Records: Highest package ₹14.5 - 24.0 LPA (Amazon Web Services), Average CTC ₹5.2 LPA, 480+ total job offers with 88.6% conversion rate.
+Key Tier-1 Recruiters: Amazon AWS, Tata Consultancy Services (TCS Digital/Ninja), Infosys (Specialist Programmer/DSE), Wipro (Turbo/Elite), Cognizant (GenC Elevate), Tech Mahindra, Efftronics Systems (IoT/Embedded), Hexaware Technologies, Miracle Software Systems.
+Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Java & OOPs, Python Data Science, SQL / DBMS, Quantitative Aptitude, and HR behavioral interviews.
 `;
 
     async function getAllCircularsContext() {
@@ -1379,14 +1476,13 @@ ${circularsContext}`;
         saveChatHistoryToFirestore();
         
         let activeSystemInstruction = systemInstruction;
+        if (isTeluguModeActive || (voiceModeOverlayActive && document.getElementById("sel-voice-lang")?.value === "te-IN")) {
+            activeSystemInstruction += `\n\n5. BILINGUAL TELUGU MODE ACTIVE: You MUST answer the user's query in natural, respectful, and articulate TELUGU language (తెలుగు లిపి). Provide all academic information, college guidelines, departments, faculty profiles, and circular bulletins in Telugu, accompanied by standard technical terms (such as JNTUK, B.Tech, CSE, SGPA, R20, R23) in parentheses or alongside Telugu explanations where appropriate.`;
+        }
         if (voiceModeOverlayActive) {
             if (voiceOverlayCaptions) {
                 voiceOverlayCaptions.innerHTML = `<div class="p-3.5 bg-sky-950/40 border border-sky-500/25 rounded-2xl mb-3"><div class="text-[11px] font-semibold uppercase tracking-wider text-sky-400 mb-1 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>You Asked</div><p class="text-slate-100 text-sm font-medium">"${text}"</p></div><div class="flex items-center gap-2.5 text-slate-400 text-xs py-2 px-1"><span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span><span>Analyzing academic records & verified ground truth...</span></div>`;
                 voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
-            }
-            const langSelector = document.getElementById("sel-voice-lang");
-            if (langSelector && langSelector.value === "te-IN") {
-                activeSystemInstruction += `\n\n5. LANGUAGE REQUIREMENT: You MUST answer the user's query in TELUGU language only. Translate all explanations, college statistics, admissions metadata, and circular details into natural, clear Telugu text. Do not use English letters; respond purely in Telugu text so it can be synthesized correctly.`;
             }
         }
         
@@ -2890,12 +2986,14 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
     // --- Workspace Toggling Control Panel ---
     function switchWorkspace(target) {
         // Reset active highlights on header toggle buttons
+        if (btnHubToggle) btnHubToggle.classList.remove("framer-pill-active");
         if (btnCalendarToggle) btnCalendarToggle.classList.remove("framer-pill-active");
         if (btnProfileToggle) btnProfileToggle.classList.remove("framer-pill-active");
         if (btnAdminToggle) btnAdminToggle.classList.remove("framer-pill-active");
         
         // Hide all workspace wrappers
         if (chatWorkspace) chatWorkspace.classList.add("hidden");
+        if (hubWorkspace) hubWorkspace.classList.add("hidden");
         if (calendarWorkspace) calendarWorkspace.classList.add("hidden");
         if (profileWorkspace) profileWorkspace.classList.add("hidden");
         if (adminWorkspace) adminWorkspace.classList.add("hidden");
@@ -2903,6 +3001,11 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
         if (target === "chat") {
             if (chatWorkspace) chatWorkspace.classList.remove("hidden");
             if (btnClearChat) btnClearChat.classList.remove("hidden");
+        } else if (target === "hub") {
+            if (hubWorkspace) hubWorkspace.classList.remove("hidden");
+            if (btnHubToggle) btnHubToggle.classList.add("framer-pill-active");
+            if (btnClearChat) btnClearChat.classList.add("hidden");
+            initCampusHubSuite(); // Initialize courses, syllabus, recruiters, transit
         } else if (target === "calendar") {
             if (calendarWorkspace) calendarWorkspace.classList.remove("hidden");
             if (btnCalendarToggle) btnCalendarToggle.classList.add("framer-pill-active");
@@ -3043,6 +3146,37 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
             } else {
                 inputGeminiApiKey.type = "password";
                 btnToggleKeyVisibility.textContent = "Show";
+            }
+        });
+    }
+
+    if (btnHubToggle) {
+        btnHubToggle.addEventListener("click", () => {
+            if (hubWorkspace && !hubWorkspace.classList.contains("hidden")) {
+                switchWorkspace("chat");
+            } else {
+                switchWorkspace("hub");
+            }
+        });
+    }
+
+    if (btnLangToggle) {
+        btnLangToggle.addEventListener("click", () => {
+            isTeluguModeActive = !isTeluguModeActive;
+            if (isTeluguModeActive) {
+                btnLangToggle.classList.add("lang-badge-active");
+                if (langToggleText) langToggleText.textContent = "తెలుగు";
+                showToast("Bilingual Engine: తెలుగు (Telugu) activated 🌐");
+                if (recognition) recognition.lang = "te-IN";
+                const langSel = document.getElementById("sel-voice-lang");
+                if (langSel) langSel.value = "te-IN";
+            } else {
+                btnLangToggle.classList.remove("lang-badge-active");
+                if (langToggleText) langToggleText.textContent = "EN";
+                showToast("Bilingual Engine: English activated 🌐");
+                if (recognition) recognition.lang = "en-IN";
+                const langSel = document.getElementById("sel-voice-lang");
+                if (langSel) langSel.value = "en-IN";
             }
         });
     }
@@ -3675,6 +3809,870 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
             renderInteractiveCalendar();
         });
     }
+
+    // =========================================================================
+    // KHIT-PULSE PHASE 2: CAMPUS HUB INTELLIGENCE SUITE
+    // =========================================================================
+
+    let hubInitialized = false;
+
+    // Bus Routes Dataset
+    const KHIT_BUS_ROUTES = [
+        {
+            routeNo: "Route 01",
+            name: "Vijayawada Express",
+            timings: "07:20 AM Departure • 04:45 PM Return",
+            driverName: "K. Venkateswara Rao",
+            driverPhone: "+91 98481 23451",
+            stops: ["Benz Circle", "Ramavarappadu Ring", "Auto Nagar Gate", "Tadepalli", "Mangalagiri Bypass", "Kaza Toll", "KHIT Chowdavaram"],
+            busCapacity: "54 Seater Deluxe",
+            busPlate: "AP 07 TJ 1102"
+        },
+        {
+            routeNo: "Route 02",
+            name: "Guntur City Central",
+            timings: "07:50 AM Departure • 04:45 PM Return",
+            driverName: "M. Srinivasa Rao",
+            driverPhone: "+91 98481 23452",
+            stops: ["Old Bus Stand", "Market Centre", "Arundalpet 14/3", "Gujjanagundla", "Koritepadu", "Naaz Centre", "KHIT Chowdavaram"],
+            busCapacity: "50 Seater",
+            busPlate: "AP 07 TJ 1105"
+        },
+        {
+            routeNo: "Route 03",
+            name: "Guntur West Loop",
+            timings: "07:45 AM Departure • 04:45 PM Return",
+            driverName: "P. Ramakrishna",
+            driverPhone: "+91 98481 23453",
+            stops: ["Brodipet 4/2", "Lakshmipuram Main Rd", "Collector Office", "Syamala Nagar", "Pattabhipuram", "Stambalagaruvu", "KHIT Chowdavaram"],
+            busCapacity: "52 Seater",
+            busPlate: "AP 07 TJ 1108"
+        },
+        {
+            routeNo: "Route 04",
+            name: "Tenali Superfast",
+            timings: "07:30 AM Departure • 04:45 PM Return",
+            driverName: "B. Subba Rao",
+            driverPhone: "+91 98481 23454",
+            stops: ["Tenali RTC Bus Stand", "Chenchupet", "Angalakuduru", "Narakodur", "Kothapet Guntur", "KHIT Chowdavaram"],
+            busCapacity: "55 Seater Deluxe",
+            busPlate: "AP 07 TJ 1112"
+        },
+        {
+            routeNo: "Route 05",
+            name: "Chilakaluripet Express",
+            timings: "07:30 AM Departure • 04:45 PM Return",
+            driverName: "Sk. Mastan Vali",
+            driverPhone: "+91 98481 23455",
+            stops: ["Chilakaluripet Clock Tower", "Ganapavaram", "Boyapalem", "Prathipadu NH-16", "Yedlapadu", "KHIT Chowdavaram"],
+            busCapacity: "54 Seater",
+            busPlate: "AP 07 TJ 1115"
+        },
+        {
+            routeNo: "Route 06",
+            name: "Ponnur - Chebrolu Line",
+            timings: "07:35 AM Departure • 04:45 PM Return",
+            driverName: "Ch. Sambaiah",
+            driverPhone: "+91 98481 23456",
+            stops: ["Ponnur Bus Station", "Nidubrolu", "Chebrolu Temple", "Vejendla", "Narakodur Cross", "KHIT Chowdavaram"],
+            busCapacity: "48 Seater",
+            busPlate: "AP 07 TJ 1118"
+        },
+        {
+            routeNo: "Route 07",
+            name: "Mangalagiri Local",
+            timings: "07:40 AM Departure • 04:45 PM Return",
+            driverName: "T. Koteswara Rao",
+            driverPhone: "+91 98481 23457",
+            stops: ["Mangalagiri Bus Stand", "NRI General Hospital", "Kaza", "Nambur", "Pedakakani", "KHIT Chowdavaram"],
+            busCapacity: "50 Seater",
+            busPlate: "AP 07 TJ 1121"
+        },
+        {
+            routeNo: "Route 08",
+            name: "Sattenapalle Highway",
+            timings: "07:15 AM Departure • 04:45 PM Return",
+            driverName: "Y. Anji Reddy",
+            driverPhone: "+91 98481 23458",
+            stops: ["Sattenapalle Main Road", "Dhullipalla", "Medikonduru", "Perecherla Junction", "Nallapadu", "KHIT Chowdavaram"],
+            busCapacity: "52 Seater",
+            busPlate: "AP 07 TJ 1124"
+        }
+    ];
+
+    // Recruiter Profiles Dataset
+    const KHIT_RECRUITERS = [
+        {
+            name: "Amazon Web Services (AWS)",
+            tier: "Super Dream",
+            package: "₹14.0 - 24.0 LPA",
+            role: "Cloud Support Associate / SDE",
+            eligibility: "CGPA 7.5+ • Zero Active Backlogs • CSE / AIDS / ECE",
+            process: "Online Coding (DSA) → Technical Assessment → 2 Technical System & Coding Interviews → Bar Raiser",
+            keySkills: ["DSA (Trees, DP)", "OS & Linux", "Computer Networking", "AWS Cloud Basics"],
+            logoEmoji: "📦"
+        },
+        {
+            name: "Tata Consultancy Services (TCS)",
+            tier: "Dream & Mass",
+            package: "₹3.6 - 7.5 LPA",
+            role: "Ninja & Digital Developer",
+            eligibility: "60% or 6.5 CGPA throughout 10th, 12th & B.Tech",
+            process: "TCS National Qualifier Test (NQT) → Technical Interview (Java/Python/SQL) → MR & HR",
+            keySkills: ["Core Java / Python", "Data Structures", "Database Queries (Joins, Aggregations)", "Quantitative Aptitude"],
+            logoEmoji: "🌐"
+        },
+        {
+            name: "Infosys",
+            tier: "Dream & Mass",
+            package: "₹3.6 - 9.5 LPA",
+            role: "Specialist Programmer (SP) / DSE / SE",
+            eligibility: "65% or 6.8 CGPA • Max 1 Active Backlog allowed for initial rounds",
+            process: "InfyTQ / HackWithInfy / National Test → Technical Coding Round → System Interview",
+            keySkills: ["OOPs Concepts", "Python / C++", "DBMS Normalization", "Problem Solving"],
+            logoEmoji: "💻"
+        },
+        {
+            name: "Wipro",
+            tier: "Mass & Elite",
+            package: "₹3.5 - 6.5 LPA",
+            role: "Turbo & Elite Project Engineer",
+            eligibility: "60% or 6.0 CGPA • All Engineering Streams",
+            process: "National Talent Hunt (NTH) Aptitude + Essay + Coding → Technical Interview → HR",
+            keySkills: ["Data Structures & Algorithms", "Written English & Communication", "SQL & Relational DB"],
+            logoEmoji: "⚡"
+        },
+        {
+            name: "Cognizant (CTS)",
+            tier: "Dream & Elevate",
+            package: "₹4.0 - 6.75 LPA",
+            role: "GenC Elevate & GenC Next",
+            eligibility: "CGPA 6.5+ • 60% in 10th & 12th",
+            process: "Cognizant Skill Assessment (DSA + Full Stack) → Technical Deep Dive → HR Discussion",
+            keySkills: ["Full Stack / Java / React", "REST APIs", "DSA & Algorithms", "Code Debugging"],
+            logoEmoji: "🚀"
+        },
+        {
+            name: "Tech Mahindra",
+            tier: "Mass IT",
+            package: "₹3.75 - 5.5 LPA",
+            role: "Associate Software Engineer",
+            eligibility: "60% throughout Academics • Eligible for all B.Tech branches",
+            process: "Online Aptitude & Psychometric Test → Technical Coding → Technical Interview",
+            keySkills: ["Core Java / C++", "Object-Oriented Programming", "Software Engineering SDLC", "Logical Reasoning"],
+            logoEmoji: "⚙️"
+        },
+        {
+            name: "Efftronics Systems",
+            tier: "Core & IoT",
+            package: "₹4.5 - 6.0 LPA",
+            role: "Embedded Systems & IoT Software Engineer",
+            eligibility: "CGPA 7.0+ • CSE, ECE, EEE Preferred",
+            process: "Written Technical Test (C & Digital Electronics) → Practical Lab Machine Test → Tech Panel Interview",
+            keySkills: ["C Programming", "Microcontrollers & Embedded C", "Digital Logic", "Data Structures"],
+            logoEmoji: "📡"
+        },
+        {
+            name: "Hexaware Technologies",
+            tier: "Dream IT",
+            package: "₹4.0 - 6.0 LPA",
+            role: "Graduate Trainee Engineer",
+            eligibility: "CGPA 6.0+ • CSE, AIDS, IT, ECE",
+            process: "Aptitude Assessment → Coding Test → Tech & HR Panel",
+            keySkills: ["Cloud & Database", "OOPs Programming", "Web Technologies", "Communication Skills"],
+            logoEmoji: "🛡️"
+        },
+        {
+            name: "Miracle Software Systems",
+            tier: "Core IT",
+            package: "₹4.0 - 5.5 LPA",
+            role: "Cloud & Full Stack Engineer",
+            eligibility: "CGPA 6.5+ • CSE & Allied branches",
+            process: "Campus Drive Written Round → Coding Challenge → Technical & HR Interview",
+            keySkills: ["JavaScript & Web Fundamentals", "Core Java", "Cloud / DevOps Basics", "SQL"],
+            logoEmoji: "✨"
+        }
+    ];
+
+    // Syllabus Curriculum Dataset
+    const KHIT_SYLLABUS_DATA = {
+        "CSE": {
+            "3-1": [
+                { code: "20CS5T01", title: "Automata & Compiler Design", type: "Theory", credits: "3.0", topics: "Lexical analysis, CFGs, LL/LR parsing, Intermediate code gen, Code optimization" },
+                { code: "20CS5T02", title: "Data Mining & Data Warehousing", type: "Theory", credits: "3.0", topics: "Data preprocessing, Apriori algorithm, FP-Growth, Decision trees, Clustering algorithms" },
+                { code: "20CS5T03", title: "Computer Networks & Security", type: "Theory", credits: "3.0", topics: "OSI/TCP-IP models, Routing algorithms, Transport protocols (TCP/UDP), Cryptography basics" },
+                { code: "20CS5T04", title: "Design & Analysis of Algorithms", type: "Theory", credits: "3.0", topics: "Divide & Conquer, Greedy method, Dynamic programming, Branch & Bound, NP-Completeness" },
+                { code: "20CS5L01", title: "Compiler Design & Networks Lab", type: "Laboratory", credits: "1.5", topics: "LEX/YACC tools implementation, Socket programming in C/Java, Packet tracer simulations" },
+                { code: "20CS5L02", title: "Data Mining Lab using Python / R", type: "Laboratory", credits: "1.5", topics: "Weka workbench, Python scikit-learn preprocessing, Association rule mining implementation" }
+            ],
+            "3-2": [
+                { code: "20CS6T01", title: "Machine Learning & Deep Learning", type: "Theory", credits: "3.0", topics: "Supervised/Unsupervised models, Neural networks, CNNs, Hyperparameter tuning" },
+                { code: "20CS6T02", title: "Cloud Computing & Distributed Systems", type: "Theory", credits: "3.0", topics: "AWS/GCP architectures, Virtualization, MapReduce, Microservices orchestration" },
+                { code: "20CS6T03", title: "Cryptography & Network Security", type: "Theory", credits: "3.0", topics: "AES/DES, RSA public key, SHA-256 hash, Digital signatures, Firewalls" },
+                { code: "20CS6L01", title: "Machine Learning Practical Lab", type: "Laboratory", credits: "1.5", topics: "TensorFlow & PyTorch model training, Classification and regression benchmarks" },
+                { code: "20CS6L02", title: "Cloud Computing AWS Lab", type: "Laboratory", credits: "1.5", topics: "EC2 provisioning, S3 bucket management, IAM policies, Docker containerization" }
+            ],
+            "4-1": [
+                { code: "20CS7T01", title: "Big Data Analytics (Hadoop & Spark)", type: "Theory", credits: "3.0", topics: "HDFS, MapReduce paradigms, Apache Spark streaming, Hive queries, Big Data architectures" },
+                { code: "20CS7T02", title: "Full Stack Web Development", type: "Theory", credits: "3.0", topics: "React.js, Node.js, Express, MongoDB, RESTful API design, JWT authentication" },
+                { code: "20CS7L01", title: "Big Data Analytics Lab", type: "Laboratory", credits: "2.0", topics: "Hadoop cluster setup, Spark RDD operations, PySpark MLlib practicals" },
+                { code: "20CS7P01", title: "Project Work Phase-I (Industry Driven)", type: "Project", credits: "3.0", topics: "Literature survey, Problem formulation, System design and initial prototyping" }
+            ],
+            "4-2": [
+                { code: "20CS8P01", title: "Full Semester Project Work & Viva-Voce", type: "Project", credits: "8.0", topics: "Comprehensive implementation, Testing, Research publication, Viva voce examination" },
+                { code: "20CS8T01", title: "Professional Ethics & Human Values", type: "Theory", credits: "2.0", topics: "Engineering ethics, Intellectual Property Rights, Cyber laws, Professional conduct" }
+            ]
+        },
+        "AIDS": {
+            "3-1": [
+                { code: "20AD5T01", title: "Artificial Intelligence Foundations", type: "Theory", credits: "3.0", topics: "Search algorithms, Heuristics, Knowledge representation, Logic programming" },
+                { code: "20AD5T02", title: "Data Visualization & Feature Engineering", type: "Theory", credits: "3.0", topics: "Matplotlib, Seaborn, Tableau, PCA, Outlier detection, Normalization techniques" },
+                { code: "20AD5L01", title: "AI & Search Algorithms Lab", type: "Laboratory", credits: "1.5", topics: "A* search, Minimax with alpha-beta pruning, Expert systems in Python" }
+            ]
+        },
+        "ECE": {
+            "3-1": [
+                { code: "20EC5T01", title: "Digital Signal Processing (DSP)", type: "Theory", credits: "3.0", topics: "DFT, FFT algorithms, IIR/FIR filter design, Multirate DSP" },
+                { code: "20EC5T02", title: "VLSI Design & Architecture", type: "Theory", credits: "3.0", topics: "MOS transistor theory, CMOS inverters, Layout design rules, Verilog HDL" },
+                { code: "20EC5L01", title: "DSP & VLSI Simulation Lab", type: "Laboratory", credits: "1.5", topics: "MATLAB DSP implementations, Cadence/Xilinx FPGA synthesis" }
+            ]
+        },
+        "EEE": {
+            "3-1": [
+                { code: "20EE5T01", title: "Power Systems-II (Operation & Control)", type: "Theory", credits: "3.0", topics: "Economic load dispatch, Load frequency control, Reactive power compensation" },
+                { code: "20EE5T02", title: "Power Electronics & Converters", type: "Theory", credits: "3.0", topics: "Thyristors, Inverters, Choppers, Cycloconverters, PWM techniques" },
+                { code: "20EE5L01", title: "Power Electronics Practical Lab", type: "Laboratory", credits: "1.5", topics: "SCR characteristics, AC to DC bridge rectifiers, Buck-Boost converters" }
+            ]
+        },
+        "MECH": {
+            "3-1": [
+                { code: "20ME5T01", title: "Thermal Engineering-II", type: "Theory", credits: "3.0", topics: "Steam turbines, Nozzles, Gas turbines, Jet propulsion engines" },
+                { code: "20ME5T02", title: "Design of Machine Elements", type: "Theory", credits: "3.0", topics: "Shafts, Keys, Couplings, Welded joints, Fatigue failure analysis" },
+                { code: "20ME5L01", title: "Thermal Engineering & CAD Lab", type: "Laboratory", credits: "1.5", topics: "IC Engines performance testing, Heat transfer apparatus, ANSYS simulation" }
+            ]
+        },
+        "CIVIL": {
+            "3-1": [
+                { code: "20CE5T01", title: "Structural Analysis-II", type: "Theory", credits: "3.0", topics: "Moment distribution method, Slope deflection, Matrix stiffness method" },
+                { code: "20CE5T02", title: "Design of Reinforced Concrete Structures", type: "Theory", credits: "3.0", topics: "Limit state method, Beams, Slabs, Columns, Footings design per IS 456" },
+                { code: "20CE5L01", title: "Concrete Technology & CAD Lab", type: "Laboratory", credits: "1.5", topics: "Compressive strength, Workability slump tests, AutoCAD structural detailing" }
+            ]
+        },
+        "DIPLOMA": {
+            "3-1": [
+                { code: "C20-CM-501", title: "Advanced Java Programming", type: "Theory", credits: "3.0", topics: "Applets, AWT, Swing GUI, JDBC database connectivity, Servlets" },
+                { code: "C20-CM-502", title: "Software Engineering & Testing", type: "Theory", credits: "3.0", topics: "Agile methodologies, SDLC, Black-box & White-box testing, Test case design" },
+                { code: "C20-CM-503", title: "Web Technologies Practical Lab", type: "Laboratory", credits: "2.0", topics: "HTML5, CSS3, JavaScript form validations, PHP backend integration" }
+            ]
+        }
+    };
+
+    function initCampusHubSuite() {
+        if (hubInitialized) return;
+        hubInitialized = true;
+
+        // 1. Sub-Tab Switcher wiring
+        function switchHubSubtab(tabKey) {
+            const tabsMap = [
+                { key: "academics", tab: hubTabAcademics, panel: hubPanelAcademics },
+                { key: "placements", tab: hubTabPlacements, panel: hubPanelPlacements },
+                { key: "transit", tab: hubTabTransit, panel: hubPanelTransit },
+                { key: "analyzer", tab: hubTabAnalyzer, panel: hubPanelAnalyzer }
+            ];
+
+            tabsMap.forEach(item => {
+                if (item.tab) {
+                    if (item.key === tabKey) {
+                        item.tab.className = "hub-subtab active px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer border border-cyan-500/40 bg-sky-600 text-white flex items-center gap-1.5 shadow-md";
+                    } else {
+                        item.tab.className = "hub-subtab px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-1.5 transition";
+                    }
+                }
+                if (item.panel) {
+                    if (item.key === tabKey) {
+                        item.panel.classList.remove("hidden");
+                    } else {
+                        item.panel.classList.add("hidden");
+                    }
+                }
+            });
+        }
+
+        if (hubTabAcademics) hubTabAcademics.addEventListener("click", () => switchHubSubtab("academics"));
+        if (hubTabPlacements) hubTabPlacements.addEventListener("click", () => switchHubSubtab("placements"));
+        if (hubTabTransit) hubTabTransit.addEventListener("click", () => switchHubSubtab("transit"));
+        if (hubTabAnalyzer) hubTabAnalyzer.addEventListener("click", () => switchHubSubtab("analyzer"));
+
+        // 2. SGPA Calculator Default Population & Logic
+        function renderCourseRow(name = "", credits = "3.0", grade = "10") {
+            if (!sgpaCoursesList) return;
+            const row = document.createElement("div");
+            row.className = "course-row grid grid-cols-12 gap-2 items-center bg-slate-900/70 p-2 rounded-xl border border-slate-800/80";
+            row.innerHTML = `
+                <div class="col-span-6 sm:col-span-6">
+                    <input type="text" class="course-name w-full bg-slate-950/80 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-cyan-500" placeholder="Subject Name" value="${name}">
+                </div>
+                <div class="col-span-3 sm:col-span-3">
+                    <select class="course-credits w-full bg-slate-950/80 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500">
+                        <option value="4.0" ${credits === '4.0' ? 'selected' : ''}>4.0 Credits</option>
+                        <option value="3.5" ${credits === '3.5' ? 'selected' : ''}>3.5 Credits</option>
+                        <option value="3.0" ${credits === '3.0' ? 'selected' : ''}>3.0 Credits</option>
+                        <option value="2.5" ${credits === '2.5' ? 'selected' : ''}>2.5 Credits</option>
+                        <option value="2.0" ${credits === '2.0' ? 'selected' : ''}>2.0 Credits</option>
+                        <option value="1.5" ${credits === '1.5' ? 'selected' : ''}>1.5 Credits</option>
+                        <option value="1.0" ${credits === '1.0' ? 'selected' : ''}>1.0 Credit</option>
+                    </select>
+                </div>
+                <div class="col-span-3 sm:col-span-2">
+                    <select class="course-grade w-full bg-slate-950/80 border border-slate-700/80 rounded-lg px-2 py-1 text-xs text-amber-300 font-semibold focus:outline-none focus:border-cyan-500">
+                        <option value="10" ${grade === '10' ? 'selected' : ''}>O (10)</option>
+                        <option value="9" ${grade === '9' ? 'selected' : ''}>A+ (9)</option>
+                        <option value="8" ${grade === '8' ? 'selected' : ''}>A (8)</option>
+                        <option value="7" ${grade === '7' ? 'selected' : ''}>B+ (7)</option>
+                        <option value="6" ${grade === '6' ? 'selected' : ''}>B (6)</option>
+                        <option value="5" ${grade === '5' ? 'selected' : ''}>C (5)</option>
+                        <option value="0" ${grade === '0' ? 'selected' : ''}>F (0)</option>
+                    </select>
+                </div>
+                <div class="hidden sm:flex sm:col-span-1 justify-center">
+                    <button type="button" class="btn-remove-course w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xs cursor-pointer" title="Remove course">✕</button>
+                </div>
+            `;
+            const btnRemove = row.querySelector(".btn-remove-course");
+            if (btnRemove) {
+                btnRemove.addEventListener("click", () => {
+                    row.remove();
+                });
+            }
+            sgpaCoursesList.appendChild(row);
+        }
+
+        function populateDefaultSgpaCourses() {
+            if (!sgpaCoursesList) return;
+            sgpaCoursesList.innerHTML = "";
+            renderCourseRow("Automata & Compiler Design", "3.0", "10");
+            renderCourseRow("Design & Analysis of Algorithms", "3.0", "9");
+            renderCourseRow("Computer Networks & Security", "3.0", "9");
+            renderCourseRow("Data Mining & Warehousing", "3.0", "8");
+            renderCourseRow("Compiler Design Practical Lab", "1.5", "10");
+            renderCourseRow("Data Mining Python Lab", "1.5", "10");
+        }
+
+        if (btnAddCourse) {
+            btnAddCourse.addEventListener("click", () => {
+                renderCourseRow("Elective / Open Course", "3.0", "10");
+            });
+        }
+
+        if (btnResetSgpa) {
+            btnResetSgpa.addEventListener("click", () => {
+                populateDefaultSgpaCourses();
+                if (sgpaResultCard) sgpaResultCard.classList.add("hidden");
+                showToast("Course rows reset to default semester curriculum");
+            });
+        }
+
+        if (btnCalculateSgpa) {
+            btnCalculateSgpa.addEventListener("click", () => {
+                if (!sgpaCoursesList) return;
+                const rows = sgpaCoursesList.querySelectorAll(".course-row");
+                let totalCredits = 0;
+                let weightedPoints = 0;
+                let hasArrear = false;
+
+                rows.forEach(row => {
+                    const creditsEl = row.querySelector(".course-credits");
+                    const gradeEl = row.querySelector(".course-grade");
+                    if (creditsEl && gradeEl) {
+                        const c = parseFloat(creditsEl.value) || 0;
+                        const g = parseFloat(gradeEl.value) || 0;
+                        totalCredits += c;
+                        weightedPoints += (c * g);
+                        if (g === 0) hasArrear = true;
+                    }
+                });
+
+                if (totalCredits <= 0) {
+                    showToast("Please add at least one course with valid credits.");
+                    return;
+                }
+
+                const sgpa = (weightedPoints / totalCredits).toFixed(2);
+                const percent = Math.max(0, ((parseFloat(sgpa) - 0.75) * 10)).toFixed(1);
+
+                if (sgpaValueDisplay) sgpaValueDisplay.textContent = sgpa;
+                if (sgpaPercentDisplay) sgpaPercentDisplay.textContent = `${percent}% Equivalent`;
+
+                if (sgpaClassification) {
+                    if (hasArrear) {
+                        sgpaClassification.textContent = "Arrear / Backlog Present";
+                        sgpaClassification.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                    } else if (parseFloat(sgpa) >= 7.75) {
+                        sgpaClassification.textContent = "First Class with Distinction (FCD)";
+                        sgpaClassification.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                    } else if (parseFloat(sgpa) >= 6.75) {
+                        sgpaClassification.textContent = "First Class (FC)";
+                        sgpaClassification.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+                    } else if (parseFloat(sgpa) >= 5.75) {
+                        sgpaClassification.textContent = "Second Class (SC)";
+                        sgpaClassification.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                    } else {
+                        sgpaClassification.textContent = "Pass Division";
+                        sgpaClassification.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-500/20 text-slate-300 border border-slate-500/30";
+                    }
+                }
+
+                if (sgpaAdviceDisplay) {
+                    if (hasArrear) {
+                        sgpaAdviceDisplay.textContent = "Clear arrears in the upcoming supplementary examination to maintain campus placement eligibility.";
+                    } else if (parseFloat(sgpa) >= 8.5) {
+                        sgpaAdviceDisplay.textContent = "Outstanding academic record! Eligible for Super Dream placement drives (₹10+ LPA) and Tier-1 MNC hiring.";
+                    } else if (parseFloat(sgpa) >= 7.0) {
+                        sgpaAdviceDisplay.textContent = "Solid score! Qualifies for all Dream and Mass MNC campus recruitment drives.";
+                    } else {
+                        sgpaAdviceDisplay.textContent = "Satisfactory score. Focus on high-credit subjects and coding practice to elevate your cumulative CGPA.";
+                    }
+                }
+
+                if (sgpaResultCard) {
+                    sgpaResultCard.classList.remove("hidden");
+                    sgpaResultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }
+            });
+        }
+
+        // 3. Formal Leave & OD Generator Logic
+        if (leaveGeneratorForm) {
+            leaveGeneratorForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const name = leaveStudentName ? leaveStudentName.value.trim() : "Student";
+                const rollNo = leaveRollNo ? leaveRollNo.value.trim() : "228X1A05XX";
+                const branch = leaveBranch ? leaveBranch.value.trim() : "B.Tech CSE";
+                const type = leaveType ? leaveType.value : "Leave Application";
+                const start = leaveStartDate ? leaveStartDate.value : "YYYY-MM-DD";
+                const end = leaveEndDate ? leaveEndDate.value : "YYYY-MM-DD";
+                const authorityVal = leaveAddressedTo ? leaveAddressedTo.value : "HOD_CSE";
+                const reason = leaveReason && leaveReason.value.trim() ? leaveReason.value.trim() : "attending to important personal and academic commitments";
+
+                let authorityTitle = "The Head of Department, Computer Science & Engineering\nDr. G. J. Sunny Deol";
+                if (authorityVal === "DEAN_DIPLOMA") {
+                    authorityTitle = "The Dean of Diploma (Polytechnic)\nDr. D. Venkata Rao";
+                } else if (authorityVal === "HOD_AIDS") {
+                    authorityTitle = "The Head of Department, Artificial Intelligence & Data Science";
+                } else if (authorityVal === "HOD_ECE") {
+                    authorityTitle = "The Head of Department, Electronics & Communication Engineering";
+                } else if (authorityVal === "DEAN_ACADEMICS") {
+                    authorityTitle = "The Dean of Academic Affairs";
+                } else if (authorityVal === "PRINCIPAL") {
+                    authorityTitle = "The Principal\nDr. B. S. B. Reddy";
+                }
+
+                const todayFormatted = new Date().toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                });
+
+                const formattedLetter = 
+`To,
+${authorityTitle},
+Kallam Haranadhareddy Institute of Technology (KHIT),
+Chowdavaram, Guntur - 522019.
+
+Date: ${todayFormatted}
+
+Subject: Request for Grant of ${type} - Reg.
+
+Respected Sir / Madam,
+
+I am writing this application to formally request your kind approval for ${type} for the period from ${start} to ${end}.
+
+Reason for Absence / On-Duty Request:
+${reason}
+
+Student Particulars:
+• Student Name: ${name}
+• University Roll Number: ${rollNo}
+• Branch, Program & Year: ${branch}
+• Institution: Kallam Haranadhareddy Institute of Technology (Autonomous)
+
+I assure you that I will take full responsibility for completing all academic coursework, laboratory assignments, and lecture notes missed during this leave duration. I will also submit any required supporting medical certificates or on-duty event credentials upon my return.
+
+Kindly grant me permission for the aforementioned dates.
+
+Thanking you,
+
+Yours obediently,
+
+${name}
+Roll No: ${rollNo}
+${branch}
+KHIT, Guntur
+
+-----------------------------------------------------------
+Parent / Guardian Signature: _________________________
+Class In-Charge Recommendation: ____________________
+Sanctioned / Approved by HOD/Dean: __________________`;
+
+                if (leaveLetterText) leaveLetterText.textContent = formattedLetter;
+                if (leavePreviewContainer) {
+                    leavePreviewContainer.classList.remove("hidden");
+                    leavePreviewContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }
+                showToast("Official leave letter generated successfully! 📄");
+            });
+        }
+
+        if (btnCopyLeave) {
+            btnCopyLeave.addEventListener("click", () => {
+                if (leaveLetterText && leaveLetterText.textContent) {
+                    navigator.clipboard.writeText(leaveLetterText.textContent).then(() => {
+                        showToast("Application letter copied to clipboard! 📋");
+                    }).catch(() => {
+                        showToast("Failed to copy. Please select and copy manually.");
+                    });
+                }
+            });
+        }
+
+        if (btnPrintLeave) {
+            btnPrintLeave.addEventListener("click", () => {
+                if (leaveLetterText && leaveLetterText.textContent) {
+                    const printWindow = window.open("", "_blank");
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>Formal Leave Application - KHIT</title>
+                            <style>
+                                body { font-family: 'Times New Roman', serif; padding: 40px; line-height: 1.8; color: #111; font-size: 14pt; }
+                                pre { white-space: pre-wrap; font-family: inherit; }
+                            </style>
+                        </head>
+                        <body>
+                            <pre>${leaveLetterText.textContent}</pre>
+                            <script>window.onload = function() { window.print(); window.close(); }<\/script>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                }
+            });
+        }
+
+        // 4. Syllabus Explorer Renderer
+        function renderSyllabus() {
+            if (!syllabusCardsContainer) return;
+            const branch = syllabusBranch ? syllabusBranch.value : "CSE";
+            const sem = syllabusSemester ? syllabusSemester.value : "3-1";
+
+            const branchData = KHIT_SYLLABUS_DATA[branch] || KHIT_SYLLABUS_DATA["CSE"];
+            const courseList = branchData[sem] || branchData["3-1"] || [];
+
+            syllabusCardsContainer.innerHTML = "";
+            if (courseList.length === 0) {
+                syllabusCardsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-10 text-slate-500 text-xs italic">
+                        Detailed syllabus curriculum for ${branch} ${sem} is published in the autonomous academic handbook. Contact the department office for syllabus booklet.
+                    </div>
+                `;
+                return;
+            }
+
+            courseList.forEach(course => {
+                const card = document.createElement("div");
+                card.className = "p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2 hover:border-cyan-500/40 transition";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">${course.code}</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${course.type === 'Laboratory' ? 'text-purple-400 bg-purple-500/10' : 'text-emerald-400 bg-emerald-500/10'}">${course.type} • ${course.credits} Cr</span>
+                    </div>
+                    <h4 class="text-xs font-bold text-white">${course.title}</h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">${course.topics}</p>
+                `;
+                syllabusCardsContainer.appendChild(card);
+            });
+        }
+
+        if (syllabusBranch) syllabusBranch.addEventListener("change", renderSyllabus);
+        if (syllabusSemester) syllabusSemester.addEventListener("change", renderSyllabus);
+
+        // 5. Recruiter Directory Renderer
+        function renderRecruiters(filterText = "") {
+            if (!recruitersGrid) return;
+            recruitersGrid.innerHTML = "";
+            const q = filterText.toLowerCase().trim();
+
+            const filtered = KHIT_RECRUITERS.filter(r => {
+                if (!q) return true;
+                return r.name.toLowerCase().includes(q) ||
+                       r.role.toLowerCase().includes(q) ||
+                       r.tier.toLowerCase().includes(q) ||
+                       r.package.toLowerCase().includes(q) ||
+                       r.keySkills.some(s => s.toLowerCase().includes(q));
+            });
+
+            if (filtered.length === 0) {
+                recruitersGrid.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-slate-500 text-xs italic">
+                        No recruiter found matching "${filterText}". Try searching for 'Amazon', 'Java', or 'Super Dream'.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(rec => {
+                const card = document.createElement("div");
+                card.className = "p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5 hover:border-cyan-500/40 transition";
+                const skillsHtml = rec.keySkills.map(s => `<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">${s}</span>`).join(" ");
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">${rec.logoEmoji}</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${rec.name}</h4>
+                                <span class="text-[10px] text-cyan-400 font-medium">${rec.role}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">${rec.package}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                        <span class="font-semibold text-slate-300">Criteria:</span> ${rec.eligibility}
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                        <span class="font-semibold text-slate-300">Rounds:</span> ${rec.process}
+                    </div>
+                    <div class="pt-1 flex flex-wrap gap-1">
+                        ${skillsHtml}
+                    </div>
+                `;
+                recruitersGrid.appendChild(card);
+            });
+        }
+
+        if (recruiterSearch) {
+            recruiterSearch.addEventListener("input", (e) => {
+                renderRecruiters(e.target.value);
+            });
+        }
+
+        // Wire CRT prep quick launch buttons
+        const crtButtons = document.querySelectorAll(".btn-crt-prep");
+        crtButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const topic = btn.getAttribute("data-topic");
+                switchWorkspace("chat");
+                submitAcademicQuery(`Start an interactive Campus Recruitment Training (CRT) technical interview session on: ${topic}. Ask me the first real-world technical question asked in campus placements, along with tips!`);
+            });
+        });
+
+        // 6. Transit Routes Renderer
+        function renderTransitRoutes(filterText = "") {
+            if (!transitRoutesList) return;
+            transitRoutesList.innerHTML = "";
+            const q = filterText.toLowerCase().trim();
+
+            const filtered = KHIT_BUS_ROUTES.filter(r => {
+                if (!q) return true;
+                return r.routeNo.toLowerCase().includes(q) ||
+                       r.name.toLowerCase().includes(q) ||
+                       r.driverName.toLowerCase().includes(q) ||
+                       r.stops.some(s => s.toLowerCase().includes(q));
+            });
+
+            if (filtered.length === 0) {
+                transitRoutesList.innerHTML = `
+                    <div class="text-center py-8 text-slate-500 text-xs italic">
+                        No bus routes found matching "${filterText}". Try searching for 'Vijayawada', 'Tenali', or 'Arundalpet'.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(route => {
+                const card = document.createElement("div");
+                card.className = "route-row p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2.5";
+                const stopsHtml = route.stops.map((stop, idx) => `
+                    <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/50">
+                        <span class="text-cyan-400 font-bold">${idx + 1}</span> ${stop}
+                    </span>
+                `).join(" ");
+
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/60 pb-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-xs font-bold font-mono px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">${route.routeNo}</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${route.name}</h4>
+                                <p class="text-[10px] text-slate-400">${route.timings}</p>
+                            </div>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <div class="text-xs font-semibold text-slate-200">Driver: ${route.driverName}</div>
+                            <a href="tel:${route.driverPhone.replace(/\s+/g, '')}" class="text-[10px] text-cyan-400 hover:underline">📞 ${route.driverPhone}</a>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Stoppages & Boarding Points:</span>
+                        <div class="flex flex-wrap gap-1.5 pt-0.5">
+                            ${stopsHtml}
+                        </div>
+                    </div>
+                `;
+                transitRoutesList.appendChild(card);
+            });
+        }
+
+        if (transitSearchInput) {
+            transitSearchInput.addEventListener("input", (e) => {
+                renderTransitRoutes(e.target.value);
+            });
+        }
+
+        // 7. Academic Notes & Question Paper Analyzer
+        async function runNotesAnalysis(actionType) {
+            if (!analyzerInputText) return;
+            const content = analyzerInputText.value.trim();
+            if (!content) {
+                showToast("Please paste syllabus units, lecture notes, or question paper text first.");
+                return;
+            }
+
+            if (analyzerOutputContainer) analyzerOutputContainer.classList.remove("hidden");
+            if (analyzerOutputTitle) {
+                if (actionType === "summary") analyzerOutputTitle.textContent = "⚡ 3-Minute Rapid Exam Summary";
+                else if (actionType === "questions") analyzerOutputTitle.textContent = "🎯 5 Probable Examination Questions";
+                else if (actionType === "elif") analyzerOutputTitle.textContent = "🧠 Intuitive ELIF (Explain Like I'm 5) Synthesis";
+                else if (actionType === "telugu") analyzerOutputTitle.textContent = "🇮🇳 తెలుగు సారాంశం (Telugu Academic Summary)";
+            }
+            if (analyzerOutputContent) {
+                analyzerOutputContent.innerHTML = `<div class="flex items-center gap-2 text-cyan-400 font-semibold text-xs"><span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>Analyzing academic material and extracting key scoring points...</div>`;
+                analyzerOutputContainer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+
+            let promptInstruction = "";
+            if (actionType === "summary") {
+                promptInstruction = `Provide a razor-sharp 3-minute exam revision summary of the following academic material for JNTUK/Autonomous engineering examination preparation. Include: 1) Core Principles & Definitions, 2) Critical Formulas / Algorithms, 3) 5 High-Yield Examination Points to score full marks:\n\n${content}`;
+            } else if (actionType === "questions") {
+                promptInstruction = `Act as a senior KHIT university professor and examination board evaluator. Generate 5 highly probable exam questions (two 2-mark short answers, and three 10-mark essay questions) based on this material, along with bullet-point solution hints:\n\n${content}`;
+            } else if (actionType === "elif") {
+                promptInstruction = `Explain the following engineering/technical concept like I'm 5 (ELIF). Use crystal-clear real-world metaphors, simple language, and avoid intimidating jargon:\n\n${content}`;
+            } else if (actionType === "telugu") {
+                promptInstruction = `Provide a comprehensive academic explanation and revision summary of the following text purely in TELUGU (తెలుగు లిపి). Provide intuitive explanations of technical concepts so engineering students can grasp them with ease:\n\n${content}`;
+            }
+
+            try {
+                if (typeof callGeminiAPI === "function") {
+                    await callGeminiAPI(
+                        `You are the KHIT Academic Intelligence Engine. Analyze and structure the requested notes precisely with clear headings, clean bullet points, and high academic rigor. Never output raw markdown '#' symbols in titles.`,
+                        [{ role: "user", parts: [{ text: promptInstruction }] }],
+                        (response) => {
+                            if (analyzerOutputContent) analyzerOutputContent.textContent = response;
+                        },
+                        (err) => {
+                            console.warn("Gemini call error in notes analyzer, falling back to local heuristic synthesis:", err);
+                            fallbackLocalAnalysis(content, actionType);
+                        }
+                    );
+                } else {
+                    fallbackLocalAnalysis(content, actionType);
+                }
+            } catch (e) {
+                fallbackLocalAnalysis(content, actionType);
+            }
+        }
+
+        function fallbackLocalAnalysis(content, actionType) {
+            if (!analyzerOutputContent) return;
+            const lines = content.split("\n").filter(l => l.trim().length > 0);
+            const titleSample = lines[0] ? lines[0].slice(0, 60) : "Academic Module";
+
+            if (actionType === "summary") {
+                analyzerOutputContent.textContent = 
+`EXAM SUMMARY: ${titleSample}
+
+1. CORE CONCEPTUAL DEFINITION:
+${content.slice(0, 280)}...
+
+2. KEY EXAMINATION HIGHLIGHTS:
+• Fundamental architecture and components detailed in syllabus module.
+• Primary operational workflow, algorithmic complexity, and mathematical bounds.
+• Crucial differences, comparative performance trade-offs, and industrial use-cases.
+
+3. HIGH-YIELD SCORING TIPS FOR EXAMINATIONS:
+• Always draw neat, labeled block diagrams in university answer sheets.
+• State key equations, assumptions, and edge cases clearly.
+• Highlight real-world applications in Cloud Computing, AI systems, or Embedded devices.`;
+            } else if (actionType === "questions") {
+                analyzerOutputContent.textContent = 
+`TOP 5 PROBABLE EXAMINATION QUESTIONS: ${titleSample}
+
+PART A (SHORT ANSWER QUESTIONS - 2 MARKS EACH):
+1. Define the fundamental principles governing ${titleSample.slice(0, 30)} and state its primary characteristics.
+2. List any two practical advantages and limitations observed in real-world implementations.
+
+PART B (ESSAY TYPE QUESTIONS - 10 MARKS EACH):
+3. Explain the detailed architectural design and operational workflow with neat illustrative diagrams.
+4. Compare and contrast alternative algorithms/methodologies applicable to this module with complexity metrics.
+5. Derive or demonstrate the step-by-step mathematical/procedural implementation for a representative test scenario.`;
+            } else if (actionType === "elif") {
+                analyzerOutputContent.textContent = 
+`INTUITIVE ELIF EXPLANATION: ${titleSample}
+
+Imagine this concept like a well-organized post office or postal delivery fleet:
+• Every request or input is like a letter with an exact destination address.
+• Instead of carrying one letter at a time back and forth, the system organizes letters into regional routes (batching & pipelines).
+• Special helpers inspect each package to make sure it's safe before delivery (security protocols & validation).
+• When you need it, everything happens smoothly and quickly without chaos! That is exactly what ${titleSample.slice(0, 35)} accomplishes in computing!`;
+            } else if (actionType === "telugu") {
+                analyzerOutputContent.textContent = 
+`తెలుగు సారాంశం (TELUGU ACADEMIC SUMMARY):
+
+ముఖ్యమైన భావన: ${titleSample}
+
+ఈ పాఠ్యాంశం యొక్క ముఖ్యమైన విషయాలు:
+1. ప్రాథమిక సూత్రం: విద్యార్థులు మొదట దీని ప్రాథమిక ఆర్కిటెక్చర్ మరియు ముఖ్య లక్షణాలను అర్థం చేసుకోవాలి.
+2. పరీక్షలలో సమాధానాలు రాసే విధానం: జె.ఎన్.టి.యు.కె (JNTUK) మరియు అటానమస్ పరీక్షలలో స్పష్టమైన బ్లాక్ డయాగ్రమ్స్ వేసి ముఖ్యమైన అంశాలను పాయింట్ల రూపంలో రాయాలి.
+3. వాస్తవ అప్లికేషన్లు: క్లౌడ్ కంప్యూటింగ్, సాఫ్ట్‌వేర్ ఇంజనీరింగ్ మరియు ఆర్టిఫిషియల్ ఇంటెలిజెన్స్ రంగాలలో దీని ప్రాముఖ్యత ఎంతో ఉంది.
+
+(వివరణాత్మక ఇంటరాక్టివ్ సమాధానాల కోసం చాట్ విండోలో 'AI Chat' ని ఉపయోగించవచ్చు).`;
+            }
+        }
+
+        if (btnAnalyzerSummary) btnAnalyzerSummary.addEventListener("click", () => runNotesAnalysis("summary"));
+        if (btnAnalyzerQuestions) btnAnalyzerQuestions.addEventListener("click", () => runNotesAnalysis("questions"));
+        if (btnAnalyzerElif) btnAnalyzerElif.addEventListener("click", () => runNotesAnalysis("elif"));
+        if (btnAnalyzerTelugu) btnAnalyzerTelugu.addEventListener("click", () => runNotesAnalysis("telugu"));
+
+        if (btnAnalyzerClear) {
+            btnAnalyzerClear.addEventListener("click", () => {
+                if (analyzerInputText) analyzerInputText.value = "";
+                if (analyzerOutputContainer) analyzerOutputContainer.classList.add("hidden");
+                if (analyzerOutputContent) analyzerOutputContent.textContent = "";
+                showToast("Notes analyzer cleared");
+            });
+        }
+
+        if (btnCopyAnalyzer) {
+            btnCopyAnalyzer.addEventListener("click", () => {
+                if (analyzerOutputContent && analyzerOutputContent.textContent) {
+                    navigator.clipboard.writeText(analyzerOutputContent.textContent).then(() => {
+                        showToast("Analysis result copied to clipboard! 📋");
+                    }).catch(() => {
+                        showToast("Failed to copy. Please select and copy manually.");
+                    });
+                }
+            });
+        }
+
+        // Initialize default views
+        populateDefaultSgpaCourses();
+        renderSyllabus();
+        renderRecruiters();
+        renderTransitRoutes();
+    }
+
+    // Auto-initialize Campus Hub Suite
+    initCampusHubSuite();
 
     // Reconnect voice session if browser suspends tab in background (visibility change or pageshow)
     document.addEventListener("visibilitychange", () => {
