@@ -1302,6 +1302,11 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         window.speechSynthesis.cancel();
         stopActiveAudio();
         setLogoProcessing(true);
+
+        if (voiceModeOverlayActive && voiceOverlayCaptions) {
+            voiceOverlayCaptions.innerHTML = `<div class="p-3.5 bg-sky-950/40 border border-sky-500/25 rounded-2xl mb-3"><div class="text-[11px] font-semibold uppercase tracking-wider text-sky-400 mb-1 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>You Asked</div><p class="text-slate-100 text-sm font-medium">"${text}"</p></div><div class="flex items-center gap-2.5 text-slate-400 text-xs py-2 px-1"><span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span><span>Analyzing academic records & verified ground truth...</span></div>`;
+            voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
+        }
         
         const q = text.toLowerCase().trim();
         
@@ -1366,10 +1371,10 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             chatHistory.push({ role: "model", parts: [{ text: founderText }] });
             saveChatHistoryToFirestore();
 
+            if (voiceModeOverlayActive) vocalizeResponse(founderText);
             setTimeout(() => {
                 appendStreamingBubble(founderText, () => {
                     setLogoProcessing(false);
-                    if (voiceModeOverlayActive) vocalizeResponse(founderText);
                 });
             }, 300);
             return;
@@ -1387,10 +1392,10 @@ Amareswar is focused on building software solutions, developing web and mobile a
             chatHistory.push({ role: "model", parts: [{ text: bioText }] });
             saveChatHistoryToFirestore();
 
+            if (voiceModeOverlayActive) vocalizeResponse(bioText);
             setTimeout(() => {
                 appendStreamingBubble(bioText, () => {
                     setLogoProcessing(false);
-                    if (voiceModeOverlayActive) vocalizeResponse(bioText);
                 });
             }, 300);
             return;
@@ -1416,10 +1421,10 @@ Amareswar is focused on building software solutions, developing web and mobile a
             chatHistory.push({ role: "model", parts: [{ text: deanText }] });
             saveChatHistoryToFirestore();
 
+            if (voiceModeOverlayActive) vocalizeResponse(deanText);
             setTimeout(() => {
                 appendStreamingBubble(deanText, () => {
                     setLogoProcessing(false);
-                    if (voiceModeOverlayActive) vocalizeResponse(deanText);
                 });
             }, 300);
             return;
@@ -1443,10 +1448,10 @@ Amareswar is focused on building software solutions, developing web and mobile a
             chatHistory.push({ role: "model", parts: [{ text: hodText }] });
             saveChatHistoryToFirestore();
 
+            if (voiceModeOverlayActive) vocalizeResponse(hodText);
             setTimeout(() => {
                 appendStreamingBubble(hodText, () => {
                     setLogoProcessing(false);
-                    if (voiceModeOverlayActive) vocalizeResponse(hodText);
                 });
             }, 300);
             return;
@@ -1568,7 +1573,7 @@ ${circularsContext}`;
                     const langSelector = document.getElementById("sel-voice-lang");
                     if (langSelector) langSelector.value = selectedLang;
                     
-                    playGoogleTranslateTTS(responseText, selectedLang);
+                    vocalizeResponse(responseText, selectedLang);
                 }
                 
                 appendStreamingBubble(responseText, () => {
@@ -1591,7 +1596,7 @@ ${circularsContext}`;
                     const langSelector = document.getElementById("sel-voice-lang");
                     if (langSelector) langSelector.value = selectedLang;
                     
-                    playGoogleTranslateTTS(fallbackText, selectedLang);
+                    vocalizeResponse(fallbackText, selectedLang);
                 }
                 
                 appendStreamingBubble(fallbackText, () => {
@@ -2398,14 +2403,261 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         return indicator;
     }
 
-    // --- Gemini Live Conversational Speech Loop ---
+    // --- Gemini Live Autonomous Duplex Conversational Engine ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let passiveRecognition = null;
     let activeRecognition = null;
-    let isWakeWordActive = false;
     let capturedSpeechText = "";
+    let speechKeepAliveInterval = null;
+    let cachedVoices = [];
 
+    // Populate and cache browser speech synthesis voices
+    function populateVoices() {
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+            cachedVoices = window.speechSynthesis.getVoices();
+        }
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        populateVoices();
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = populateVoices;
+        }
+    }
 
+    // High-fidelity Web Audio API Sound Chimes
+    let sharedAudioCtx = null;
+    function getAudioContext() {
+        try {
+            if (!sharedAudioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    sharedAudioCtx = new AudioContextClass();
+                }
+            }
+            if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+                sharedAudioCtx.resume().catch(() => {});
+            }
+            return sharedAudioCtx;
+        } catch (e) {
+            console.warn("[KHIT-Pulse Audio] Web Audio API unavailable:", e);
+            return null;
+        }
+    }
+
+    function playAudioFeedback(type) {
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+
+            if (type === 'start') {
+                // High-tech 3-note ascending welcome chime (C5 523Hz -> E5 659Hz -> G5 784Hz)
+                const freqs = [523.25, 659.25, 783.99];
+                freqs.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+
+                    gain.gain.setValueAtTime(0, now + idx * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.14, now + idx * 0.08 + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.22);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.23);
+                });
+            } else if (type === 'captured') {
+                // Positive speech capture confirmation chime (G5 784Hz -> C6 1046Hz)
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(783.99, now);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.12);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.23);
+            } else if (type === 'listening') {
+                // Gentle ready double pip (880Hz -> 1108Hz)
+                [880, 1108].forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+
+                    gain.gain.setValueAtTime(0, now + idx * 0.09);
+                    gain.gain.linearRampToValueAtTime(0.10, now + idx * 0.09 + 0.015);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.10);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now + idx * 0.09);
+                    osc.stop(now + idx * 0.09 + 0.11);
+                });
+            } else if (type === 'interrupted') {
+                // Short downward blip (520Hz -> 260Hz)
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(260, now + 0.08);
+
+                gain.gain.setValueAtTime(0.10, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.10);
+            }
+        } catch (e) {
+            console.warn("[KHIT-Pulse Audio] Feedback audio error:", e);
+        }
+    }
+
+    function getBestVoiceForLanguage(langCode) {
+        if (!cachedVoices || cachedVoices.length === 0) {
+            populateVoices();
+        }
+        if (!cachedVoices || cachedVoices.length === 0) return null;
+
+        const isTe = (langCode === "te-IN" || (langCode && langCode.toLowerCase().startsWith("te")));
+        if (isTe) {
+            // Dedicated Telugu voice selection
+            let teluguVoice = cachedVoices.find(v => 
+                v.lang.toLowerCase().startsWith("te") || 
+                v.name.toLowerCase().includes("telugu") || 
+                v.name.includes("తెలుగు")
+            );
+            if (teluguVoice) return teluguVoice;
+
+            // Fallback: Indian context voices capable of Indic phonetics
+            let indianVoice = cachedVoices.find(v => 
+                v.lang === "en-IN" && (v.name.toLowerCase().includes("google") || v.name.toLowerCase().includes("natural"))
+            );
+            if (!indianVoice) {
+                indianVoice = cachedVoices.find(v => v.lang === "en-IN" || v.lang === "hi-IN" || v.name.toLowerCase().includes("india"));
+            }
+            if (indianVoice) return indianVoice;
+        } else {
+            // Conversational English Duplex Voice Selection (natural, articulate, lifelike)
+            const preferredFilters = [
+                v => v.name.includes("Google US English"),
+                v => v.name.includes("Google UK English Female"),
+                v => v.name.includes("Samantha"),
+                v => v.name.toLowerCase().includes("natural") && v.lang.startsWith("en"),
+                v => v.name.includes("Microsoft Jenny"),
+                v => v.name.includes("Microsoft Zira"),
+                v => v.name.includes("Microsoft Guy"),
+                v => v.lang === "en-IN" && v.name.toLowerCase().includes("google"),
+                v => v.lang === "en-IN",
+                v => v.lang === "en-US",
+                v => v.lang.startsWith("en")
+            ];
+
+            for (const filter of preferredFilters) {
+                const found = cachedVoices.find(filter);
+                if (found) return found;
+            }
+        }
+
+        return cachedVoices[0] || null;
+    }
+
+    function prepareSpeechText(rawText, langCode) {
+        if (!rawText) return "";
+
+        // 1. Strip HTML tags
+        let text = rawText.replace(/<[^>]*>/g, " ");
+
+        // 2. Strip code blocks and inline code
+        text = text.replace(/```[\s\S]*?```/g, " ");
+        text = text.replace(/`([^`]+)`/g, "$1");
+
+        // 3. Strip URLs
+        text = text.replace(/https?:\/\/\S+/g, " ");
+
+        // 4. Strip Markdown images and link formats
+        text = text.replace(/!\[([^\]]*)\]\([^)]*\)/g, " ");
+        text = text.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+
+        // 5. Strip Markdown header, bold, italic, strikethrough characters
+        text = text.replace(/[*_~#]/g, " ");
+
+        // 6. Clean bullets, dashes, blockquotes
+        text = text.replace(/^[\s*\-+>]+/gm, " ");
+
+        const isTe = (langCode === "te-IN" || (langCode && langCode.toLowerCase().startsWith("te")));
+
+        if (isTe) {
+            text = text.replace(/₹/g, "రూపాయలు ");
+            text = text.replace(/\bLPA\b/gi, "లక్షలు ");
+            text = text.replace(/\bKHIT\b/gi, "కె హెచ్ ఐ టి ");
+            text = text.replace(/\bJNTUK\b/gi, "జె ఎన్ టి యు కాకినాడ ");
+            text = text.replace(/\bCSE\b/gi, "సి ఎస్ ఇ ");
+            text = text.replace(/\bECE\b/gi, "ఇ సి ఇ ");
+            text = text.replace(/\bEEE\b/gi, "త్రిబుల్ ఇ ");
+            text = text.replace(/\bDr\./gi, "డాక్టర్ ");
+            text = text.replace(/\bProf\./gi, "ప్రొఫెసర్ ");
+            text = text.replace(/\bPh\.?D\b/gi, "పి హెచ్ డి ");
+        } else {
+            text = text.replace(/\bKHIT\b/g, "K H I T");
+            text = text.replace(/\bJNTUK\b/g, "J N T U Kakinada");
+            text = text.replace(/\bNAAC\b/g, "NAAC");
+            text = text.replace(/\bNBA\b/g, "NBA");
+            text = text.replace(/₹/g, "Rupees ");
+            text = text.replace(/\bLPA\b/g, "Lakhs per annum");
+            text = text.replace(/\bCTC\b/g, "C T C");
+            text = text.replace(/\bCGPA\b/g, "C G P A");
+            text = text.replace(/\bSGPA\b/g, "S G P A");
+            text = text.replace(/\bCSE\b/g, "C S E");
+            text = text.replace(/\bECE\b/g, "E C E");
+            text = text.replace(/\bEEE\b/g, "E E E");
+            text = text.replace(/\bIT\b/g, "I T");
+            text = text.replace(/\bAI&DS\b/gi, "A I and Data Science");
+            text = text.replace(/\bAI&ML\b/gi, "A I and Machine Learning");
+            text = text.replace(/\bPh\.?D\b/gi, "Ph D");
+            text = text.replace(/\bDr\./gi, "Doctor");
+            text = text.replace(/\bProf\./gi, "Professor");
+            text = text.replace(/&/g, " and ");
+        }
+
+        // Clean redundant whitespaces
+        text = text.replace(/\s+/g, " ").trim();
+
+        // Conversational Snappiness: Condense to first 2-3 clean complete sentences (~380-420 chars)
+        // so the assistant speaks snappy conversational duplex answers, leaving detailed tables/lists for screen
+        if (text.length > 380) {
+            const sentenceMatch = text.match(/[^.!?।\n]+[.!?।\n]+(\s|$)/g);
+            if (sentenceMatch && sentenceMatch.length > 0) {
+                let condensed = "";
+                for (const sentence of sentenceMatch) {
+                    if ((condensed + sentence).length <= 420) {
+                        condensed += sentence;
+                    } else {
+                        break;
+                    }
+                }
+                if (condensed.trim().length > 60) {
+                    text = condensed.trim();
+                } else {
+                    const cut = text.lastIndexOf(" ", 380);
+                    text = text.substring(0, cut > 180 ? cut : 380) + "...";
+                }
+            }
+        }
+
+        return text;
+    }
 
     function setMicState(state) {
         const auraVis = document.getElementById("voice-aura-visualizer");
@@ -2418,7 +2670,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         }
         if (voiceWaveVisualizer) {
             voiceWaveVisualizer.classList.remove("voice-listening", "voice-speaking", "voice-muted");
-            if (voiceMicMuted) {
+            if (voiceMicMuted || state === 'muted') {
                 voiceWaveVisualizer.classList.add("voice-muted");
                 if (voiceOverlay) voiceOverlay.classList.add("voice-muted");
             } else if (state === 'listening') {
@@ -2428,7 +2680,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
                 voiceWaveVisualizer.classList.add("voice-speaking");
                 if (voiceOverlay) voiceOverlay.classList.add("voice-speaking");
             } else {
-                voiceWaveVisualizer.classList.add("voice-speaking"); // pulse state
+                voiceWaveVisualizer.classList.add("voice-speaking");
                 if (voiceOverlay) voiceOverlay.classList.add("voice-speaking");
             }
         }
@@ -2482,263 +2734,229 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             return;
         }
 
-
-
         if (!SpeechRecognition) {
             showToast("Speech recognition is not supported in this browser.");
             return;
         }
 
+        // Abort any existing instance cleanly to prevent browser stall
+        if (activeRecognition) {
+            try {
+                activeRecognition.onend = null;
+                activeRecognition.onerror = null;
+                activeRecognition.abort();
+            } catch (e) {}
+            activeRecognition = null;
+        }
+
         setMicState('listening');
         capturedSpeechText = "";
 
-        if (!activeRecognition) {
-            activeRecognition = new SpeechRecognition();
-            activeRecognition.continuous = false;
-            activeRecognition.interimResults = true;
-
-            activeRecognition.onstart = () => {
-                capturedSpeechText = "";
-                if (voiceOverlay) voiceOverlay.classList.add("voice-listening");
-            };
-
-            activeRecognition.onresult = (event) => {
-                let interimTrans = "";
-                let finalTrans = "";
-
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTrans += event.results[i][0].transcript;
-                    } else {
-                        interimTrans += event.results[i][0].transcript;
-                    }
-                }
-
-                const currentText = finalTrans || interimTrans;
-                if (interimOverlay) interimOverlay.textContent = currentText;
-                if (inputQuery) inputQuery.value = currentText;
-                capturedSpeechText = finalTrans || currentText;
-                
-                if (voiceOverlayCaptions) {
-                    if (currentText) {
-                        voiceOverlayCaptions.innerHTML = `<div class="p-3.5 bg-sky-950/40 border border-sky-500/25 rounded-2xl mb-3"><div class="text-[11px] font-semibold uppercase tracking-wider text-sky-400 mb-1 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>You Spoke</div><p class="text-slate-100 text-sm font-medium italic">"${currentText}"</p></div>`;
-                    } else {
-                        voiceOverlayCaptions.innerHTML = `<div class="text-center text-slate-400 py-6"><p class="text-base text-slate-200 font-medium">Listening for your voice...</p><p class="text-xs text-slate-400 mt-1.5">Speak clearly into your microphone.</p></div>`;
-                    }
-                    voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
-                }
-            };
-
-            activeRecognition.onerror = (event) => {
-                console.error("KHIT-Pulse active capture error:", event.error);
-                if (event.error === 'not-allowed') {
-                    showToast("Microphone access denied.");
-                }
-                
-                if (voiceModeOverlayActive && !voiceMicMuted && event.error !== 'aborted') {
-                    setTimeout(() => {
-                        startActiveQueryCapture();
-                    }, 400);
-                }
-            };
-
-            activeRecognition.onend = () => {
-                setMicState('off');
-                if (voiceOverlay) voiceOverlay.classList.remove("voice-listening");
-                
-                try {
-                    document.querySelectorAll(".khit-logo-container").forEach(el => {
-                        el.classList.remove("logo-wake-active");
-                    });
-                } catch (e) {
-                    console.warn(e);
-                }
-
-                const finalQuery = capturedSpeechText.trim();
-                if (finalQuery) {
-                    submitAcademicQuery(finalQuery);
-                } else {
-                    if (voiceModeOverlayActive && !voiceMicMuted) {
-                        setTimeout(() => {
-                            startActiveQueryCapture();
-                        }, 400);
-                    }
-                }
-            };
-        }
-
         const langSelector = document.getElementById("sel-voice-lang");
-        const selectedLang = langSelector ? langSelector.value : "en-IN";
-        activeRecognition.lang = selectedLang;
+        const selectedLang = langSelector ? langSelector.value : (isTeluguModeActive ? "te-IN" : "en-IN");
 
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = false;
+        recognitionInstance.interimResults = true;
+        recognitionInstance.lang = selectedLang;
+
+        recognitionInstance.onstart = () => {
+            capturedSpeechText = "";
+            setMicState('listening');
+            if (voiceOverlay) voiceOverlay.classList.add("voice-listening");
+        };
+
+        recognitionInstance.onresult = (event) => {
+            let interimTrans = "";
+            let finalTrans = "";
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTrans += event.results[i][0].transcript;
+                } else {
+                    interimTrans += event.results[i][0].transcript;
+                }
+            }
+
+            const currentText = (finalTrans || interimTrans).trim();
+            if (interimOverlay) interimOverlay.textContent = currentText;
+            if (inputQuery) inputQuery.value = currentText;
+            capturedSpeechText = finalTrans || currentText;
+
+            if (voiceOverlayCaptions) {
+                if (currentText) {
+                    voiceOverlayCaptions.innerHTML = `<div class="p-3.5 bg-sky-950/40 border border-sky-500/25 rounded-2xl mb-3"><div class="text-[11px] font-semibold uppercase tracking-wider text-sky-400 mb-1 flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>You Spoke</div><p class="text-slate-100 text-sm font-medium italic">"${currentText}"</p></div>`;
+                }
+                voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
+            }
+        };
+
+        recognitionInstance.onerror = (event) => {
+            console.warn("[KHIT-Pulse Speech] Active capture error:", event.error);
+            if (event.error === 'not-allowed') {
+                showToast("Microphone access denied.");
+                setMicState('muted');
+                return;
+            }
+
+            if (voiceModeOverlayActive && !voiceMicMuted && event.error !== 'aborted') {
+                setTimeout(() => {
+                    if (voiceModeOverlayActive && !voiceMicMuted) {
+                        startActiveQueryCapture();
+                    }
+                }, 400);
+            }
+        };
+
+        recognitionInstance.onend = () => {
+            if (voiceOverlay) voiceOverlay.classList.remove("voice-listening");
+
+            const finalQuery = capturedSpeechText.trim();
+            if (finalQuery) {
+                playAudioFeedback('captured');
+                setMicState('processing');
+                submitAcademicQuery(finalQuery);
+            } else {
+                if (voiceModeOverlayActive && !voiceMicMuted) {
+                    setTimeout(() => {
+                        if (voiceModeOverlayActive && !voiceMicMuted) {
+                            startActiveQueryCapture();
+                        }
+                    }, 400);
+                } else {
+                    setMicState('off');
+                }
+            }
+        };
+
+        activeRecognition = recognitionInstance;
         try {
-            activeRecognition.start();
+            recognitionInstance.start();
         } catch (e) {
-            console.warn("Active capture launch error:", e);
+            console.warn("[KHIT-Pulse Speech] Active capture start error:", e);
         }
     }
 
     function stopActiveQueryCapture() {
         if (activeRecognition) {
             try {
+                activeRecognition.onend = null;
+                activeRecognition.onerror = null;
                 activeRecognition.stop();
-            } catch(e) {}
+            } catch (e) {}
+            activeRecognition = null;
         }
     }
 
-    function vocalizeResponse(htmlText) {
-        const plainText = htmlText.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ');
-        const utterance = new SpeechSynthesisUtterance(plainText);
-        
-        utterance.rate = 1.15;
-        utterance.pitch = 1.15;
-        
+    function vocalizeResponse(htmlText, forcedLang) {
+        if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+            console.warn("[KHIT-Pulse TTS] Speech synthesis is not supported on this browser.");
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        stopActiveAudio();
+        if (speechKeepAliveInterval) {
+            clearInterval(speechKeepAliveInterval);
+            speechKeepAliveInterval = null;
+        }
+
+        const hasTelugu = /[\u0c00-\u0c7f]/.test(htmlText);
         const langSelector = document.getElementById("sel-voice-lang");
-        const selectedLang = langSelector ? langSelector.value : "en-IN";
+        const currentLangVal = langSelector ? langSelector.value : "en-IN";
+
+        const selectedLang = forcedLang || (hasTelugu ? "te-IN" : currentLangVal);
+
+        if (langSelector && langSelector.value !== selectedLang) {
+            langSelector.value = selectedLang;
+        }
+
+        const speechText = prepareSpeechText(htmlText, selectedLang);
+        if (!speechText) {
+            if (voiceModeOverlayActive && !voiceMicMuted) {
+                setTimeout(startActiveQueryCapture, 400);
+            }
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(speechText);
         utterance.lang = selectedLang;
-        
-        const voices = window.speechSynthesis.getVoices();
-        
-        let selectedVoice;
-        if (selectedLang === "te-IN") {
-            selectedVoice = voices.find(v => v.lang.includes('te-IN') || v.lang.includes('te'));
+
+        const isTe = (selectedLang === "te-IN" || selectedLang.startsWith("te"));
+        if (isTe) {
+            utterance.rate = 0.94;
+            utterance.pitch = 1.0;
+        } else {
+            utterance.rate = 1.02;
+            utterance.pitch = 1.02;
         }
-        
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang.includes('en-IN') && v.name.toLowerCase().includes('google'));
+
+        const bestVoice = getBestVoiceForLanguage(selectedLang);
+        if (bestVoice) {
+            utterance.voice = bestVoice;
+            console.log(`[KHIT-Pulse TTS] Voice: ${bestVoice.name} (${bestVoice.lang}) for ${selectedLang}`);
         }
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Google US English') || v.name.includes('Google UK English Female') || v.name.includes('Microsoft Zira'));
-        }
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang.includes('en-IN') || v.lang.includes('en_IN'));
-        }
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => {
-                const name = v.name.toLowerCase();
-                return name.includes('female') || name.includes('girl') || name.includes('zira') || name.includes('hazel') || name.includes('samantha');
-            });
-        }
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang.startsWith('en'));
-        }
-        
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-            console.log("Selected voice for speech synthesis:", selectedVoice.name);
-        }
-        
+
         utterance.onstart = () => {
             setMicState('speaking');
-        };
-        
-        utterance.onend = () => {
-            console.log("KHIT-Pulse: Speech completed.");
             setLogoProcessing(false);
-            
+
+            // Chrome 15-second speech keep-alive bug workaround
+            if (speechKeepAliveInterval) clearInterval(speechKeepAliveInterval);
+            speechKeepAliveInterval = setInterval(() => {
+                if (!window.speechSynthesis.speaking) {
+                    clearInterval(speechKeepAliveInterval);
+                    speechKeepAliveInterval = null;
+                } else {
+                    window.speechSynthesis.pause();
+                    window.speechSynthesis.resume();
+                }
+            }, 10000);
+        };
+
+        utterance.onend = () => {
+            if (speechKeepAliveInterval) {
+                clearInterval(speechKeepAliveInterval);
+                speechKeepAliveInterval = null;
+            }
+            console.log("[KHIT-Pulse TTS] Speech completed.");
+            setLogoProcessing(false);
+
+            // Autonomous Duplex Conversation Turn: Automatically re-arm microphone
             if (voiceModeOverlayActive && !voiceMicMuted) {
                 setTimeout(() => {
-                    startActiveQueryCapture();
-                }, 500);
+                    if (voiceModeOverlayActive && !voiceMicMuted) {
+                        playAudioFeedback('listening');
+                        startActiveQueryCapture();
+                    }
+                }, 380);
+            } else {
+                setMicState('off');
             }
         };
 
         utterance.onerror = (e) => {
-            console.error("KHIT-Pulse: Speech Synthesis Error", e);
+            if (speechKeepAliveInterval) {
+                clearInterval(speechKeepAliveInterval);
+                speechKeepAliveInterval = null;
+            }
+            console.error("[KHIT-Pulse TTS] Speech Synthesis Error:", e);
             setLogoProcessing(false);
-            
+
             if (voiceModeOverlayActive && !voiceMicMuted) {
                 setTimeout(() => {
-                    startActiveQueryCapture();
-                }, 500);
+                    if (voiceModeOverlayActive && !voiceMicMuted) {
+                        startActiveQueryCapture();
+                    }
+                }, 400);
             }
         };
-        
+
         window.speechSynthesis.speak(utterance);
     }
 
     function playGoogleTranslateTTS(text, langCode) {
-        stopActiveAudio();
-        window.speechSynthesis.cancel();
-        
-        try {
-            // Normalize language code to Google Translate locale prefix (e.g. te-IN -> te)
-            const lang = langCode ? langCode.split("-")[0] : "en";
-            
-            // Clean markdown syntax characters for clean narration
-            const cleanText = text.replace(/[*_#`\[\]()\-+]/g, " ").replace(/\s+/g, " ").trim();
-            
-            const chunks = chunkText(cleanText, 140);
-            let currentChunkIndex = 0;
-            
-            function playNextChunk() {
-                if (!voiceModeOverlayActive) {
-                    stopActiveAudio();
-                    return;
-                }
-                
-                if (currentChunkIndex >= chunks.length) {
-                    console.log("Google Translate TTS playback completed.");
-                    setLogoProcessing(false);
-                    currentAudioElement = null;
-                    
-                    if (voiceModeOverlayActive && !voiceMicMuted) {
-                        setTimeout(() => {
-                            startActiveQueryCapture();
-                        }, 500);
-                    }
-                    return;
-                }
-                
-                const chunk = chunks[currentChunkIndex];
-                const encodedText = encodeURIComponent(chunk);
-                const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodedText}`;
-                
-                currentAudioElement = new Audio(ttsUrl);
-                currentAudioElement.onplay = () => {
-                    setMicState('speaking');
-                };
-                currentAudioElement.onended = () => {
-                    currentChunkIndex++;
-                    playNextChunk();
-                };
-                currentAudioElement.onerror = (err) => {
-                    console.error("Google TTS chunk playback error:", err);
-                    currentChunkIndex++;
-                    playNextChunk();
-                };
-                currentAudioElement.play().catch(e => {
-                    console.warn("Play blocked, falling back to next chunk:", e);
-                    currentChunkIndex++;
-                    playNextChunk();
-                });
-            }
-            
-            playNextChunk();
-        } catch (e) {
-            console.error("Failed to play Google Translate TTS:", e);
-            setLogoProcessing(false);
-            if (voiceModeOverlayActive && !voiceMicMuted) {
-                startActiveQueryCapture();
-            }
-        }
-    }
-
-    function chunkText(text, maxLength) {
-        const words = text.split(" ");
-        const chunks = [];
-        let currentChunk = "";
-        
-        for (const word of words) {
-            if ((currentChunk + " " + word).length > maxLength) {
-                if (currentChunk) chunks.push(currentChunk.trim());
-                currentChunk = word;
-            } else {
-                currentChunk += " " + word;
-            }
-        }
-        if (currentChunk) chunks.push(currentChunk.trim());
-        return chunks;
+        vocalizeResponse(text, langCode);
     }
 
     function stopActiveAudio() {
@@ -2751,37 +2969,8 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         }
     }
 
-
-
-
-
-
-
-
-
     function playSynthesizedChime() {
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.type = 'sine';
-            const now = audioCtx.currentTime;
-            
-            oscillator.frequency.setValueAtTime(880, now);
-            oscillator.frequency.exponentialRampToValueAtTime(1320, now + 0.12);
-            
-            gainNode.gain.setValueAtTime(0.12, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-            
-            oscillator.start(now);
-            oscillator.stop(now + 0.25);
-        } catch (e) {
-            console.warn("AudioContext chime failed to play:", e);
-        }
+        playAudioFeedback('captured');
     }
 
     function showToast(msg) {
@@ -2800,22 +2989,25 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
     if (btnVoiceMode) {
         btnVoiceMode.addEventListener("click", () => {
             voiceModeOverlayActive = true;
-            
+            getAudioContext();
+            populateVoices();
+            playAudioFeedback('start');
+
             if (voiceOverlay) {
                 voiceOverlay.classList.remove("hidden");
                 setTimeout(() => {
                     voiceOverlay.classList.add("voice-overlay-active");
                 }, 10);
             }
-            
+
             if (voiceOverlayCaptions) {
                 voiceOverlayCaptions.innerHTML = '<div class="text-center text-slate-400 py-6"><p class="text-base text-slate-200 font-medium">Listening for your voice...</p><p class="text-xs text-slate-400 mt-1.5">Ask about KHIT principal, placements, founder, exams, circulars, or fees.</p></div>';
             }
-            
+
             window.speechSynthesis.cancel();
             stopActiveAudio();
             stopActiveQueryCapture();
-            
+
             setTimeout(() => {
                 startActiveQueryCapture();
             }, 600);
@@ -3110,29 +3302,80 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         });
     }
 
+    // Language Dropdown Dynamic Selector Synchronization
+    const selVoiceLangEl = document.getElementById("sel-voice-lang");
+    if (selVoiceLangEl) {
+        selVoiceLangEl.addEventListener("change", (e) => {
+            const newLang = e.target.value;
+            const isTe = (newLang === "te-IN");
+            isTeluguModeActive = isTe;
+
+            // Sync top header badge if available
+            if (btnLangToggle) {
+                if (isTe) {
+                    btnLangToggle.classList.add("lang-badge-active");
+                    if (langToggleText) langToggleText.textContent = "తెలుగు";
+                } else {
+                    btnLangToggle.classList.remove("lang-badge-active");
+                    if (langToggleText) langToggleText.textContent = "EN";
+                }
+            }
+
+            window.speechSynthesis.cancel();
+            stopActiveAudio();
+            playAudioFeedback('listening');
+
+            if (isTe) {
+                showToast("Bilingual Engine: తెలుగు (Telugu) activated 🌐");
+                if (voiceOverlayCaptions) {
+                    voiceOverlayCaptions.innerHTML = `
+                        <div class="text-center text-slate-300 py-6">
+                            <p class="text-base font-semibold text-emerald-400">నమస్కారం! తెలుగు వాయిస్ మోడ్ సిద్ధంగా ఉంది.</p>
+                            <p class="text-xs text-slate-400 mt-1.5">KHIT ప్రిన్సిపాల్, ప్లేస్‌మెంట్స్, పరీక్షలు లేదా సర్క్యులర్ల గురించి మాట్లాడండి.</p>
+                        </div>`;
+                }
+                vocalizeResponse("నమస్కారం! నేను KHIT వాయిస్ అసిస్టెంట్‌ని. మీకు ఎలా సహాయపడగలను?", "te-IN");
+            } else {
+                showToast("Bilingual Engine: English activated 🌐");
+                if (voiceOverlayCaptions) {
+                    voiceOverlayCaptions.innerHTML = `
+                        <div class="text-center text-slate-300 py-6">
+                            <p class="text-base font-semibold text-sky-400">KHIT Duplex Voice Assistant Online.</p>
+                            <p class="text-xs text-slate-400 mt-1.5">Ask about KHIT principal, placements, founder, exams, or circulars.</p>
+                        </div>`;
+                }
+                vocalizeResponse("KHIT duplex voice assistant online. How can I assist you today?", "en-IN");
+            }
+        });
+    }
+
+    function interruptActiveSpeechAndListen() {
+        if (voiceModeOverlayActive) {
+            window.speechSynthesis.cancel();
+            stopActiveAudio();
+            playAudioFeedback('interrupted');
+            showToast("Speech interrupted. Listening...");
+            if (!voiceMicMuted) {
+                startActiveQueryCapture();
+            }
+        }
+    }
+
     const voiceAuraVisEl = document.getElementById("voice-aura-visualizer");
     if (voiceAuraVisEl) {
-        voiceAuraVisEl.addEventListener("click", () => {
-            if (voiceModeOverlayActive) {
-                // Click interrupts AI narration and returns to listening mode
-                window.speechSynthesis.cancel();
-                stopActiveAudio();
-                showToast("Speech interrupted. Listening...");
-                triggerWakeActivation();
+        voiceAuraVisEl.addEventListener("click", interruptActiveSpeechAndListen);
+    }
+
+    if (voiceWaveVisualizer) {
+        voiceWaveVisualizer.addEventListener("click", (e) => {
+            if (e.target === voiceWaveVisualizer) {
+                interruptActiveSpeechAndListen();
             }
         });
     }
 
     if (voiceLogoContainer) {
-        voiceLogoContainer.addEventListener("click", () => {
-            if (voiceModeOverlayActive) {
-                // Click interrupts AI narration and returns to listening mode
-                window.speechSynthesis.cancel();
-                stopActiveAudio();
-                showToast("Speech interrupted. Listening...");
-                triggerWakeActivation();
-            }
-        });
+        voiceLogoContainer.addEventListener("click", interruptActiveSpeechAndListen);
     }
 
     // Logo click triggers return to chat
