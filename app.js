@@ -211,8 +211,8 @@ function initializeApplication() {
 
     // Campus Hub Workspace Elements
     let btnHubToggle, hubWorkspace, btnLangToggle, langToggleText;
-    let hubTabAcademics, hubTabPlacements, hubTabTransit, hubTabAnalyzer;
-    let hubPanelAcademics, hubPanelPlacements, hubPanelTransit, hubPanelAnalyzer;
+    let hubTabAcademics, hubTabPlacements, hubTabTransit, hubTabCampusMap, hubTabHelpdesk, hubTabAnalyzer;
+    let hubPanelAcademics, hubPanelPlacements, hubPanelTransit, hubPanelCampusMap, hubPanelHelpdesk, hubPanelAnalyzer;
     try { btnHubToggle = document.getElementById("btn-hub-toggle"); } catch(e) {}
     try { hubWorkspace = document.getElementById("hub-workspace"); } catch(e) {}
     try { btnLangToggle = document.getElementById("btn-lang-toggle"); } catch(e) {}
@@ -220,11 +220,42 @@ function initializeApplication() {
     try { hubTabAcademics = document.getElementById("hub-tab-academics"); } catch(e) {}
     try { hubTabPlacements = document.getElementById("hub-tab-placements"); } catch(e) {}
     try { hubTabTransit = document.getElementById("hub-tab-transit"); } catch(e) {}
+    try { hubTabCampusMap = document.getElementById("hub-tab-campusmap"); } catch(e) {}
+    try { hubTabHelpdesk = document.getElementById("hub-tab-helpdesk"); } catch(e) {}
     try { hubTabAnalyzer = document.getElementById("hub-tab-analyzer"); } catch(e) {}
     try { hubPanelAcademics = document.getElementById("hub-panel-academics"); } catch(e) {}
     try { hubPanelPlacements = document.getElementById("hub-panel-placements"); } catch(e) {}
     try { hubPanelTransit = document.getElementById("hub-panel-transit"); } catch(e) {}
+    try { hubPanelCampusMap = document.getElementById("hub-panel-campusmap"); } catch(e) {}
+    try { hubPanelHelpdesk = document.getElementById("hub-panel-helpdesk"); } catch(e) {}
     try { hubPanelAnalyzer = document.getElementById("hub-panel-analyzer"); } catch(e) {}
+
+    // Exam Target Marks Estimator Elements
+    let targetMid1Marks, targetMid2Marks, targetGradeSelect, btnCalcTargetMarks;
+    let targetMarksResult, targetFeasibilityBadge, displayInternalMarks, displayNeededExternal, displayTargetAdvice;
+    try { targetMid1Marks = document.getElementById("target-mid1-marks"); } catch(e) {}
+    try { targetMid2Marks = document.getElementById("target-mid2-marks"); } catch(e) {}
+    try { targetGradeSelect = document.getElementById("target-grade-select"); } catch(e) {}
+    try { btnCalcTargetMarks = document.getElementById("btn-calc-target-marks"); } catch(e) {}
+    try { targetMarksResult = document.getElementById("target-marks-result"); } catch(e) {}
+    try { targetFeasibilityBadge = document.getElementById("target-feasibility-badge"); } catch(e) {}
+    try { displayInternalMarks = document.getElementById("display-internal-marks"); } catch(e) {}
+    try { displayNeededExternal = document.getElementById("display-needed-external"); } catch(e) {}
+    try { displayTargetAdvice = document.getElementById("display-target-advice"); } catch(e) {}
+
+    // Campus Map & Helpdesk Elements
+    let campusMapSearch, campusBlocksGrid;
+    let grievanceForm, grvStudentName, grvRollNo, grvCategory, grvPriority, grvDescription, grievanceReceiptCard, grvTokenDisplay;
+    try { campusMapSearch = document.getElementById("campus-map-search"); } catch(e) {}
+    try { campusBlocksGrid = document.getElementById("campus-blocks-grid"); } catch(e) {}
+    try { grievanceForm = document.getElementById("grievance-form"); } catch(e) {}
+    try { grvStudentName = document.getElementById("grv-student-name"); } catch(e) {}
+    try { grvRollNo = document.getElementById("grv-roll-no"); } catch(e) {}
+    try { grvCategory = document.getElementById("grv-category"); } catch(e) {}
+    try { grvPriority = document.getElementById("grv-priority"); } catch(e) {}
+    try { grvDescription = document.getElementById("grv-description"); } catch(e) {}
+    try { grievanceReceiptCard = document.getElementById("grievance-receipt-card"); } catch(e) {}
+    try { grvTokenDisplay = document.getElementById("grv-token-display"); } catch(e) {}
 
     // SGPA & Course Calculator Elements
     let calcRegulation, sgpaCoursesList, btnAddCourse, btnResetSgpa, btnCalculateSgpa;
@@ -4067,6 +4098,118 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         }
     };
 
+    // Campus Blocks & Room Navigator Dataset
+    const CAMPUS_BLOCKS_DATA = [
+        {
+            name: "Main Administrative Block",
+            block: "Block A (Central Tower)",
+            floor: "Ground & 1st Floor",
+            inCharge: "Dr. B. S. B. Reddy (Principal)",
+            tags: ["Principal", "Director", "Accounts", "Cash Counter", "Administrative Office", "Board Room"],
+            desc: "Houses the Office of the Principal, Office of the Director, Examination Cell, Student Accounts Section, Fee Counter, and Syndicate Board Room.",
+            icon: "🏛️"
+        },
+        {
+            name: "Department of Computer Science & Engineering",
+            block: "Block B (Tech Innovation Wing)",
+            floor: "2nd & 3rd Floors",
+            inCharge: "Dr. G. J. Sunny Deol (HOD CSE)",
+            tags: ["CSE", "Sunny Deol", "Computer Science", "Faculty Rooms", "Seminar Hall", "CRT Cell"],
+            desc: "Department chambers, Senior Professor cubicles, CRT Technical Training Cell, Smart Classrooms 301-308, and CSE Department Library.",
+            icon: "💻"
+        },
+        {
+            name: "Polytechnic Diploma (CME/Mech/Civil)",
+            block: "Block E (South Wing)",
+            floor: "Ground & 1st Floor",
+            inCharge: "Dr. D. Venkata Rao (Dean of Diploma)",
+            tags: ["Diploma", "Venkata Rao", "Polytechnic", "Dean Office", "CME Lab", "Diploma Classrooms"],
+            desc: "Administrative Office of the Dean of Diploma, Faculty advisory lounges, Diploma CME Computer Labs, and foundation engineering practical bays.",
+            icon: "🎓"
+        },
+        {
+            name: "Big Data & AI Innovation Center",
+            block: "Block B (Advanced Computing Lab)",
+            floor: "3rd Floor - Lab 7",
+            inCharge: "CSE Research Committee",
+            tags: ["Big Data", "AI", "Machine Learning", "GPU Cluster", "Cloud Computing", "Lab"],
+            desc: "120+ High-Performance i7 & Xeon Workstations with dual-boot Linux/CUDA, Hadoop clusters, Apache Spark environments, and high-speed gigabit fiber.",
+            icon: "🧠"
+        },
+        {
+            name: "Dr. A.P.J. Abdul Kalam Central Library",
+            block: "Block C (East Block)",
+            floor: "Ground, 1st & 2nd Floors",
+            inCharge: "Chief Librarian & Information Officer",
+            tags: ["Library", "Books", "DELNET", "IEEE", "Digital Library", "Journals", "Reading Hall"],
+            desc: "Over 45,000 reference volumes, 120 national/international printed journals, 30-system digital e-library with IEEE & DELNET databases, and quiet study arena.",
+            icon: "📖"
+        },
+        {
+            name: "Artificial Intelligence & Data Science Labs",
+            block: "Block B (AI&DS Wing)",
+            floor: "2nd Floor - Lab 4",
+            inCharge: "HOD - AI & DS",
+            tags: ["AIDS", "Data Science", "Python Lab", "Robotics", "Computer Vision"],
+            desc: "Specialized laboratory equipped for Computer Vision, Natural Language Processing, Kaggle competitive computing, and Deep Learning model inference.",
+            icon: "🤖"
+        },
+        {
+            name: "Autonomous Examination Section",
+            block: "Block A (Administrative Block)",
+            floor: "Ground Floor - Room 104",
+            inCharge: "Controller of Examinations (CoE)",
+            tags: ["Exam Cell", "Marks Memo", "Hall Ticket", "Confidential Section", "Certificates", "Transcripts"],
+            desc: "Autonomous question paper generation unit, result processing center, marks sheet verification, transcript dispatch desk, and confidential printing cell.",
+            icon: "📝"
+        },
+        {
+            name: "Electronics & Communication Engg. (ECE)",
+            block: "Block D (West Wing)",
+            floor: "1st & 2nd Floors",
+            inCharge: "HOD - ECE",
+            tags: ["ECE", "DSP Lab", "VLSI Lab", "Embedded Systems", "IoT Workshop"],
+            desc: "VLSI Cadence Design suites, Digital Signal Processing stations, Microwave bench setups, Microcontroller testing boards, and IoT sensor prototyping.",
+            icon: "📡"
+        },
+        {
+            name: "Electrical & Electronics Engg. (EEE)",
+            block: "Block D (Ground Floor)",
+            floor: "Ground Floor",
+            inCharge: "HOD - EEE",
+            tags: ["EEE", "Electrical Machines Lab", "Power Systems", "Control Systems"],
+            desc: "Heavy AC/DC electrical machines testing yard, power electronics converters, power system simulation lab with MATLAB/Simulink workstations.",
+            icon: "⚡"
+        },
+        {
+            name: "Mechanical & Civil Technology Workshops",
+            block: "Block F (North Industrial Bay)",
+            floor: "Ground & Mezzanine",
+            inCharge: "Workshop Superintendent",
+            tags: ["Mechanical", "Civil", "CNC Machine", "CAD Lab", "Surveying", "Fluid Mechanics"],
+            desc: "Industrial-grade CNC turning center, Lathe machines, Universal Testing Machine (UTM), Total Station surveying equipment, and CAD/CAM software studio.",
+            icon: "⚙️"
+        },
+        {
+            name: "Campus Health Center & First Aid",
+            block: "Campus Medical Bay",
+            floor: "Ground Floor - Near Gate 2",
+            inCharge: "Resident Medical Officer",
+            tags: ["Medical", "Dispensary", "Doctor", "Ambulance", "Emergency", "Health"],
+            desc: "24/7 dedicated first-aid center, emergency medicines, observation beds, oxygen cylinder standby, and on-call campus emergency ambulance.",
+            icon: "🏥"
+        },
+        {
+            name: "Hostel Dining & Student Food Court",
+            block: "Central Amenity Complex",
+            floor: "Ground & 1st Floor",
+            inCharge: "Hostel Mess Supervisor",
+            tags: ["Canteen", "Hostel Mess", "Food", "Dining", "Snacks", "Bakery"],
+            desc: "Hygienic steam-cooking kitchen, dining seating for 600 students, campus cafeteria serving fresh juices, South Indian breakfast, and bakery items.",
+            icon: "🍽️"
+        }
+    ];
+
     function initCampusHubSuite() {
         if (hubInitialized) return;
         hubInitialized = true;
@@ -4077,6 +4220,8 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
                 { key: "academics", tab: hubTabAcademics, panel: hubPanelAcademics },
                 { key: "placements", tab: hubTabPlacements, panel: hubPanelPlacements },
                 { key: "transit", tab: hubTabTransit, panel: hubPanelTransit },
+                { key: "campusmap", tab: hubTabCampusMap, panel: hubPanelCampusMap },
+                { key: "helpdesk", tab: hubTabHelpdesk, panel: hubPanelHelpdesk },
                 { key: "analyzer", tab: hubTabAnalyzer, panel: hubPanelAnalyzer }
             ];
 
@@ -4101,6 +4246,8 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         if (hubTabAcademics) hubTabAcademics.addEventListener("click", () => switchHubSubtab("academics"));
         if (hubTabPlacements) hubTabPlacements.addEventListener("click", () => switchHubSubtab("placements"));
         if (hubTabTransit) hubTabTransit.addEventListener("click", () => switchHubSubtab("transit"));
+        if (hubTabCampusMap) hubTabCampusMap.addEventListener("click", () => switchHubSubtab("campusmap"));
+        if (hubTabHelpdesk) hubTabHelpdesk.addEventListener("click", () => switchHubSubtab("helpdesk"));
         if (hubTabAnalyzer) hubTabAnalyzer.addEventListener("click", () => switchHubSubtab("analyzer"));
 
         // 2. SGPA Calculator Default Population & Logic
@@ -4237,6 +4384,57 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
                 if (sgpaResultCard) {
                     sgpaResultCard.classList.remove("hidden");
                     sgpaResultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }
+            });
+        }
+
+        // Exam Intelligence & Target Marks Estimator Logic
+        if (btnCalcTargetMarks) {
+            btnCalcTargetMarks.addEventListener("click", () => {
+                const m1 = parseFloat(targetMid1Marks ? targetMid1Marks.value : 0) || 0;
+                const m2 = parseFloat(targetMid2Marks ? targetMid2Marks.value : 0) || 0;
+                const targetPercent = parseFloat(targetGradeSelect ? targetGradeSelect.value : 80) || 80;
+
+                if (m1 < 0 || m1 > 30 || m2 < 0 || m2 > 30) {
+                    showToast("Please enter Mid marks between 0 and 30.");
+                    return;
+                }
+
+                // Autonomous rule: 80% of best mid + 20% of other mid
+                const maxMid = Math.max(m1, m2);
+                const minMid = Math.min(m1, m2);
+                const finalInternal = (0.8 * maxMid) + (0.2 * minMid);
+
+                // Needed External out of 70
+                const rawNeeded = targetPercent - finalInternal;
+                const neededExternal = Math.round(rawNeeded);
+
+                if (displayInternalMarks) displayInternalMarks.textContent = `${finalInternal.toFixed(1)} / 30`;
+                if (displayNeededExternal) displayNeededExternal.textContent = `${neededExternal > 0 ? neededExternal : 25} / 70`;
+
+                if (targetFeasibilityBadge && displayTargetAdvice) {
+                    if (neededExternal > 70) {
+                        targetFeasibilityBadge.textContent = "Mathematically Impossible";
+                        targetFeasibilityBadge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                        displayTargetAdvice.textContent = `Even with full 70/70 in external, your maximum possible score is ${(finalInternal + 70).toFixed(1)}%. Aim for the next grade below this target!`;
+                    } else if (neededExternal <= 25) {
+                        targetFeasibilityBadge.textContent = "Already Secure! Minimum 25/70 to Pass";
+                        targetFeasibilityBadge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                        displayTargetAdvice.textContent = `Excellent internals (${finalInternal.toFixed(1)}/30)! You only need the mandatory JNTUK passing mark of 25/70 (35%) in the external examination to secure this grade.`;
+                    } else if (neededExternal <= 50) {
+                        targetFeasibilityBadge.textContent = "Easily Achievable Target";
+                        targetFeasibilityBadge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+                        displayTargetAdvice.textContent = `Scoring ${neededExternal} out of 70 (${Math.round((neededExternal/70)*100)}%) is well within standard reach with regular PYQ practice.`;
+                    } else {
+                        targetFeasibilityBadge.textContent = "High Effort Required (Focus on PYQs)";
+                        targetFeasibilityBadge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                        displayTargetAdvice.textContent = `You need ${neededExternal}/70 (${Math.round((neededExternal/70)*100)}%) in the external exam. Practice previous question papers and 10-mark essay derivations to achieve this goal!`;
+                    }
+                }
+
+                if (targetMarksResult) {
+                    targetMarksResult.classList.remove("hidden");
+                    targetMarksResult.scrollIntoView({ behavior: "smooth", block: "nearest" });
                 }
             });
         }
@@ -4695,11 +4893,124 @@ Imagine this concept like a well-organized post office or postal delivery fleet:
             });
         }
 
+        // 8. Campus Map & Blocks Directory Renderer
+        function renderCampusBlocks(filterText = "") {
+            if (!campusBlocksGrid) return;
+            campusBlocksGrid.innerHTML = "";
+            const q = filterText.toLowerCase().trim();
+
+            const filtered = CAMPUS_BLOCKS_DATA.filter(b => {
+                if (!q) return true;
+                return b.name.toLowerCase().includes(q) ||
+                       b.block.toLowerCase().includes(q) ||
+                       b.floor.toLowerCase().includes(q) ||
+                       b.inCharge.toLowerCase().includes(q) ||
+                       b.desc.toLowerCase().includes(q) ||
+                       b.tags.some(t => t.toLowerCase().includes(q));
+            });
+
+            if (filtered.length === 0) {
+                campusBlocksGrid.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-slate-500 text-xs italic">
+                        No campus room, department, or office found matching "${filterText}". Try searching for 'Principal', 'Exam Cell', or 'Sunny Deol'.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5 hover:border-cyan-500/40 transition";
+                const tagsHtml = item.tags.slice(0, 4).map(t => `<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/50">${t}</span>`).join(" ");
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">${item.icon}</span>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${item.name}</h4>
+                                <span class="text-[10px] text-cyan-400 font-semibold">${item.block} • ${item.floor}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                        <span class="font-semibold text-slate-300">In-Charge:</span> ${item.inCharge}
+                    </div>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">${item.desc}</p>
+                    <div class="pt-1 flex flex-wrap gap-1">
+                        ${tagsHtml}
+                    </div>
+                `;
+                campusBlocksGrid.appendChild(card);
+            });
+        }
+
+        if (campusMapSearch) {
+            campusMapSearch.addEventListener("input", (e) => {
+                renderCampusBlocks(e.target.value);
+            });
+        }
+
+        // 9. Student Grievance & Helpdesk Submission
+        if (grievanceForm) {
+            grievanceForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const sName = grvStudentName ? grvStudentName.value.trim() : "";
+                const sRoll = grvRollNo ? grvRollNo.value.trim() : "";
+                const sCat = grvCategory ? grvCategory.value : "Academics";
+                const sPri = grvPriority ? grvPriority.value : "Standard";
+                const sDesc = grvDescription ? grvDescription.value.trim() : "";
+
+                if (!sName) {
+                    showToast("Please enter your Student Name.");
+                    if (grvStudentName) grvStudentName.focus();
+                    return;
+                }
+                if (!sRoll) {
+                    showToast("Please enter your University Roll Number.");
+                    if (grvRollNo) grvRollNo.focus();
+                    return;
+                }
+                if (!sDesc) {
+                    showToast("Please provide details of your grievance or issue.");
+                    if (grvDescription) grvDescription.focus();
+                    return;
+                }
+
+                const token = "GRV-2026-" + Math.floor(1000 + Math.random() * 9000);
+
+                try {
+                    if (db) {
+                        await setDoc(doc(db, "grievances", token), {
+                            token: token,
+                            studentName: sName,
+                            rollNo: sRoll,
+                            category: sCat,
+                            priority: sPri,
+                            description: sDesc,
+                            status: "Under Review",
+                            submittedAt: new Date().toISOString()
+                        });
+                    }
+                } catch (err) {
+                    console.warn("Grievance save to cloud error:", err);
+                }
+
+                if (grvTokenDisplay) grvTokenDisplay.textContent = token;
+                if (grievanceReceiptCard) {
+                    grievanceReceiptCard.classList.remove("hidden");
+                    grievanceReceiptCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }
+                showToast(`Grievance submitted successfully! Token: ${token} 🎫`);
+                grievanceForm.reset();
+            });
+        }
+
         // Initialize default views
         populateDefaultSgpaCourses();
         renderSyllabus();
         renderRecruiters();
         renderTransitRoutes();
+        renderCampusBlocks();
     }
 
     // Auto-initialize Campus Hub Suite
