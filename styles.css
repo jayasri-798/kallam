@@ -1016,14 +1016,46 @@ html, body {
 }
 
 /* --- CAMPUS HUB SUITE DESIGN SYSTEM --- */
+.hub-subtabs-bar {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    overflow-x: auto !important;
+    padding-bottom: 0.35rem !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(56, 189, 248, 0.4) transparent !important;
+}
+
+.hub-subtabs-bar::-webkit-scrollbar {
+    height: 5px !important;
+}
+
+.hub-subtabs-bar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-radius: 9999px !important;
+}
+
+.hub-subtabs-bar::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.35) !important;
+    border-radius: 9999px !important;
+}
+
+.hub-subtabs-bar::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.7) !important;
+}
+
 .hub-subtab {
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .hub-subtab.active {
-    background: #0284c7 !important;
+    background: linear-gradient(135deg, #0284c7, #2563eb) !important;
     color: #ffffff !important;
-    box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.5) !important;
+    border-color: rgba(56, 189, 248, 0.8) !important;
+    box-shadow: 0 4px 18px -2px rgba(2, 132, 199, 0.6) !important;
 }
 
 .hub-card {

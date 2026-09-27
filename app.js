@@ -209,25 +209,35 @@ function initializeApplication() {
     try { geminiKeyFeedback = document.getElementById("gemini-key-feedback"); } catch(e) {}
     try { aiEngineStatusBadge = document.getElementById("ai-engine-status-badge"); } catch(e) {}
 
-    // Campus Hub Workspace Elements
-    let btnHubToggle, hubWorkspace, btnLangToggle, langToggleText;
-    let hubTabAcademics, hubTabPlacements, hubTabTransit, hubTabCampusMap, hubTabHelpdesk, hubTabAnalyzer;
-    let hubPanelAcademics, hubPanelPlacements, hubPanelTransit, hubPanelCampusMap, hubPanelHelpdesk, hubPanelAnalyzer;
+    // Campus Hub Workspace & Header Elements
+    let btnChatToggle, btnHubToggle, btnHubBackToChat, hubWorkspace, btnLangToggle, langToggleText;
+    let hubTabAcademics, hubTabExamTarget, hubTabLeave, hubTabSyllabus, hubTabPlacements, hubTabTransit, hubTabCampusMap, hubTabHelpdesk, hubTabScholarships, hubTabAnalyzer;
+    let hubPanelAcademics, hubPanelExamTarget, hubPanelLeave, hubPanelSyllabus, hubPanelPlacements, hubPanelTransit, hubPanelCampusMap, hubPanelHelpdesk, hubPanelScholarships, hubPanelAnalyzer;
+    try { btnChatToggle = document.getElementById("btn-chat-toggle"); } catch(e) {}
     try { btnHubToggle = document.getElementById("btn-hub-toggle"); } catch(e) {}
+    try { btnHubBackToChat = document.getElementById("btn-hub-back-to-chat"); } catch(e) {}
     try { hubWorkspace = document.getElementById("hub-workspace"); } catch(e) {}
     try { btnLangToggle = document.getElementById("btn-lang-toggle"); } catch(e) {}
     try { langToggleText = document.getElementById("lang-toggle-text"); } catch(e) {}
     try { hubTabAcademics = document.getElementById("hub-tab-academics"); } catch(e) {}
+    try { hubTabExamTarget = document.getElementById("hub-tab-examtarget"); } catch(e) {}
+    try { hubTabLeave = document.getElementById("hub-tab-leave"); } catch(e) {}
+    try { hubTabSyllabus = document.getElementById("hub-tab-syllabus"); } catch(e) {}
     try { hubTabPlacements = document.getElementById("hub-tab-placements"); } catch(e) {}
     try { hubTabTransit = document.getElementById("hub-tab-transit"); } catch(e) {}
     try { hubTabCampusMap = document.getElementById("hub-tab-campusmap"); } catch(e) {}
     try { hubTabHelpdesk = document.getElementById("hub-tab-helpdesk"); } catch(e) {}
+    try { hubTabScholarships = document.getElementById("hub-tab-scholarships"); } catch(e) {}
     try { hubTabAnalyzer = document.getElementById("hub-tab-analyzer"); } catch(e) {}
     try { hubPanelAcademics = document.getElementById("hub-panel-academics"); } catch(e) {}
+    try { hubPanelExamTarget = document.getElementById("hub-panel-examtarget"); } catch(e) {}
+    try { hubPanelLeave = document.getElementById("hub-panel-leave"); } catch(e) {}
+    try { hubPanelSyllabus = document.getElementById("hub-panel-syllabus"); } catch(e) {}
     try { hubPanelPlacements = document.getElementById("hub-panel-placements"); } catch(e) {}
     try { hubPanelTransit = document.getElementById("hub-panel-transit"); } catch(e) {}
     try { hubPanelCampusMap = document.getElementById("hub-panel-campusmap"); } catch(e) {}
     try { hubPanelHelpdesk = document.getElementById("hub-panel-helpdesk"); } catch(e) {}
+    try { hubPanelScholarships = document.getElementById("hub-panel-scholarships"); } catch(e) {}
     try { hubPanelAnalyzer = document.getElementById("hub-panel-analyzer"); } catch(e) {}
 
     // Exam Target Marks Estimator Elements
@@ -3017,6 +3027,7 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
     // --- Workspace Toggling Control Panel ---
     function switchWorkspace(target) {
         // Reset active highlights on header toggle buttons
+        if (btnChatToggle) btnChatToggle.classList.remove("framer-pill-active");
         if (btnHubToggle) btnHubToggle.classList.remove("framer-pill-active");
         if (btnCalendarToggle) btnCalendarToggle.classList.remove("framer-pill-active");
         if (btnProfileToggle) btnProfileToggle.classList.remove("framer-pill-active");
@@ -3031,6 +3042,7 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
 
         if (target === "chat") {
             if (chatWorkspace) chatWorkspace.classList.remove("hidden");
+            if (btnChatToggle) btnChatToggle.classList.add("framer-pill-active");
             if (btnClearChat) btnClearChat.classList.remove("hidden");
         } else if (target === "hub") {
             if (hubWorkspace) hubWorkspace.classList.remove("hidden");
@@ -3178,6 +3190,18 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
                 inputGeminiApiKey.type = "password";
                 btnToggleKeyVisibility.textContent = "Show";
             }
+        });
+    }
+
+    if (btnChatToggle) {
+        btnChatToggle.addEventListener("click", () => {
+            switchWorkspace("chat");
+        });
+    }
+
+    if (btnHubBackToChat) {
+        btnHubBackToChat.addEventListener("click", () => {
+            switchWorkspace("chat");
         });
     }
 
@@ -4218,10 +4242,14 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         function switchHubSubtab(tabKey) {
             const tabsMap = [
                 { key: "academics", tab: hubTabAcademics, panel: hubPanelAcademics },
+                { key: "examtarget", tab: hubTabExamTarget, panel: hubPanelExamTarget },
+                { key: "leave", tab: hubTabLeave, panel: hubPanelLeave },
+                { key: "syllabus", tab: hubTabSyllabus, panel: hubPanelSyllabus },
                 { key: "placements", tab: hubTabPlacements, panel: hubPanelPlacements },
                 { key: "transit", tab: hubTabTransit, panel: hubPanelTransit },
                 { key: "campusmap", tab: hubTabCampusMap, panel: hubPanelCampusMap },
                 { key: "helpdesk", tab: hubTabHelpdesk, panel: hubPanelHelpdesk },
+                { key: "scholarships", tab: hubTabScholarships, panel: hubPanelScholarships },
                 { key: "analyzer", tab: hubTabAnalyzer, panel: hubPanelAnalyzer }
             ];
 
@@ -4244,10 +4272,14 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         }
 
         if (hubTabAcademics) hubTabAcademics.addEventListener("click", () => switchHubSubtab("academics"));
+        if (hubTabExamTarget) hubTabExamTarget.addEventListener("click", () => switchHubSubtab("examtarget"));
+        if (hubTabLeave) hubTabLeave.addEventListener("click", () => switchHubSubtab("leave"));
+        if (hubTabSyllabus) hubTabSyllabus.addEventListener("click", () => switchHubSubtab("syllabus"));
         if (hubTabPlacements) hubTabPlacements.addEventListener("click", () => switchHubSubtab("placements"));
         if (hubTabTransit) hubTabTransit.addEventListener("click", () => switchHubSubtab("transit"));
         if (hubTabCampusMap) hubTabCampusMap.addEventListener("click", () => switchHubSubtab("campusmap"));
         if (hubTabHelpdesk) hubTabHelpdesk.addEventListener("click", () => switchHubSubtab("helpdesk"));
+        if (hubTabScholarships) hubTabScholarships.addEventListener("click", () => switchHubSubtab("scholarships"));
         if (hubTabAnalyzer) hubTabAnalyzer.addEventListener("click", () => switchHubSubtab("analyzer"));
 
         // 2. SGPA Calculator Default Population & Logic
