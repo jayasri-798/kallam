@@ -477,21 +477,26 @@
                             </div>
 
                             <form id="leave-generator-form" class="space-y-3">
+                                <div class="p-2.5 rounded-xl bg-sky-950/40 border border-sky-500/20 text-[11px] text-sky-300 flex items-center gap-2">
+                                    <span>✍️</span>
+                                    <span>All details must be filled in personally by the applicant student.</span>
+                                </div>
+
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Student Name</label>
-                                        <input type="text" id="leave-student-name" placeholder="Amareswar C." required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Student Name *</label>
+                                        <input type="text" id="leave-student-name" placeholder="Enter your full name" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Roll Number</label>
-                                        <input type="text" id="leave-roll-no" placeholder="228X1A05XX" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Roll Number *</label>
+                                        <input type="text" id="leave-roll-no" placeholder="Enter roll number (e.g. 218X1A...)" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Branch & Year</label>
-                                        <input type="text" id="leave-branch" placeholder="B.Tech CSE - 3rd Year" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">Branch & Year *</label>
+                                        <input type="text" id="leave-branch" placeholder="Branch & Year (e.g. CSE-B III Year)" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
                                     </div>
                                     <div>
                                         <label class="text-[10px] font-semibold text-slate-400 uppercase">Application Type</label>
@@ -506,11 +511,11 @@
 
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">From Date</label>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">From Date *</label>
                                         <input type="date" id="leave-start-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">To Date</label>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase">To Date *</label>
                                         <input type="date" id="leave-end-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                                     </div>
                                 </div>
@@ -528,8 +533,8 @@
                                 </div>
 
                                 <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Reason / Subject Details</label>
-                                    <textarea id="leave-reason" rows="2" placeholder="Brief reason (e.g. Diagnosed with viral fever / Selected for Smart India Hackathon final round)..." class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500"></textarea>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Reason / Subject Details *</label>
+                                    <textarea id="leave-reason" rows="2" placeholder="State your specific reason for leave or on-duty request..." required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"></textarea>
                                 </div>
 
                                 <button type="submit" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
@@ -1368,6 +1373,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.4.0"></script>
+    <script type="module" src="app.js?v=3.4.1"></script>
 </body>
 </html>

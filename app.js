@@ -4245,14 +4245,45 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         if (leaveGeneratorForm) {
             leaveGeneratorForm.addEventListener("submit", (e) => {
                 e.preventDefault();
-                const name = leaveStudentName ? leaveStudentName.value.trim() : "Student";
-                const rollNo = leaveRollNo ? leaveRollNo.value.trim() : "228X1A05XX";
-                const branch = leaveBranch ? leaveBranch.value.trim() : "B.Tech CSE";
+                const name = leaveStudentName ? leaveStudentName.value.trim() : "";
+                const rollNo = leaveRollNo ? leaveRollNo.value.trim() : "";
+                const branch = leaveBranch ? leaveBranch.value.trim() : "";
                 const type = leaveType ? leaveType.value : "Leave Application";
-                const start = leaveStartDate ? leaveStartDate.value : "YYYY-MM-DD";
-                const end = leaveEndDate ? leaveEndDate.value : "YYYY-MM-DD";
+                const start = leaveStartDate ? leaveStartDate.value : "";
+                const end = leaveEndDate ? leaveEndDate.value : "";
                 const authorityVal = leaveAddressedTo ? leaveAddressedTo.value : "HOD_CSE";
-                const reason = leaveReason && leaveReason.value.trim() ? leaveReason.value.trim() : "attending to important personal and academic commitments";
+                const reason = leaveReason ? leaveReason.value.trim() : "";
+
+                if (!name) {
+                    showToast("Please enter your Student Name.");
+                    if (leaveStudentName) leaveStudentName.focus();
+                    return;
+                }
+                if (!rollNo) {
+                    showToast("Please enter your University Roll Number.");
+                    if (leaveRollNo) leaveRollNo.focus();
+                    return;
+                }
+                if (!branch) {
+                    showToast("Please enter your Branch & Year.");
+                    if (leaveBranch) leaveBranch.focus();
+                    return;
+                }
+                if (!start) {
+                    showToast("Please select the leave start date.");
+                    if (leaveStartDate) leaveStartDate.focus();
+                    return;
+                }
+                if (!end) {
+                    showToast("Please select the leave end date.");
+                    if (leaveEndDate) leaveEndDate.focus();
+                    return;
+                }
+                if (!reason) {
+                    showToast("Please enter your specific reason for leave or on-duty.");
+                    if (leaveReason) leaveReason.focus();
+                    return;
+                }
 
                 let authorityTitle = "The Head of Department, Computer Science & Engineering\nDr. G. J. Sunny Deol";
                 if (authorityVal === "DEAN_DIPLOMA") {
