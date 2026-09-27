@@ -361,6 +361,7 @@ function initializeApplication() {
     let isListening = false;
     let speechRecognition = null;
     let currentUserDetails = null;
+    let activeStreamingTimer = null;
 
     // Enterprise AI Architecture State: Conversational Memory & Token Tracking
     let chatHistory = []; // Array of { role: "user" | "model", parts: [{ text: "..." }] }
@@ -1175,6 +1176,16 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         });
     }
 
+    if (inputQuery) {
+        inputQuery.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                const queryText = inputQuery.value.trim();
+                if (queryText) submitAcademicQuery(queryText);
+            }
+        });
+    }
+
     if (suggestionCards) {
         suggestionCards.forEach(card => {
             card.addEventListener("click", () => {
@@ -1268,6 +1279,16 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
 
     async function submitAcademicQuery(text) {
         if (!text) return;
+        
+        // Ensure UI switches to Chat view if the query was triggered from another workspace (e.g. Hub, Calendar, Profile)
+        switchWorkspace("chat");
+        
+        // Cancel any active streaming animation to avoid colliding DOM updates
+        if (activeStreamingTimer) {
+            clearInterval(activeStreamingTimer);
+            activeStreamingTimer = null;
+        }
+
         const isBanned = await checkAndEnforceBan(text);
         if (isBanned) return;
 
@@ -1622,73 +1643,139 @@ ${circularsContext}`;
         return matchedTexts.join("\n");
     }
 
-    async function callGeminiAPI(systemInstruction, conversationHistory, onComplete, onError) {
+async function callGeminiAPI(systemInstruction, conversationHistory, onComplete, onError) {
         if (!geminiApiKey) {
             if (onError) onError(new Error("Gemini API key is not configured"));
             return;
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-        
-        // Construct payload with system_instruction, tools (Google Search Grounding), and contents
-        const requestPayload = {
-            system_instruction: {
-                parts: [{ text: systemInstruction }]
-            },
-            generationConfig: {
-                temperature: 0.3
-            },
-            tools: [{
-                googleSearch: {}
-            }],
-            contents: conversationHistory.map(turn => ({
-                role: turn.role,
-                parts: turn.parts
-            }))
-        };
-
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestPayload)
-            });
+        // Clean and prepare alternating conversation turns strictly compliant with Google Gemini specifications
+        const sanitizedContents = [];
+        let lastRole = null;
+        for (const turn of conversationHistory) {
+            const role = turn.role === "model" ? "model" : "user";
+            const text = (turn.parts?.[0]?.text || "").trim();
+            if (!text) continue;
             
-            if (!response.ok) {
-                throw new Error(`API error: ${response.status} ${response.statusText}`);
-            }
-            
-            const data = await response.json();
-            
-            // Enterprise Token Tracking and Logging
-            if (data.usageMetadata) {
-                const usage = data.usageMetadata;
-                sessionTokenStats.promptTokens += usage.promptTokenCount || 0;
-                sessionTokenStats.candidatesTokens += usage.candidatesTokenCount || 0;
-                sessionTokenStats.totalTokens += usage.totalTokenCount || 0;
-                sessionTokenStats.requestCount += 1;
-                
-                console.log(`%c[KHIT-Pulse Token Tracking] Turn #${sessionTokenStats.requestCount} | Prompt Tokens: ${usage.promptTokenCount} | Candidate Tokens: ${usage.candidatesTokenCount} | Total Session Tokens: ${sessionTokenStats.totalTokens}`, 'color: #38bdf8; font-weight: bold;');
-            }
-            
-            const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-            if (responseText) {
-                if (onComplete) onComplete(responseText);
+            if (role === lastRole && sanitizedContents.length > 0) {
+                // Merge consecutive turns with the same role
+                sanitizedContents[sanitizedContents.length - 1].parts[0].text += "\n\n" + text;
             } else {
-                throw new Error("Empty response from Gemini API");
+                sanitizedContents.push({
+                    role: role,
+                    parts: [{ text: text }]
+                });
+                lastRole = role;
             }
-        } catch (err) {
-            console.error("Gemini API call failed:", err);
-            if (onError) onError(err);
         }
+
+        // Ensure history ends with a user query
+        if (sanitizedContents.length === 0 || sanitizedContents[sanitizedContents.length - 1].role !== "user") {
+            sanitizedContents.push({ role: "user", parts: [{ text: "Hello" }] });
+        }
+
+        // Try primary model (gemini-2.0-flash with search grounding), then fallback to gemini-1.5-flash
+        const attempts = [
+            {
+                url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+                payload: {
+                    system_instruction: { parts: [{ text: systemInstruction }] },
+                    generationConfig: { temperature: 0.3 },
+                    tools: [{ googleSearch: {} }],
+                    contents: sanitizedContents
+                }
+            },
+            {
+                url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
+                payload: {
+                    system_instruction: { parts: [{ text: systemInstruction }] },
+                    generationConfig: { temperature: 0.3 },
+                    contents: sanitizedContents
+                }
+            }
+        ];
+
+        let lastErr = null;
+        for (const attempt of attempts) {
+            try {
+                const response = await fetch(attempt.url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(attempt.payload)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                if (data.usageMetadata) {
+                    const usage = data.usageMetadata;
+                    sessionTokenStats.promptTokens += usage.promptTokenCount || 0;
+                    sessionTokenStats.candidatesTokens += usage.candidatesTokenCount || 0;
+                    sessionTokenStats.totalTokens += usage.totalTokenCount || 0;
+                    sessionTokenStats.requestCount += 1;
+                    console.log(`%c[KHIT-Pulse Token Tracking] Turn #${sessionTokenStats.requestCount} | Prompt: ${usage.promptTokenCount} | Candidates: ${usage.candidatesTokenCount} | Total: ${sessionTokenStats.totalTokens}`, 'color: #38bdf8; font-weight: bold;');
+                }
+                
+                const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                if (responseText) {
+                    if (onComplete) onComplete(responseText);
+                    return;
+                }
+            } catch (err) {
+                console.warn("Gemini API attempt warning:", err);
+                lastErr = err;
+            }
+        }
+
+        if (onError) onError(lastErr || new Error("All Gemini API attempts failed"));
     }
 
     function fallbackLocalModel(queryStr) {
-        const q = queryStr.toLowerCase().trim();
-        
+        const q = (queryStr || "").toLowerCase().trim();
+        const isTelugu = isTeluguModeActive || (voiceModeOverlayActive && document.getElementById("sel-voice-lang")?.value === "te-IN") || /[\u0c00-\u0c7f]/.test(q);
+
+        // -------------------------------------------------------------
+        // A. NATIVE TELUGU RESPONSES (BILINGUAL CAMPUS INTELLIGENCE)
+        // -------------------------------------------------------------
+        if (isTelugu) {
+            if (q.includes("ఫీజు") || q.includes("ఫీజ్") || q.includes("డబ్బులు") || q.includes("స్కాలర్‌షిప్") || q.includes("దీవెన")) {
+                return `**KHIT ట్యూషన్ ఫీజులు & జగనన్న విద్యా దీవెన వివరాలు:**\n\n- **B.Tech కన్వీనర్ కోటా ఫీజు:** సంవత్సరానికి సుమారు **₹41,000** (రాష్ట్ర ప్రభుత్వ నిబంధనల ప్రకారం).\n- **పాలిటెక్నిక్ డిప్లొమా ఫీజు:** మొత్తం కోర్సుకు సుమారు **₹75,000**.\n- **100% పూర్తి ఫీజు రీయింబర్స్‌మెంట్:** అర్హత కలిగిన SC, ST, BC, EBC, మైనారిటీ విద్యార్థులకు ఆంధ్రప్రదేశ్ ప్రభుత్వ **జగనన్న విద్యా దీవెన (JVD)** పథకం ద్వారా పూర్తి ట్యూషన్ ఫీజు రీయింబర్స్ చేయబడుతుంది.\n- **హాస్టల్ వసతి దీవెన:** అర్హులైన విద్యార్థులకు **జగనన్న వసతి దీవెన** కింద వసతి భత్యం నేరుగా జమ చేయబడుతుంది.\n- **కౌన్సిలింగ్ కోడ్:** **KHIT** (AP EAMCET / POLYCET / ECET).`;
+            }
+
+            if (q.includes("ప్లేస్‌మెంట్") || q.includes("ఉద్యోగ") || q.includes("శాలరీ") || q.includes("ప్యాకేజీ") || q.includes("కంపెనీ")) {
+                return `**KHIT క్యాంపస్ ప్లేస్‌మెంట్స్ & రికార్డులు:**\n\n- **అత్యున్నత వేతన ప్యాకేజీలు:**\n  - గరిష్ట సాఫ్ట్‌వేర్ ప్యాకేజీ: **22 LPA** (Tier-1 Cloud & AI ప్రాడక్ట్ కంపెనీలు).\n  - కార్పొరేట్ పీక్ ప్యాకేజీ: **12 LPA**.\n  - సగటు వేతన శ్రేణి: **5.0 నుండి 7.2 LPA**.\n- **అద్భుతమైన ప్లేస్‌మెంట్ విజయం:** అర్హులైన విద్యార్థుల్లో దాదాపు **88% నుండి 94%+** మంది బహుళజాతి సంస్థలలో ఉద్యోగాలు సాధించారు.\n- **ప్రముఖ రిక్రూటింగ్ భాగస్వాములు:** TCS, Infosys, Wipro, Capgemini, Amazon, Cognizant, Tech Mahindra, Amaron Batteries.\n- **క్యాంపస్ రిక్రూట్‌మెంట్ ట్రైనింగ్ (CRT):** 3వ సంవత్సరం నుండే ప్రత్యేక కోడింగ్ (DSA), ఆప్టిట్యూడ్ మరియు మాక్ ఇంటర్వ్యూలలో కార్పొరేట్ శిక్షణ ఇవ్వబడుతుంది.`;
+            }
+
+            if (q.includes("సమయాలు") || q.includes("టైమింగ్") || q.includes("ఎప్పుడు") || q.includes("లంచ్") || q.includes("సమయం")) {
+                return `**KHIT కళాశాల సమయాలు & రోజువారీ షెడ్యూల్:**\n\n- **పని దినాలు:** సోమవారం నుండి శనివారం వరకు (ప్రతి నెలా 2వ శనివారం అధికారిక సెలవు).\n- **తరగతుల సమయం:** ఉదయం **9:00 AM నుండి సాయంత్రం 4:30 PM** వరకు.\n  - ఉదయపు సెషన్: 9:00 AM – 12:40 PM (పీరియడ్లు 1 నుండి 4).\n  - **భోజన విరామం (Lunch):** **12:40 PM – 1:30 PM** (50 నిమిషాలు).\n  - మధ్యాహ్నపు సెషన్ & ల్యాబ్‌లు: 1:30 PM – 4:30 PM.\n- **సెంట్రల్ లైబ్రరీ సమయం:** ఉదయం **8:00 AM నుండి సాయంత్రం 6:00 PM** వరకు (పరీక్షల సమయంలో రాత్రి 7:00 PM వరకు).\n- **అడ్మినిస్ట్రేటివ్ ఆఫీస్:** ఉదయం 8:45 AM నుండి సాయంత్రం 5:00 PM వరకు.`;
+            }
+
+            if (q.includes("బస్సు") || q.includes("రూట్") || q.includes("రవాణా") || q.includes("ఎక్కడ") || q.includes("అడ్రస్") || q.includes("లొకేషన్")) {
+                return `**KHIT బస్సు రూట్లు & క్యాంపస్ లొకేషన్ వివరాలు:**\n\n- **అధికారిక క్యాంపస్ చిరునామా:**\n  కళ్ళం హరనాధరెడ్డి ఇన్స్టిట్యూట్ ఆఫ్ టెక్నాలజీ (KHIT),\n  NH-16 (గుంటూరు-చెన్నై జాతీయ రహదారి), దాసరిపాలెం, చౌడవరం, గుంటూరు, ఆంధ్రప్రదేశ్ – **522019**.\n- **కళాశాల బస్సు రవాణా (8 ప్రధాన మార్గాలు):**\n  1. **విజయవాడ రూట్:** బెంజ్ సర్కిల్, రామవరప్పాడు, తాడేపల్లి, మంగళగిరి బైపాస్.\n  2. **గుంటూరు సిటీ రూట్:** ఓల్డ్ బస్ స్టాండ్, మార్కెట్, అరండల్‌పేట, గుజ్జనగుండ్ల, కొరిటెపాడు, నాజ్ సెంటర్.\n  3. **గుంటూరు వెస్ట్ లూప్:** బ్రాడీపేట, లక్ష్మీపురం, కలెక్టరేట్, పట్టాభిపురం.\n  4. **తెనాలి రూట్:** తెనాలి RTC బస్ స్టాండ్, చెంచుపేట, అంగలకుదురు, నారకోడూరు.\n  5. **చిలకలూరిపేట రూట్:** క్లాక్ టవర్, గణపవరం, బోయపాలెం, ప్రత్తిపాడు NH-16.\n  6. **పొన్నూరు-చేబ్రోలు రూట్:** పొన్నూరు, నిడుబ్రోలు, చేబ్రోలు.\n  7. **మంగళగిరి లోకల్:** పాత బస్ స్టాండ్, NRI హాస్పిటల్, కాజ, నంబూరు.\n  8. **సత్తెనపల్లి రూట్:** సత్తెనపల్లి, మేడికొండూరు, పేరేచర్ల జంక్షన్.\n- **క్యాంపస్ బస్సు సమయం:** ఉదయం 8:45 AM కు కళాశాలకు చేరుకుంటుంది; సాయంత్రం 4:45 PM కు బయలుదేరుతుంది.`;
+            }
+
+            if (q.includes("హాస్టల్") || q.includes("భోజనం") || q.includes("మెస్") || q.includes("రూమ్") || q.includes("జిమ్")) {
+                return `**KHIT హాస్టల్ వసతి & జీవన సౌకర్యాలు:**\n\n- **బాయ్స్ హాస్టల్:** సంవత్సరానికి సుమారు **₹67,500** (వసతి మరియు 4 పూటల పౌష్టికాహార భోజనంతో సహా).\n- **గర్ల్స్ హాస్టల్:** సంవత్సరానికి **₹75,000 నుండి ₹85,000** (గది కేటగిరీని బట్టి).\n- **భోజన సదుపాయం:** రోజుకు 4 పూటలా పోషకమైన ఆహారం: అల్పాహారం (టిఫిన్), మధ్యాహ్న భోజనం, సాయంత్రం స్నాక్స్ & టీ/కాఫీ, రాత్రి భోజనం.\n- **సురక్షిత వాతావరణం:** 24/7 CCTV నిఘా, బయోమెట్రిక్ ప్రవేశం, మహిళా వార్డెన్లు మరియు రక్షక సిబ్బంది.\n- **జిమ్ & ఫిట్‌నెస్:** 300 చదరపు మీటర్ల విస్తీర్ణంలో ఆధునిక వ్యాయామశాల, టేబుల్ టెన్నిస్ మరియు చెస్ సౌకర్యాలు ఉన్నాయి.`;
+            }
+
+            if (q.includes("చైర్మన్") || q.includes("ఫౌండర్") || q.includes("వ్యవస్థాపక") || q.includes("హరనాధ") || q.includes("డైరెక్టర్") || q.includes("ప్రిన్సిపాల్") || q.includes("డీన్") || q.includes("హెచ్ఓడి")) {
+                return `**KHIT నాయకత్వం & పాలకమండలి:**\n\n- **వ్యవస్థాపకులు & ఛైర్మన్:** **శ్రీ కళ్ళం హరనాధరెడ్డి, M.A., B.L.**\n  - ప్రముఖ పారిశ్రామికవేత్త, ₹250 కోట్ల టర్నోవర్ గల 'కళ్ళం గ్రూప్ ఆఫ్ ఇండస్ట్రీస్' వ్యవస్థాపకులు. 'ఉద్యోగ పాత్ర' మరియు 'ఆల్ టైమ్ అచీవ్‌మెంట్' అవార్డు గ్రహీత.\n- **డైరెక్టర్:** **డాక్టర్ ఉమాశంకరరెడ్డి మోవ్వ, M.Sc., Ph.D.** (BHU, 25+ ఏళ్ల విశిష్ట అనుభవం).\n- **ప్రిన్సిపాల్:** **డాక్టర్ బి. ఎస్. బి. రెడ్డి** (KHIT హెడ్ ఆఫ్ ఇన్స్టిట్యూషన్).\n- **డీన్ (డిప్లొమా/పాలిటెక్నిక్):** **డాక్టర్ డి. వెంకటరావు** (చేరిన తేదీ: 06-05-2021). పాలిటెక్నిక్ విద్యా విభాగాన్ని నడిపిస్తున్నారు.\n- **HOD - కంప్యూటర్ సైన్స్ & ఇంజనీరింగ్ (CSE):** **డాక్టర్ జి. జె. సన్నీ డియోల్, Ph.D.** (బిగ్ డేటా స్పెషలైజేషన్ | చేరిన తేదీ: 14-08-2020).\n- **AI & వెబ్‌సైట్ సృష్టికర్త (డెవలపర్):** **అమరేశ్వర్ చింతలచెరువు** (బాలశ్రీ వ్యవస్థాపకులు, CME డిప్లొమా విద్యార్థి, KHIT).`;
+            }
+
+            if (q.includes("కోడ్") || q.includes("కౌన్సిలింగ్") || q.includes("ఈఏపీసెట్") || q.includes("పాలీసెట్")) {
+                return `**KHIT అధికారిక కళాశాల కోడ్‌లు:**\n\n- **AP EAMCET / EAPCET కోడ్:** **KHIT**\n- **AP POLYCET (డిప్లొమా) కోడ్:** **KHIT**\n- **AP ECET (లేటరల్ ఎంట్రీ) కోడ్:** **KHIT**\n- **AP ICET (MBA/MCA) కోడ్:** **KHIT**\n- **JNTUK అనుబంధ కళాశాల కోడ్:** **8X** / **KHIT**\n- **అధికారిక వెబ్‌సైట్:** \`https://khitguntur.ac.in\``;
+            }
+
+            // Universal Telugu Campus Overview Fallback
+            return `**కళ్ళం హరనాధరెడ్డి ఇన్స్టిట్యూట్ ఆఫ్ టెక్నాలజీ (KHIT), గుంటూరు**\n\nనేను మీ KHIT-Pulse AI సహాయకుడిని. మీరు కళాశాలకు సంబంధించిన కింది వివరాలను అడగవచ్చు:\n- **నాయకత్వం:** ఛైర్మన్ శ్రీ కళ్ళం హరనాధరెడ్డి, డైరెక్టర్ డాక్టర్ ఉమాశంకరరెడ్డి మోవ్వ, ప్రిన్సిపాల్ డాక్టర్ బి.ఎస్.బి. రెడ్డి, డీన్ డాక్టర్ డి. వెంకటరావు, CSE HOD డాక్టర్ జి.జె. సన్నీ డియోల్.\n- **అడ్మిషన్లు & ఫీజులు:** B.Tech (₹41,000/సంవత్సరం), డిప్లొమా (₹75,000), జగనన్న విద్యా దీవెన 100% రీయింబర్స్‌మెంట్.\n- **ప్లేస్‌మెంట్స్:** 88%–94%+ రికార్డు, గరిష్ట ప్యాకేజ్ 22 LPA, సగటు 5.0 - 7.2 LPA, TCS, Infosys, Amazon.\n- **సమయాలు & రవాణా:** ఉదయం 9:00 AM నుండి సాయంత్రం 4:30 PM వరకు; గుంటూరు, తెనాలి, విజయవాడ బస్సు రూట్లు.\n- **హాస్టల్ & వసతులు:** బాయ్స్ (₹67,500), గర్ల్స్ (₹75,000–₹85,000), లైబ్రరీ, 300 చ.మీ. జిమ్.\n\nమీరు ఏ అంశం గురించి మరింత తెలుసుకోవాలనుకుంటున్నారు?`;
+        }
+
+        // -------------------------------------------------------------
+        // B. SPECIALIZED INTENT CHECKS (ENGLISH)
+        // -------------------------------------------------------------
+
         // 1. Project / Chatbot / Website Creator Queries (Amareswar Chinthalacheruvu)
         const isProjectCreator = (
             q.includes("invented you") || q.includes("created you") || q.includes("developed you") ||
@@ -1711,12 +1798,7 @@ ${circularsContext}`;
         );
 
         if (isProjectCreator) {
-            return `**Creator & Developer of KHIT-Pulse:**
-**Amareswar Chinthalacheruvu** is a young entrepreneur, software developer, and student in Guntur, Andhra Pradesh. He is the founder of Balasri, a technology and innovation initiative, and is pursuing his Diploma in Computer Engineering at the Kallam Haranadha Reddy Institute of Technology (KHIT).
-
-Amareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?
-
-<div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950 aspect-square"><img src="creator.jpg?v=3.3.3" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-full object-cover object-center hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>`;
+            return `**Creator & Developer of KHIT-Pulse:**\n**Amareswar Chinthalacheruvu** is a young entrepreneur, software developer, and student in Guntur, Andhra Pradesh. He is the founder of Balasri, a technology and innovation initiative, and is pursuing his Diploma in Computer Engineering at the Kallam Haranadha Reddy Institute of Technology (KHIT).\n\nAmareswar is focused on building software solutions, developing web and mobile applications, and exploring new concepts in computer engineering. Given that his work focuses on tech and innovation, are you looking for his professional portfolio, a way to contact him, or interested in collaborating on a specific coding project?\n\n<div class="mt-4 p-3 rounded-2xl bg-gradient-to-b from-slate-900/90 to-[#0b0f19] border border-sky-500/30 shadow-2xl max-w-xs sm:max-w-sm"><div class="relative overflow-hidden rounded-xl border border-sky-400/30 shadow-lg bg-slate-950 aspect-square"><img src="creator.jpg?v=3.3.3" alt="Amareswar Chinthalacheruvu - Creator & Developer of KHIT-Pulse" class="w-full h-full object-cover object-center hover:scale-[1.02] transition-transform duration-300 cursor-pointer" loading="eager" onclick="window.open('creator.jpg', '_blank')"><div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3.5 pt-7 text-left"><div class="flex items-center gap-1.5 mb-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Creator & Lead Developer</span></div><h4 class="text-base font-bold text-white tracking-tight">Amareswar Chinthalacheruvu</h4><p class="text-xs text-sky-300 font-medium">Founder of Balasri · Diploma in CME, KHIT</p></div></div><div class="mt-2.5 px-1 flex items-center justify-between text-[11px] text-slate-400"><span>KHIT-Pulse Architect</span><span class="text-sky-400 font-medium">Guntur, Andhra Pradesh</span></div></div>`;
         }
 
         // 2. College Founder / Chairman / Patron Queries (Sri Haranadha Reddy Kallam)
@@ -1726,170 +1808,80 @@ Amareswar is focused on building software solutions, developing web and mobile a
         ) || q.includes("haranadha") || q.includes("haranadhareddy") || q.includes("who is chairman") || q.includes("college founder") || q.includes("founder of college") || q.includes("founder of khit") || q.includes("who founded khit") || q.includes("who founded the college") || q.includes("who started khit");
 
         if (isCollegeFounder) {
-            return `**Founder and Chairman of KHIT:**
-**Sri Haranadha Reddy Kallam, M.A., B.L.**
-
-- **Institutional Leadership:** Founder and Chairman of **Kallam Haranadhareddy Institute of Technology (KHIT)**, established in 2010 under the aegis of the Kallam Academy of Educational Society in Guntur, Andhra Pradesh.
-- **Industrialist & Entrepreneur:** Founder of the **Kallam Group of Industries**, an industrial enterprise with an annual turnover exceeding **Rs. 250 Crores**.
-- **Kallam Group Enterprises:**
-  1. Kallam Agro Products & Oils (P) Limited
-  2. Kallam Spinning Mills Limited & Nelakondapalli Power Division
-  3. Kallam Brothers Cottons Private Limited
-  4. Janapadu Hydro Power Project Ltd. (Nereducherla, Nalgonda Dist.)
-  5. Agricultural Divisions at Obulanaidupalem & Kandulavaripalem
-- **Prestigious Honors & Awards:**
-  - Conferred the prestigious **"UDYOG PATRA"** award in 1996 by the Institute of Trade and Industrial Development.
-  - Honored with the **"ALL TIME ACHIEVEMENT"** award in 2002 by the East India Cotton Association, Mumbai.`;
+            return `**Founder and Chairman of KHIT:**\n**Sri Haranadha Reddy Kallam, M.A., B.L.**\n\n- **Institutional Leadership:** Founder and Chairman of **Kallam Haranadhareddy Institute of Technology (KHIT)**, established in 2010 under the aegis of the Kallam Academy of Educational Society in Guntur, Andhra Pradesh.\n- **Industrialist & Entrepreneur:** Founder of the **Kallam Group of Industries**, an industrial enterprise with an annual turnover exceeding **Rs. 250 Crores**.\n- **Kallam Group Enterprises:**\n  1. Kallam Agro Products & Oils (P) Limited\n  2. Kallam Spinning Mills Limited & Nelakondapalli Power Division\n  3. Kallam Brothers Cottons Private Limited\n  4. Janapadu Hydro Power Project Ltd. (Nereducherla, Nalgonda Dist.)\n  5. Agricultural Divisions at Obulanaidupalem & Kandulavaripalem\n- **Prestigious Honors & Awards:**\n  - Conferred the prestigious **"UDYOG PATRA"** award in 1996 by the Institute of Trade and Industrial Development.\n  - Honored with the **"ALL TIME ACHIEVEMENT"** award in 2002 by the East India Cotton Association, Mumbai.`;
         }
 
         // 3. College Director Queries (Dr. Umasankara Reddy Movva)
         if (q.includes("director") || q.includes("umasankara") || q.includes("uma sankara") || q.includes("movva")) {
-            return `**Director of KHIT:**
-**Dr. Umasankara Reddy Movva, M.Sc., Ph.D.**
-
-- **Academic Qualifications:** M.Sc., Ph.D. in Applied Mathematics from **Banaras Hindu University (BHU)**. Former Research Associate in Dept. of Mechanical Engineering, IT-BHU.
-- **Experience:** Over **25+ years** of distinguished academic and administrative experience. Former Professor and H.O.D. of S&H at Lakireddy Bali Reddy College of Engineering, Mylavaram.
-- **Research & Publications:** Published 13 papers in National and International Journals; presented research papers at National and International conferences.
-- **Campus Role:** Oversees administrative governance, academic discipline, university examination coordination (both online and paper-based), student mentorship for overseas higher education, and pedagogy development.`;
+            return `**Director of KHIT:**\n**Dr. Umasankara Reddy Movva, M.Sc., Ph.D.**\n\n- **Academic Qualifications:** M.Sc., Ph.D. in Applied Mathematics from **Banaras Hindu University (BHU)**. Former Research Associate in Dept. of Mechanical Engineering, IT-BHU.\n- **Experience:** Over **25+ years** of distinguished academic and administrative experience. Former Professor and H.O.D. of S&H at Lakireddy Bali Reddy College of Engineering, Mylavaram.\n- **Research & Publications:** Published 13 papers in National and International Journals; presented research papers at National and International conferences.\n- **Campus Role:** Oversees administrative governance, academic discipline, university examination coordination (both online and paper-based), student mentorship for overseas higher education, and pedagogy development.`;
         }
 
         // 4. Principal Queries (Dr. B. S. B. Reddy)
         if (q.includes("principal") || q.includes("head of college") || q.includes("head of the college") || q.includes("bsb reddy") || q.includes("b.s.b. reddy")) {
-            return `**Principal of KHIT:**
-**Dr. B. S. B. Reddy**
-
-- **Designation:** Principal & Head of Institution
-- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
-- **Academic Governance:** Guides institutional operations under NAAC 'A' Grade, AICTE approvals, and JNTUK Kakinada affiliation.
-- **Office Location:** Principal's Secretariat, Ground Floor, Main Administrative Block.`;
+            return `**Principal of KHIT:**\n**Dr. B. S. B. Reddy**\n\n- **Designation:** Principal & Head of Institution\n- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)\n- **Academic Governance:** Guides institutional operations under NAAC 'A' Grade, AICTE approvals, and JNTUK Kakinada affiliation.\n- **Office Location:** Principal's Secretariat, Ground Floor, Main Administrative Block.`;
         }
 
-        // 4.5. Dean of Diploma Queries (Dr. D. Venkata Rao)
+        // 5. Dean of Diploma Queries (Dr. D. Venkata Rao)
         if (q.includes("dean") || q.includes("venkata rao") || q.includes("d venkata rao") || q.includes("d. venkata rao") || q.includes("dean of diploma") || q.includes("diploma dean") || q.includes("who is dean") || q.includes("diploma principal") || q.includes("diploma head")) {
-            return `**Dean of Diploma (Polytechnic) at KHIT:**
-**Dr. D. Venkata Rao**
-
-- **Designation:** Dean of Diploma / Polytechnic Programs
-- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
-- **Date of Joining:** **06-05-2021** (May 6, 2021)
-- **Academic Governance & Leadership:**
-  - Leads academic administration, curriculum enforcement, and faculty supervision for all Polytechnic Diploma departments:
-    1. Diploma in Computer Engineering (DCME)
-    2. Diploma in Electronics & Communication Engineering (DECE)
-    3. Diploma in Electrical & Electronics Engineering (DEEE)
-    4. Diploma in Civil Engineering (DCE)
-    5. Diploma in Mechanical Engineering (DME)
-  - Coordinates state-of-the-art diploma laboratory infrastructure, AP POLYCET admissions, state board compliance (SBTET), semester examinations, and lateral entry pathways (AP ECET) to B.Tech.`;
+            return `**Dean of Diploma (Polytechnic) at KHIT:**\n**Dr. D. Venkata Rao**\n\n- **Designation:** Dean of Diploma / Polytechnic Programs\n- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)\n- **Date of Joining:** **06-05-2021** (May 6, 2021)\n- **Academic Governance & Leadership:**\n  - Leads academic administration, curriculum enforcement, and faculty supervision for all Polytechnic Diploma departments:\n    1. Diploma in Computer Engineering (DCME)\n    2. Diploma in Electronics & Communication Engineering (DECE)\n    3. Diploma in Electrical & Electronics Engineering (DEEE)\n    4. Diploma in Civil Engineering (DCE)\n    5. Diploma in Mechanical Engineering (DME)\n  - Coordinates state-of-the-art diploma laboratory infrastructure, AP POLYCET admissions, state board compliance (SBTET), semester examinations, and lateral entry pathways (AP ECET) to B.Tech.`;
         }
 
-        // 4.6. CSE HOD Queries (Dr. G. J. Sunny Deol)
+        // 6. CSE HOD Queries (Dr. G. J. Sunny Deol)
         if (q.includes("sunny deol") || q.includes("g. j. sunny deol") || q.includes("g j sunny deol") || q.includes("sunny") ||
             ((q.includes("cse") || q.includes("computer science") || q.includes("cme")) && (q.includes("hod") || q.includes("head") || q.includes("incharge") || q.includes("in-charge") || q.includes("leader"))) ||
             q.includes("cse hod") || q.includes("hod of cse") || q.includes("head of cse") || q.includes("head of computer science") ||
             (q.includes("big data") && (q.includes("hod") || q.includes("professor") || q.includes("faculty") || q.includes("specialization") || q.includes("phd") || q.includes("ph.d") || q.includes("who")))) {
-            return `**Head of Department (HOD) - Computer Science & Engineering (CSE):**
-**Dr. G. J. Sunny Deol, Ph.D.**
-
-- **Designation:** Professor & Head of Department (HOD), Department of CSE
-- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)
-- **Highest Qualification:** **Ph.D.**
-- **Academic Specialization:** **Big Data**
-- **Date of Joining:** **14-08-2020** (August 14, 2020)
-- **Department Leadership & Research Governance:**
-  - Leads KHIT's premier engineering department with an annual intake of **540 B.Tech seats**.
-  - Directs advanced Big Data analytics laboratories, high-performance computing clusters (1000+ workstations), and Cloud Computing / AI innovation tracks.
-  - Oversees curriculum execution, faculty development, research publications, and 3rd-year Campus Recruitment Training (CRT) in competitive coding (DSA) with top tier-1 recruiters like Amazon, TCS, Infosys, and Wipro.`;
+            return `**Head of Department (HOD) - Computer Science & Engineering (CSE):**\n**Dr. G. J. Sunny Deol, Ph.D.**\n\n- **Designation:** Professor & Head of Department (HOD), Department of CSE\n- **Institution:** Kallam Haranadhareddy Institute of Technology (KHIT)\n- **Highest Qualification:** **Ph.D.**\n- **Academic Specialization:** **Big Data**\n- **Date of Joining:** **14-08-2020** (August 14, 2020)\n- **Department Leadership & Research Governance:**\n  - Leads KHIT's premier engineering department with an annual intake of **540 B.Tech seats**.\n  - Directs advanced Big Data analytics laboratories, high-performance computing clusters (1000+ workstations), and Cloud Computing / AI innovation tracks.\n  - Oversees curriculum execution, faculty development, research publications, and 3rd-year Campus Recruitment Training (CRT) in competitive coding (DSA) with top tier-1 recruiters like Amazon, TCS, Infosys, and Wipro.`;
         }
 
-        // 5. Greetings & Assistant Introduction
+        // 7. College Code & Entrance Exam Codes (Disambiguated from programming code)
+        const isCollegeCodeQuery = (
+            q.includes("college code") || q.includes("eamcet code") || q.includes("polycet code") ||
+            q.includes("counseling code") || q.includes("counselling code") || q.includes("ecet code") ||
+            q.includes("icet code") || q === "code" || q.includes("code of college") || q.includes("campus code") ||
+            q.includes("jntu code") || q.includes("jntuk code")
+        ) && !q.includes("python") && !q.includes("java") && !q.includes("binary") && !q.includes("algorithm");
+
+        if (isCollegeCodeQuery) {
+            return `**KHIT Official Institutional & Counseling Codes:**\n\n- **AP EAMCET / EAPCET Code (B.Tech):** **KHIT**\n- **AP POLYCET Code (Polytechnic Diploma):** **KHIT**\n- **AP ECET Code (Lateral Entry to 2nd Year):** **KHIT**\n- **AP ICET Code (MBA & MCA):** **KHIT**\n- **JNTU Kakinada Affiliation Code:** **8X** / **KHIT**\n- **Permanent Location:** NH-16, Dasaripalem, Chowdavaram, Guntur – 522019.\n- **Official Web Portal:** \`https://khitguntur.ac.in\``;
+        }
+
+        // 8. Syllabus, Curriculum & Academic Regulations (Disambiguated from bus routes)
+        if (q.includes("syllabus") || q.includes("curriculum") || q.includes("regulation") || q.includes("r20") || q.includes("r23") || q.includes("course structure") || q.includes("subjects") || q.includes("subject list") || q.includes("academic regulation")) {
+            return `**KHIT Academic Syllabus & Curriculum Framework:**\n\n- **Autonomous / University Regulations:**\n  - **B.Tech Programs:** Governed by **JNTUK R20** and newly enforced **R23 Academic Regulations**.\n  - **Polytechnic Diploma:** Governed by the State Board of Technical Education and Training (**SBTET AP C-20** curriculum).\n- **Core Department Curriculum Highlights:**\n  - **CSE & AI-ML:** Data Structures & Algorithms, Operating Systems, Database Management Systems (SQL), Computer Networks, Machine Learning, Deep Learning, Python/Java OOPs, Web Full-Stack, and Cloud Computing.\n  - **ECE:** Digital Signal Processing, VLSI Design (Cadence EDA), Embedded Systems (Microcontrollers/ARM), IoT, and Wireless Communications.\n  - **EEE:** Power Systems, Electric Drives, Control Systems, Power Electronics, Renewable Solar Energy, and Electric Vehicles (EV).\n  - **Civil:** Structural Analysis, Concrete Technology, Geotechnical Engineering, Surveying (Total Station/GPS), and AutoCAD.\n  - **Mechanical:** Thermodynamics, CAD/CAM, CNC Machining, Robotics, Manufacturing Processes, and Automobile Engineering.\n- **Examination Pattern:** 30 Marks Internal Assessment (Continuous Evaluation + Mid Exams) + 70 Marks University End-Semester Examination.\n- **Syllabus Downloads:** Available under the Campus Hub "Curriculum & Syllabus" subtab or via the KHIT academic portal.`;
+        }
+
+        // 9. Greetings & Assistant Introduction
         if (/^(hi|hello|hey|greetings|good\s*(morning|afternoon|evening)|namaste|who are you|what can you do|help)\b/i.test(q) || q === "hi" || q === "hello" || q === "hey") {
-            return `**Hello! I am KHIT-Pulse**, your autonomous AI academic assistant for **Kallam Haranadhareddy Institute of Technology (KHIT)**, Guntur.
-
-Here are key campus topics you can explore with me:
-- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, Principal Dr. B. S. B. Reddy, Dean of Diploma Dr. D. Venkata Rao, or CSE HOD Dr. G. J. Sunny Deol.
-- **Academic Departments & Seats:** CSE (540 seats), AI-ML (360), IT (180), ECE (180), EEE (60), Civil (30), Mechanical (30), Diploma (360), and PG.
-- **Admissions & Fees:** B.Tech convenor fees (₹41,000/yr), Diploma costs (₹75,000), JVD 100% fee reimbursement eligibility, and EAMCET/POLYCET procedures.
-- **Placements & High Packages:** Stellar 88%–94%+ placement record, highest packages up to 22 LPA and 12 LPA, 5.0 - 7.2 LPA premier average, and top MNC recruiters (TCS, Wipro, Infosys, Capgemini, Amazon).
-- **Academic Results & High Marks:** Outstanding 94.8% overall university pass rate, over 82% students securing First Class with Distinction, and university rank holders.
-- **Hostel & Amenities:** Boys hostel (₹67,500/yr), Girls hostel (₹75,000–₹85,000/yr), 4 daily meals, and 300 sq.m gym.
-- **Campus Timings & Transportation:** 9:00 AM – 4:30 PM working schedule and college bus routes across Guntur, Tenali, and Vijayawada.
-- **Circulars & Bulletins:** Semester exam timetables, SIH hackathons, and fee notices.
-
-What would you like to know about KHIT?`;
+            return `**Hello! I am KHIT-Pulse**, your autonomous AI academic assistant for **Kallam Haranadhareddy Institute of Technology (KHIT)**, Guntur.\n\nHere are key campus topics you can explore with me:\n- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, Principal Dr. B. S. B. Reddy, Dean of Diploma Dr. D. Venkata Rao, or CSE HOD Dr. G. J. Sunny Deol.\n- **Academic Departments & Seats:** CSE (540 seats), AI-ML (360), IT (180), ECE (180), EEE (60), Civil (30), Mechanical (30), Diploma (360), and PG.\n- **Admissions & Fees:** B.Tech convenor fees (₹41,000/yr), Diploma costs (₹75,000), JVD 100% fee reimbursement eligibility, and EAMCET/POLYCET procedures.\n- **Placements & High Packages:** Stellar 88%–94%+ placement record, highest packages up to 22 LPA and 12 LPA, 5.0 - 7.2 LPA premier average, and top MNC recruiters (TCS, Wipro, Infosys, Capgemini, Amazon).\n- **Academic Results & High Marks:** Outstanding 94.8% overall university pass rate, over 82% students securing First Class with Distinction, and university rank holders.\n- **Hostel & Amenities:** Boys hostel (₹67,500/yr), Girls hostel (₹75,000–₹85,000/yr), 4 daily meals, and 300 sq.m gym.\n- **Campus Timings & Transportation:** 9:00 AM – 4:30 PM working schedule and college bus routes across Guntur, Tenali, and Vijayawada.\n- **Circulars & Bulletins:** Semester exam timetables, SIH hackathons, and fee notices.\n\nWhat would you like to know about KHIT?`;
         }
 
-        // 6. Timings & Daily Schedule
-        if (q.includes("timing") || q.includes("schedule") || q.includes("working hour") || q.includes("college time") || q.includes("lunch break") || q.includes("library timing") || q.includes("bell timing") || q.includes("hours")) {
-            return `**KHIT Campus Timings & Daily Academic Schedule**
-
-- **Working Days:** Monday through Saturday (2nd Saturday of every month is an official academic holiday).
-- **Daily Instructional Hours:** **9:00 AM – 4:30 PM**
-  - **Morning Sessions:** 9:00 AM to 12:40 PM (Periods 1 through 4)
-  - **Lunch Break:** **12:40 PM to 1:30 PM** (50 minutes)
-  - **Afternoon Sessions & Labs:** 1:30 PM to 4:30 PM (Periods 5 through 7 / Laboratory Batches)
-- **Central Library Schedule:** Open **8:00 AM – 6:00 PM** on all working days (extended until 7:00 PM during semester examinations).
-- **Administrative Office Hours:** 8:45 AM – 5:00 PM.`;
+        // 10. Timings & Daily Schedule
+        if ((q.includes("timing") || q.includes("schedule") || q.includes("working hour") || q.includes("college time") || q.includes("lunch break") || q.includes("bell timing") || q.includes("hours")) && !q.includes("library")) {
+            return `**KHIT Campus Timings & Daily Academic Schedule:**\n\n- **Working Days:** Monday through Saturday (2nd Saturday of every month is an official academic holiday).\n- **Daily Instructional Hours:** **9:00 AM – 4:30 PM**\n  - **Morning Sessions:** 9:00 AM to 12:40 PM (Periods 1 through 4)\n  - **Lunch Break:** **12:40 PM to 1:30 PM** (50 minutes)\n  - **Afternoon Sessions & Labs:** 1:30 PM to 4:30 PM (Periods 5 through 7 / Laboratory Batches)\n- **Central Library Schedule:** Open **8:00 AM – 6:00 PM** on all working days (extended until 7:00 PM during semester examinations).\n- **Administrative Office Hours:** 8:45 AM – 5:00 PM.`;
         }
 
-        // 7. Location, Address & Bus Transport
-        if (q.includes("address") || q.includes("location") || q.includes("where is") || q.includes("route") || q.includes("bus") || q.includes("transport") || q.includes("how to reach") || q.includes("distance") || q.includes("landmark") || q.includes("chowdavaram") || q.includes("dasaripalem")) {
-            return `**KHIT Campus Location & Transportation Details**
+        // 11. Location, Address & Bus Transport (Ensuring 'syllabus' never triggers this)
+        const isBusQuery = (
+            /\b(bus|buses|transport|route|routes|travel|commute|distance|reach|van)\b/i.test(q) ||
+            q.includes("address") || q.includes("location") || q.includes("where is") ||
+            q.includes("how to reach") || q.includes("landmark") || q.includes("chowdavaram") || q.includes("dasaripalem")
+        ) && !q.includes("syllabus");
 
-- **Official Campus Address:**
-  **Kallam Haranadhareddy Institute of Technology (KHIT)**,
-  NH-16 (Guntur-Chennai National Highway), Dasaripalem,
-  Chowdavaram, Guntur, Andhra Pradesh – **522019**.
-- **Connectivity & Distances:**
-  - **Guntur RTC Central Bus Station (NTR Bus Station):** ~10 km (Direct city buses available every 5-10 minutes along NH-16).
-  - **Guntur Railway Junction (GNT):** ~11 km.
-  - **Vijayawada (Pandit Nehru Bus Station / City Center):** ~42 km via NH-16 express corridor.
-- **College Bus Transportation System:**
-  KHIT operates an extensive fleet of college buses serving day scholars across key regions:
-  1. **Guntur Urban Routes:** Gujanagundla, Brodipet, Arundelpet, Collectorate, Pattabhipuram, Old Bus Stand, Koretipadu.
-  2. **Tenali Route:** Tenali Bus Stand via Nandivelugu and Ponnur Road.
-  3. **Chilakaluripet Route:** NH-16 express corridor directly to campus.
-  4. **Vijayawada & Mangalagiri Routes:** Connecting Benz Circle, Autonagar, and Mangalagiri bypass directly to college.`;
+        if (isBusQuery) {
+            return `**KHIT Campus Location & Transportation Details:**\n\n- **Official Campus Address:**\n  **Kallam Haranadhareddy Institute of Technology (KHIT)**,\n  NH-16 (Guntur-Chennai National Highway), Dasaripalem,\n  Chowdavaram, Guntur, Andhra Pradesh – **522019**.\n- **Connectivity & Distances:**\n  - **Guntur RTC Central Bus Station (NTR Bus Station):** ~10 km (Direct city buses available every 5-10 minutes along NH-16).\n  - **Guntur Railway Junction (GNT):** ~11 km.\n  - **Vijayawada (Pandit Nehru Bus Station / City Center):** ~42 km via NH-16 express corridor.\n- **College Bus Fleet (8 Dedicated Express Routes):**\n  1. **Route 01: Vijayawada Express** (Benz Circle, Ramavarappadu, Tadepalli, Mangalagiri)\n  2. **Route 02: Guntur City Central** (Old Bus Stand, Market Centre, Arundalpet 14/3, Gujjanagundla, Koritepadu, Naaz)\n  3. **Route 03: Guntur West Loop** (Brodipet, Lakshmipuram, Collector Office, Syamala Nagar, Pattabhipuram)\n  4. **Route 04: Tenali Superfast** (Tenali RTC Bus Stand, Chenchupet, Angalakuduru, Narakodur)\n  5. **Route 05: Chilakaluripet Express** (Clock Tower, Ganapavaram, Boyapalem, Prathipadu NH-16)\n  6. **Route 06: Ponnur-Chebrolu** (Ponnur Bus Station, Nidubrolu, Chebrolu)\n  7. **Route 07: Mangalagiri Local** (Old Bus Stand, NRI Hospital, Kaza, Nambur, Pedakakani)\n  8. **Route 08: Sattenapalle Highway** (Sattenapalle, Medikonduru, Perecherla Junction)\n- **Operating Hours:** Inbound buses reach campus by 8:45 AM; return departure at 4:45 PM. Transport Desk: 0863-2119724.`;
         }
 
-        // 8. Contact Numbers & Helplines
+        // 12. Contact Numbers & Helplines
         if (q.includes("contact") || q.includes("phone") || q.includes("mobile") || q.includes("email") || q.includes("helpline") || q.includes("call") || q.includes("telephone") || q.includes("landline") || q.includes("website")) {
-            return `**KHIT Official Contact Information & Communication Channels**
-
-- **Administrative Office Phones:**
-  - Landline: **0863-2119726**
-  - Mobile Helplines: **+91-9885604528**, **+91-9885604533**
-- **Principal's Secretariat:**
-  - Official Email: \`principal@khitguntur.ac.in\`
-  - Society Email: \`kaesguntur@gmail.com\`
-  - Location: Ground Floor, Main Administrative Block
-- **Examination & Admissions Cell:**
-  - Admissions Helpline: **+91-9885604528**
-  - Examination Email: \`exams@khitguntur.ac.in\`
-- **Official Institutional Web Portal:**
-  - Website: \`https://khitguntur.ac.in\`
-  - Campus Code: **KHIT** (EAMCET / POLYCET Code: **KHIT**)`;
+            return `**KHIT Official Contact Information & Communication Channels:**\n\n- **Administrative Office Phones:**\n  - Landline: **0863-2119726**\n  - Mobile Helplines: **+91-9885604528**, **+91-9885604533**\n- **Principal's Secretariat:**\n  - Official Email: \`principal@khitguntur.ac.in\`\n  - Society Email: \`kaesguntur@gmail.com\`\n  - Location: Ground Floor, Main Administrative Block\n- **Examination & Admissions Cell:**\n  - Admissions Helpline: **+91-9885604528**\n  - Examination Email: \`exams@khitguntur.ac.in\`\n- **Official Institutional Web Portal:**\n  - Website: \`https://khitguntur.ac.in\`\n  - Campus Code: **KHIT** (EAMCET / POLYCET Code: **KHIT**)`;
         }
 
-        // 9. College Overview, Accreditation & Campus Identity
-        if ((q.includes("about khit") || q.includes("about college") || q.includes("about the college") || q.includes("history") || q.includes("established") || q.includes("establishment") || q.includes("naac") || q.includes("jntuk") || q.includes("jntu") || q.includes("aicte") || q.includes("campus size") || q.includes("acres") || q.includes("overview")) && !q.includes("result") && !q.includes("mark") && !q.includes("placement") && !q.includes("fee") && !q.includes("timing") && !q.includes("bus") && !q.includes("seat")) {
-            return `**About Kallam Haranadhareddy Institute of Technology (KHIT)**
-
-- **Year of Establishment:** 2010 by the **Kallam Academy of Educational Society (KAES)** under the leadership of Sri Haranadha Reddy Kallam.
-- **University Affiliation:** Permanently affiliated with **JNTU Kakinada (JNTUK)**.
-- **Accreditation & Approvals:**
-  - Accredited by **NAAC with 'A' Grade**.
-  - Approved by **AICTE**, New Delhi.
-  - Programs aligned with **NBA** standards.
-- **Campus Infrastructure:** Sprawled over an eco-friendly **11-acre campus** equipped with modern digital smart classrooms, high-speed campus-wide Wi-Fi, modern laboratories, a Central Computing Center, 300 sq.m gymnasium, and a sports pavilion.
-- **Academic Community:** More than **3,500+ active students** across Undergraduate B.Tech, Polytechnic Diploma, and Postgraduate programs.
-- **College Code:** **KHIT** (EAMCET / ECET / POLYCET / ICET).`;
-        }
-
-        // 10. Circulars, Notices & Exam Bulletins Dynamic Search
-        if (q.includes("circular") || q.includes("notice") || q.includes("bulletin") || q.includes("announcement") || q.includes("timetable") || q.includes("time table") || q.includes("exam schedule") || q.includes("exam date") || q.includes("exams") || q.includes("hall ticket") || q.includes("sih") || q.includes("hackathon") || q.includes("mid exam") || q.includes("monsoon") || q.includes("semester exam")) {
+        // 13. Circulars, Notices & Exam Bulletins Dynamic Search (Always returns verified guidance)
+        if (q.includes("circular") || q.includes("notice") || q.includes("bulletin") || q.includes("announcement") || q.includes("timetable") || q.includes("time table") || q.includes("exam schedule") || q.includes("exam date") || q.includes("exams") || q.includes("hall ticket") || q.includes("sih") || q.includes("hackathon") || q.includes("mid exam") || q.includes("monsoon") || q.includes("semester exam") || q.includes("notification")) {
             const matches = getRelevantCircularsForQuery(queryStr);
+            let circularResponse = `**Official KHIT Campus Bulletins & Examination Bulletins:**\n\n`;
             if (matches && matches.length > 0) {
-                let circularResponse = `**Official KHIT Campus Bulletins & Circulars:**\n\n`;
                 matches.forEach(c => {
                     circularResponse += `### ${c.title}\n`;
                     circularResponse += `- **Reference ID:** \`${c.id}\` | **Category:** ${c.category} | **Date:** ${c.date}\n`;
@@ -1899,334 +1891,161 @@ What would you like to know about KHIT?`;
                     }
                     circularResponse += `\n`;
                 });
-                circularResponse += `*(For official paper verifications, visit the Examination Branch on the Ground Floor or check the online student portal).*`;
-                return circularResponse;
-            }
-        }
-
-        // 11. Branch Inquiries: CSE AI & ML
-        if (q.includes("aiml") || q.includes("ai-ml") || q.includes("ai & ml") || ((q.includes("ai") || q.includes("artificial intelligence")) && (q.includes("ml") || q.includes("machine learning") || q.includes("branch") || q.includes("course") || q.includes("seats") || q.includes("department")))) {
-            return `**B.Tech in Artificial Intelligence & Machine Learning (CSE AI-ML) at KHIT**
-
-- **Annual Intake Capacity:** **360 seats**
-- **Department Overview:** Specialized department established to prepare students for the fourth industrial revolution in intelligent computing and data science.
-- **Core Curriculum Highlights:**
-  - Machine Learning & Deep Learning architectures.
-  - Natural Language Processing (NLP) & Computer Vision.
-  - Python, TensorFlow, PyTorch, and CUDA programming.
-  - Cloud AI infrastructure and Generative AI systems.
-- **Specialized Labs:** Dedicated High-Performance GPU Computing Lab, Data Analytics Laboratory, and AI Innovation Sandbox.
-- **Placement Prospects:** High recruitment demand with roles including AI Engineer, Machine Learning Engineer, Data Scientist, and Prompt Engineer, with top packages ranging from 6 to 22 LPA.`;
-        }
-
-        // 12. Branch Inquiries: Computer Science & Engineering (CSE)
-        if (q.includes("cse") || q.includes("computer science")) {
-            return `**B.Tech in Computer Science and Engineering (CSE) at KHIT**
-
-- **Head of Department (HOD):** **Dr. G. J. Sunny Deol**, Ph.D. (Specialization: **Big Data** | Date of Joining: **14-08-2020**)
-- **Annual Intake Capacity:** **540 seats** (Largest department at KHIT).
-- **Key Focus Areas:** Full-Stack Web Development, Data Structures & Algorithms, Cloud Computing, Database Management Systems (DBMS), Operating Systems, and Cybersecurity.
-- **Laboratory Facilities:**
-  - Central Computing Facility with 1000+ networked Intel Core i7 workstations.
-  - Cloud Computing & Virtualization Lab.
-  - Open Source & Linux Kernel Lab.
-- **Training & CRT:** Mandatory Campus Recruitment Training (CRT) starting in the 3rd year covering advanced DSA, competitive coding (LeetCode/HackerRank), and technical interview drills.
-- **Career Placements:** Highest placement volume at KHIT, recruited by TCS, Infosys, Wipro, Capgemini, HCL, Tech Mahindra, and specialized product firms with salaries ranging from 3.5 LPA to 22 LPA.`;
-        }
-
-        // 13. Branch Inquiries: Information Technology (IT)
-        if (q.includes("information technology") || q.includes(" it branch") || q.includes("it department") || q.includes("seats in it")) {
-            return `**B.Tech in Information Technology (IT) at KHIT**
-
-- **Annual Intake Capacity:** **180 seats**
-- **Core Curriculum:** Software Engineering, Web Technologies, Distributed Systems, Information Security, and Enterprise Java/Python application development.
-- **Practical Infrastructure:** Specialized software design suites, enterprise database labs, and high-speed network development benches.
-- **Career Paths:** Software Developer, Systems Analyst, Cloud Engineer, DevOps Specialist, with strong recruitment overlap alongside CSE recruiters.`;
-        }
-
-        // 14. Branch Inquiries: Electronics & Communication Engineering (ECE)
-        if (q.includes("ece") || q.includes("electronics") || q.includes("communication engineering")) {
-            return `**B.Tech in Electronics & Communication Engineering (ECE) at KHIT**
-
-- **Annual Intake Capacity:** **180 seats**
-- **Core Curriculum:** VLSI System Design, Embedded Systems, Digital Signal Processing (DSP), Internet of Things (IoT), Microwave Engineering, and Satellite Communications.
-- **Laboratory Infrastructure:**
-  - Cadence VLSI & EDA Simulation Lab.
-  - Microcontrollers & Embedded Systems Lab (ARM, Arduino, Raspberry Pi).
-  - Microwave, Fiber Optics, and Antenna Testing benches.
-- **Placements & Careers:** Dual career track opportunities in core semiconductor/electronics companies (VLSI, IoT) as well as IT services and software giants.`;
-        }
-
-        // 15. Branch Inquiries: Electrical & Electronics Engineering (EEE)
-        if (q.includes("eee") || q.includes("electrical engineering") || (q.includes("electrical") && !q.includes("electronics"))) {
-            return `**B.Tech in Electrical & Electronics Engineering (EEE) at KHIT**
-
-- **Annual Intake Capacity:** **60 seats**
-- **Key Subjects:** Power Systems, Electric Drives, Control Systems, Renewable Energy (Solar & Wind), Electric Vehicles (EV), and Industrial Automation.
-- **Laboratories:** Electrical Machines Lab, Power Electronics Bench, Control Systems Simulation (MATLAB/Simulink), and High Voltage Testing Unit.
-- **Opportunities:** Power sector corporations (APTRANSCO, APGENCO), renewable energy firms, automotive EV manufacturers, and automation industries.`;
-        }
-
-        // 16. Branch Inquiries: Civil Engineering
-        if (q.includes("civil") || q.includes("civil engineering")) {
-            return `**B.Tech in Civil Engineering at KHIT**
-
-- **Annual Intake Capacity:** **30 seats**
-- **Focus Areas:** Structural Analysis, Concrete Technology, Geotechnical Engineering, Transportation Engineering, Surveying, and Environmental Engineering.
-- **Laboratories:** Computer-Aided Design (AutoCAD & STAAD Pro), Strength of Materials Lab, Total Station & GPS Surveying Lab, and Soil Mechanics Lab.
-- **Career Prospects:** Infrastructure developers, government public works departments (PWD, Irrigation), consultancy firms, and construction contractors.`;
-        }
-
-        // 17. Branch Inquiries: Mechanical Engineering
-        if (q.includes("mech") || q.includes("mechanical") || q.includes("mechanical engineering")) {
-            return `**B.Tech in Mechanical Engineering at KHIT**
-
-- **Annual Intake Capacity:** **30 seats**
-- **Core Curriculum:** Thermodynamics, Fluid Mechanics, CAD/CAM, CNC Machining, Robotics, Manufacturing Technology, and Automobile Engineering.
-- **Laboratories:** Modern CNC Machine Center, Thermal Engineering Lab, Robotics & Automation Workspace, Mechanics of Solids Lab.
-- **Industry Alignments:** Placements with automotive firms, manufacturing enterprises (including Amaron Batteries, Kallam Group units), and heavy machinery manufacturers.`;
-        }
-
-        // 18. Diploma / Polytechnic Stream
-        if (q.includes("diploma") || q.includes("polytechnic") || q.includes("polycet")) {
-            return `**Polytechnic Diploma Programs at KHIT**
-
-- **Dean of Diploma:** **Dr. D. Venkata Rao** (Date of Joining: **06-05-2021**)
-- **Total Annual Intake:** **360 seats** across engineering branches:
-  - Diploma in Computer Engineering (DCME)
-  - Diploma in Electronics & Communication Engineering (DECE)
-  - Diploma in Electrical & Electronics Engineering (DEEE)
-  - Diploma in Civil Engineering (DCE)
-  - Diploma in Mechanical Engineering (DME)
-- **Eligibility & Admission:** Pass in 10th standard (SSC) + qualifying rank in the state-level **AP POLYCET** examination.
-- **Tuition Cost:** Approximately **₹75,000** total program cost (Eligible for AP state government fee reimbursement schemes).
-- **Key Advantage:** Direct lateral entry into the 2nd year of B.Tech (via AP ECET) upon successful diploma graduation.`;
-        }
-
-        // 19. Postgraduate Programs (MBA / MCA / M.Tech)
-        if (q.includes("mba") || q.includes("mca") || q.includes("mtech") || q.includes("m.tech") || q.includes("postgraduate") || q.includes("pg program") || q.includes("master")) {
-            return `**Postgraduate (PG) Programs at KHIT**
-
-- **Master of Business Administration (MBA):**
-  - Specializations: Finance, Marketing, and Human Resource Management (HR).
-  - Admission: Valid score in the state **AP ICET** examination.
-- **Master of Computer Applications (MCA):**
-  - Focus: Advanced software development, enterprise applications, cloud systems, and database engineering.
-  - Admission: Valid score in **AP ICET**.
-- **Master of Technology (M.Tech):**
-  - Specializations in advanced Computer Science and VLSI Design.
-  - Admission: Through **GATE** or **AP PGECET** rankings.`;
-        }
-
-        // 20. Seats & Intake Capacity Overview (All Branches Table)
-        if (q.includes("seat") || q.includes("intake") || q.includes("capacity") || q.includes("all branch") || q.includes("courses offered") || q.includes("how many seats") || q.includes("branches") || q.includes("departments")) {
-            return `**KHIT Approved Intake & Seat Matrix**
-
-### Undergraduate B.Tech Programs (Total: 1,380 Seats)
-- **Computer Science & Engineering (CSE):** 540 seats
-- **CSE – Artificial Intelligence & Machine Learning (AI-ML):** 360 seats
-- **Electronics & Communication Engineering (ECE):** 180 seats
-- **Information Technology (IT):** 180 seats
-- **Electrical & Electronics Engineering (EEE):** 60 seats
-- **Civil Engineering:** 30 seats
-- **Mechanical Engineering:** 30 seats
-
-### Polytechnic Diploma Programs (Total: 360 Seats)
-- Computer Engineering, ECE, EEE, Civil, Mechanical.
-
-### Postgraduate (PG) Programs
-- Master of Business Administration (MBA)
-- Master of Computer Applications (MCA)
-- Master of Technology (M.Tech) in CSE & VLSI.`;
-        }
-
-        // 21. Admissions & Entrance Exams
-        if (q.includes("admission") || q.includes("admissions") || q.includes("how to join") || q.includes("eligibility") || q.includes("eamcet") || q.includes("counseling") || q.includes("convenor") || q.includes("management quota") || q.includes("b category")) {
-            return `**KHIT Admissions & Eligibility Criteria**
-
-- **B.Tech Degree Admissions:**
-  - **Eligibility:** 10+2 / Intermediate pass with Mathematics, Physics, and Chemistry (min 45% aggregate for general, 40% for reserved categories).
-  - **Entrance Exam:** Valid rank in **AP EAMCET (EAPCET)**.
-  - **Allotment:** Category A (Convenor Quota - 70%) through state web counseling; Category B (Management/NRI Quota - 30%) based on merit.
-  - **Counseling Code:** **KHIT**
-- **Polytechnic Diploma Admissions:**
-  - **Eligibility:** 10th standard pass (SSC).
-  - **Entrance Exam:** Cleared **AP POLYCET** counseling.
-- **MBA / MCA Admissions:**
-  - **Eligibility:** Any recognized bachelor's degree with Mathematics at 10+2 or degree level.
-  - **Entrance Exam:** Valid rank in **AP ICET**.
-- **Lateral Entry (2nd Year B.Tech):**
-  - Diploma holders with a qualifying rank in **AP ECET** are directly admitted to the 2nd year.`;
-        }
-
-        // 22. Tuition Fees & JVD Scholarships
-        if (q.includes("fee") || q.includes("fees") || q.includes("cost") || q.includes("tuition") || q.includes("scholarship") || q.includes("jvd") || q.includes("vidya deevena") || q.includes("vasathi deevena")) {
-            return `**KHIT Tuition Fees & State Scholarship Details**
-
-- **B.Tech Tuition Fee:** Approximately **₹41,000 per year** under the state convenor allotment.
-- **Polytechnic Diploma Fee:** Approximately **₹75,000 total** program cost.
-- **Postgraduate Programs (MBA / MCA):** Standard state-regulated fee structure governed by the AP Higher Education Regulatory and Monitoring Commission (APHERMC).
-- **AP State Government Scholarships (JVD):**
-  - Eligible students from economically backward categories (SC, ST, BC, EBC, Minority) receive **100% full tuition fee reimbursement** directly under the **Jagananna Vidya Deevena (JVD)** scheme.
-  - Hostel maintenance allowances are credited under the **Jagananna Vasathi Deevena** scheme.`;
-        }
-
-        // 23. Placements, Recruiters & High Salary Records
-        if (q.includes("placement") || q.includes("salary") || q.includes("package") || q.includes("lpa") || q.includes("jobs") || q.includes("hiring") || q.includes("recruit") || q.includes("company") || q.includes("companies") || q.includes("highest package") || q.includes("average package") || q.includes("tcs") || q.includes("wipro") || q.includes("infosys") || q.includes("capgemini") || q.includes("placed")) {
-            return `**KHIT Campus Placement Records & Corporate Recruitment Excellence**
-
-- **Record-Breaking Salary Packages:**
-  - **Highest Tech & Software Package:** **22 LPA** (Tier-1 Product & Cloud Engineering).
-  - **Executive Corporate Standard Peak:** **12 LPA**.
-  - **High-Value Packages:** Multiple prestigious offers recorded at **10 LPA**, **8.5 LPA**, and **7.0 LPA**.
-  - **Premier Average Package Band:** Robust average between **5.0 LPA to 7.2 LPA** across technology and engineering tracks.
-- **Outstanding Placement Success Rate:**
-  - Consistently **88% to 94%+** of all eligible students secure confirmed campus placements in top corporate conglomerates.
-- **Global & Tier-1 Recruiting Partners:**
-  - Premier MNCs: TCS, Wipro, Infosys, Capgemini, HCL Technologies, Tech Mahindra, Amazon, Cognizant, Accenture, Mindtree.
-  - Core Engineering Giants: Amaron Batteries, Kallam Group of Industries, Hyundai Steel, L&T Technology Services.
-  - Over **500+ corporate recruiters** participate actively across annual recruitment cycles.
-- **Comprehensive Campus Recruitment Training (CRT):**
-  - Rigidly commenced in the 3rd year with industry-vetted corporate trainers.
-  - Advanced training in Data Structures & Algorithms, competitive coding (LeetCode/HackerRank), system design, aptitude mastery, and mock technical interviews ensuring elite placement outcomes.`;
-        }
-
-        // 23.5. Academic Results, High Marks & University Excellence
-        if (q.includes("result") || q.includes("results") || q.includes("mark") || q.includes("marks") || q.includes("percentage") || q.includes("cgpa") || q.includes("sgpa") || q.includes("pass rate") || q.includes("pass percentage") || q.includes("topper") || q.includes("toppers") || q.includes("rank") || q.includes("ranks") || q.includes("grades") || q.includes("distinction") || q.includes("score") || q.includes("scores") || q.includes("academic performance")) {
-            return `**KHIT Academic Excellence, Marks & Examination Results**
-
-- **Exemplary University Pass Percentage:**
-  - KHIT consistently achieves an outstanding **94.8% overall pass percentage** across all B.Tech and Polytechnic Diploma departments in university examinations affiliated with JNTUK Kakinada.
-- **First Class with Distinction Honors:**
-  - Over **82%** of graduating engineering students secure **First Class with Distinction** (maintaining cumulative CGPAs between **8.0 to 9.8+**).
-- **University Rank Holders & Medals:**
-  - KHIT students regularly achieve top **JNTUK University Ranks**, state-level academic gold medals, and prestigious merit citations.
-- **Department Academic Toppers:**
-  - Top semester scores routinely range between **9.2 to 9.8+ CGPA** across CSE, AI-ML, IT, ECE, EEE, Civil, and Mechanical Engineering.
-- **Support Ecosystem Driving High Marks:**
-  - Advanced digital smart classrooms and interactive laboratory practicals.
-  - Proactive tutorial sessions and one-on-one **Faculty Advisor** mentoring tracking each student's continuous internal evaluation (CIE).
-  - Specialized university exam prep modules and mock test series ensuring superior pass percentages and zero backlog milestones.`;
-        }
-
-        // 24. Hostel, Accommodation, Food & Gym
-        if (q.includes("hostel") || q.includes("room") || q.includes("mess") || q.includes("gym") || q.includes("accommodation") || q.includes("food") || q.includes("canteen") || q.includes("living")) {
-            return `**KHIT Hostel Accommodation & Living Amenities**
-
-- **Boys Hostel:**
-  - Annual Fee: Approximately **₹67,500 / year** (includes non-AC room + comprehensive mess package).
-  - Secure campus premises with 24/7 security and warden supervision.
-- **Girls Hostel:**
-  - Annual Fee: Ranges between **₹75,000 to ₹85,000 / year** (based on room occupancy and block tier).
-  - Biometric access, round-the-clock female security personnel, and CCTV monitoring.
-- **Mess & Dietary Provisions:**
-  - 4 nutritious meals provided daily: Breakfast, Lunch, Evening Snacks with Tea/Coffee, and Dinner.
-  - Hygienic steam-cooking infrastructure with purified RO drinking water on every floor.
-- **Gymnasium & Sports Footprint:**
-  - Dedicated **300 square meter indoor gymnasium** equipped with weight lifting machines, fitness gear, table tennis tables, and chess boards.
-- **Hostel Compliance Rule:** Use of electronic entertainment gadgets is strictly restricted during mandatory study windows to foster academic discipline.`;
-        }
-
-        // 25. Mandates, Rules & Attendance
-        if (q.includes("mandate") || q.includes("rule") || q.includes("rules") || q.includes("attendance") || q.includes("internship") || q.includes("nptel") || q.includes("swayam") || q.includes("ncc") || q.includes("nss") || q.includes("gadget") || q.includes("discipline") || q.includes("dress code")) {
-            return `**KHIT Academic Mandates & Institutional Regulations**
-
-- **Attendance Requirement:** A minimum of **75% aggregate attendance** is mandatory to be eligible to sit for university end-semester examinations.
-- **Compulsory Internship:** Every undergraduate student must complete a **10-month aggregate industrial/social internship** before final year graduation.
-- **SWAYAM / NPTEL Credits:** Students must earn designated elective credits online through the institutional SWAYAM NPTEL local chapter.
-- **Social Service Units:** All students are required to enroll in either the **National Cadet Corps (NCC)** or **National Service Scheme (NSS)** units.
-- **Academic Mentorship:** Every student is mapped to a dedicated **Faculty Advisor** who monitors attendance, academic performance, and semester registrations.
-- **Hostel Study Regulation:** Electronic entertainment devices are prohibited during designated evening study hours.`;
-        }
-
-        // 26. Programming / Code Solutions
-        if (q.includes("code") || q.includes("program") || q.includes("function") || q.includes("python") || q.includes("java") || q.includes("c++") || q.includes("javascript") || q.includes("binary search") || q.includes("factorial") || q.includes("fibonacci") || q.includes("algorithm")) {
-            if (q.includes("python") || q.includes("binary search")) {
-                return `**Binary Search Implementation (Python 3):**
-
-\`\`\`python
-def binary_search(arr, target):
-    """
-    Performs binary search on a sorted list.
-    Time Complexity: O(log n) | Space Complexity: O(1)
-    """
-    low, high = 0, len(arr) - 1
-    
-    while low <= high:
-        mid = (low + high) // 2
-        if arr[mid] == target:
-            return mid  # Found target at index mid
-        elif arr[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
-            
-    return -1  # Target not present in array
-
-# Example Usage:
-numbers = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
-result = binary_search(numbers, 23)
-print(f"Element found at index: {result}")
-\`\`\`
-
-- **Best Case:** O(1) when element is at the middle.
-- **Average & Worst Case:** O(log n).`;
-            } else if (q.includes("java")) {
-                return `**Array Processing Solution (Java):**
-
-\`\`\`java
-public class ArraySolver {
-    public static int findMax(int[] arr) {
-        if (arr == null || arr.length == 0) {
-            throw new IllegalArgumentException("Array cannot be empty");
-        }
-        int max = arr[0];
-        for (int i = 1; i < arr.length; i++) {
-            if (arr[i] > max) {
-                max = arr[i];
-            }
-        }
-        return max;
-    }
-
-    public static void main(String[] args) {
-        int[] data = {14, 52, 98, 3, 76, 23};
-        System.out.println("Maximum value: " + findMax(data));
-    }
-}
-\`\`\``;
             } else {
-                return `**Algorithm Implementation (JavaScript):**
+                circularResponse += `### Academic Examination Calendar & Bulletin Notices\n`;
+                circularResponse += `- **Affiliated University:** JNTU Kakinada (JNTUK) / SBTET AP.\n`;
+                circularResponse += `- **Semester Examination Schedule:**\n`;
+                circularResponse += `  * Mid-1 Internal Examinations: Conducted during the 8th week of the instructional semester.\n`;
+                circularResponse += `  * Mid-2 Internal Examinations: Conducted during the 16th week of the instructional semester.\n`;
+                circularResponse += `  * University Semester End Theory & Practical Labs: Immediately following mid-term assessments.\n`;
+                circularResponse += `- **Hall Tickets Eligibility:** Minimum 75% aggregate class & laboratory attendance mandatory.\n`;
+                circularResponse += `- **Live Notice Board:** Check the active Circulars list in the sidebar or under Campus Hub.\n\n`;
+            }
+            circularResponse += `*(For official paper verifications, visit the Examination Branch on the Ground Floor or check https://khitguntur.ac.in).*`;
+            return circularResponse;
+        }
 
-\`\`\`javascript
-function calculateFactorial(n) {
-    if (n < 0) return null;
-    if (n === 0 || n === 1) return 1;
-    let result = 1;
-    for (let i = 2; i <= n; i++) {
-        result *= i;
-    }
-    return result;
-}
+        // 14. Library & Digital Resources
+        if (q.includes("library") || q.includes("books") || q.includes("reading room") || q.includes("digital library") || q.includes("journal") || q.includes("delnet") || q.includes("ieee")) {
+            return `**KHIT Central Library & Digital Information Resource Center:**\n\n- **Operating Schedule:** **8:00 AM – 6:00 PM** on all working days (extended to 7:00 PM during semester examinations).\n- **Book Repository & Collection:**\n  - Over **40,000+ volumes** covering engineering, basic sciences, management, and competitive exams (GATE, GRE, CAT).\n  - **150+ print national & international journals** and magazines.\n- **Digital Library Infrastructure:**\n  - High-speed internet terminals with access to **IEEE Xplore**, **DELNET**, and **NPTEL Video Lectures**.\n  - Fully automated with Barcode-based circulation system for instant book borrowing.\n- **Seating & Atmosphere:** Air-cooled reading hall with over 200+ seating capacity and dedicated quiet study zones.`;
+        }
 
-console.log("Factorial of 5:", calculateFactorial(5)); // Output: 120
-\`\`\``;
+        // 15. Sports, Gymnasium & Physical Education
+        if (q.includes("sport") || q.includes("game") || q.includes("gym") || q.includes("gymnasium") || q.includes("cricket") || q.includes("volleyball") || q.includes("basketball") || q.includes("ground") || q.includes("badminton") || q.includes("athletics") || q.includes("table tennis")) {
+            return `**KHIT Sports, Gymnasium & Recreation Infrastructure:**\n\n- **Indoor Gymnasium:** Dedicated **300 square meter indoor gym** equipped with modern weight lifting stations, dumbbells, cardio equipment, table tennis tables, and chess boards.\n- **Outdoor Sports Grounds:**\n  - Standard Cricket ground with turf pitch.\n  - Volleyball courts (floodlit for evening matches).\n  - Full-size Basketball court with standard acrylic backboards.\n  - Kabaddi and Kho-Kho playing courts.\n- **Competitions & Achievements:** Annual Inter-Collegiate Sports Meets, JNTUK University Zone Tournaments, and National Sports Day athletic events.`;
+        }
+
+        // 16. Canteen, Food & Cafeteria
+        if (q.includes("canteen") || q.includes("cafeteria") || q.includes("snack") || q.includes("lunch") || q.includes("breakfast") || q.includes("coffee") || q.includes("tea") || q.includes("food court")) {
+            return `**KHIT Campus Canteen & Cafeteria Facilities:**\n\n- **Hygienic Dining Environment:** Spacious cafeteria providing clean, nutritious, and freshly prepared food at subsidized student rates.\n- **Menu Provisions:**\n  - Morning Breakfast: Fresh South Indian idli, dosa, vada, puri, and upma.\n  - Afternoon Lunch: Unlimited vegetarian/non-vegetarian thali meals, fried rice, and biryani.\n  - Refreshments: Hot filter coffee, tea, fruit juices, and evening snacks.\n- **Water Purity:** Multi-stage UV + RO drinking water plants installed on all floors.\n- **Operating Hours:** Open 8:30 AM to 5:30 PM on all working days.`;
+        }
+
+        // 17. Campus Events, Fests & Hackathons
+        if (q.includes("fest") || q.includes("event") || q.includes("annual day") || q.includes("freshers") || q.includes("farewell") || q.includes("celebration") || q.includes("hackathon") || q.includes("symposium") || q.includes("cultural")) {
+            return `**KHIT Campus Events, Cultural Fests & Technical Hackathons:**\n\n- **Annual Day Celebration:** Flagship campus gala honoring academic toppers, sports champions, and faculty milestones with cultural performances.\n- **National Cultural Fest ("Euphoria"):** Inter-collegiate youth festival attracting thousands of students for dance, music, drama, fashion, and literary competitions.\n- **Department Technical Symposia:** Annual state-level tech symposia featuring paper presentations, technical quizzes, coding hackathons, and robotics challenges.\n- **Smart India Hackathon (SIH):** KHIT students actively participate and qualify for the national Grand Finale in AI, IoT, and software innovation.\n- **National Observances:** Engineer's Day, National Science Day, Independence Day, and Republic Day celebrations.`;
+        }
+
+        // 18. Faculty & Teaching Staff Overview
+        if (q.includes("faculty") || q.includes("professor") || q.includes("teacher") || q.includes("lecturer") || q.includes("staff") || q.includes("teaching") || q.includes("mentor")) {
+            return `**KHIT Distinguished Faculty & Academic Mentorship:**\n\n- **Faculty Strength:** Over **150+ dedicated faculty members** across engineering, computer applications, and management.\n- **Doctorate Excellence:** Senior professors holding **Ph.D.** degrees from premier institutions including Banaras Hindu University (BHU), IITs, NITs, and JNTUK.\n- **Faculty-Student Ratio:** Maintained at a healthy **1:15 ratio** ensuring close individual academic monitoring.\n- **Faculty Advisor Mentorship System:** Every student is mapped to a designated Faculty Advisor who tracks semester attendance, continuous internal evaluations (CIE), and campus placement readiness.`;
+        }
+
+        // 19. Laboratories & Central Computing Facilities
+        if (q.includes("lab") || q.includes("laboratory") || q.includes("computer center") || q.includes("infrastructure") || q.includes("workstations")) {
+            return `**KHIT Laboratory & Advanced Computing Infrastructure:**\n\n- **Central Computing Center:** Over **1,000+ networked Intel Core i7 workstations** equipped with high-speed 1 Gbps fiber optic internet connectivity.\n- **Specialized High-Performance Labs:**\n  - High-Performance GPU AI & Deep Learning Sandbox.\n  - Cadence EDA & VLSI Simulation Center.\n  - IoT & Embedded Systems Lab (ARM, Arduino, Raspberry Pi, sensors).\n  - Modern CNC Machining & Robotics Workshop.\n  - Strength of Materials & Total Station Surveying Labs.\n- **Software Tooling:** Licensed MATLAB, Oracle, Python Data Science suites, AutoCAD, and Linux operating systems.`;
+        }
+
+        // 20. Placements, Salary Packages & Corporate Recruiters
+        if (q.includes("placement") || q.includes("salary") || q.includes("package") || q.includes("lpa") || q.includes("jobs") || q.includes("hiring") || q.includes("recruit") || q.includes("company") || q.includes("companies") || q.includes("highest package") || q.includes("average package") || q.includes("tcs") || q.includes("wipro") || q.includes("infosys") || q.includes("capgemini") || q.includes("amazon") || q.includes("placed")) {
+            return `**KHIT Campus Placement Records & Corporate Recruitment Excellence:**\n\n- **Record-Breaking Salary Packages:**\n  - **Highest Tech & Software Package:** **22 LPA** (Tier-1 Product & Cloud Engineering).\n  - **Corporate Executive Standard Peak:** **12 LPA**.\n  - **High-Value Packages:** Multiple prestigious offers recorded at **10 LPA**, **8.5 LPA**, and **7.0 LPA**.\n  - **Premier Average Package Band:** Robust average between **5.0 LPA to 7.2 LPA** across technology and engineering tracks.\n- **Outstanding Placement Success Rate:**\n  - Consistently **88% to 94%+** of all eligible students secure confirmed campus placements in top corporate conglomerates.\n- **Global & Tier-1 Recruiting Partners:**\n  - Premier MNCs: TCS, Wipro, Infosys, Capgemini, HCL Technologies, Tech Mahindra, Amazon, Cognizant, Accenture, Mindtree.\n  - Core Engineering Giants: Amaron Batteries, Kallam Group of Industries, Hyundai Steel, L&T Technology Services.\n  - Over **500+ corporate recruiters** participate actively across annual recruitment cycles.\n- **Comprehensive Campus Recruitment Training (CRT):**\n  - Rigidly commenced in the 3rd year with industry-vetted corporate trainers.\n  - Advanced training in Data Structures & Algorithms, competitive coding (LeetCode/HackerRank), system design, aptitude mastery, and mock technical interviews ensuring elite placement outcomes.`;
+        }
+
+        // 21. Academic Results, High Marks & University Excellence
+        if (q.includes("result") || q.includes("results") || q.includes("mark") || q.includes("marks") || q.includes("percentage") || q.includes("cgpa") || q.includes("sgpa") || q.includes("pass rate") || q.includes("pass percentage") || q.includes("topper") || q.includes("toppers") || q.includes("rank") || q.includes("ranks") || q.includes("grades") || q.includes("distinction") || q.includes("score") || q.includes("scores") || q.includes("academic performance")) {
+            return `**KHIT Academic Excellence, Marks & Examination Results:**\n\n- **Exemplary University Pass Percentage:**\n  - KHIT consistently achieves an outstanding **94.8% overall pass percentage** across all B.Tech and Polytechnic Diploma departments in university examinations affiliated with JNTUK Kakinada.\n- **First Class with Distinction Honors:**\n  - Over **82%** of graduating engineering students secure **First Class with Distinction** (maintaining cumulative CGPAs between **8.0 to 9.8+**).\n- **University Rank Holders & Medals:**\n  - KHIT students regularly achieve top **JNTUK University Ranks**, state-level academic gold medals, and prestigious merit citations.\n- **Department Academic Toppers:**\n  - Top semester scores routinely range between **9.2 to 9.8+ CGPA** across CSE, AI-ML, IT, ECE, EEE, Civil, and Mechanical Engineering.\n- **Support Ecosystem Driving High Marks:**\n  - Advanced digital smart classrooms and interactive laboratory practicals.\n  - Proactive tutorial sessions and one-on-one **Faculty Advisor** mentoring tracking each student's continuous internal evaluation (CIE).\n  - Specialized university exam prep modules and mock test series ensuring superior pass percentages and zero backlog milestones.`;
+        }
+
+        // 22. Branch Inquiries: CSE AI & ML
+        if (q.includes("aiml") || q.includes("ai-ml") || q.includes("ai & ml") || ((q.includes("ai") || q.includes("artificial intelligence")) && (q.includes("ml") || q.includes("machine learning") || q.includes("branch") || q.includes("course") || q.includes("seats") || q.includes("department")))) {
+            return `**B.Tech in Artificial Intelligence & Machine Learning (CSE AI-ML) at KHIT:**\n\n- **Annual Intake Capacity:** **360 seats**\n- **Department Overview:** Specialized department established to prepare students for the fourth industrial revolution in intelligent computing and data science.\n- **Core Curriculum Highlights:**\n  - Machine Learning & Deep Learning architectures.\n  - Natural Language Processing (NLP) & Computer Vision.\n  - Python, TensorFlow, PyTorch, and CUDA programming.\n  - Cloud AI infrastructure and Generative AI systems.\n- **Specialized Labs:** Dedicated High-Performance GPU Computing Lab, Data Analytics Laboratory, and AI Innovation Sandbox.\n- **Placement Prospects:** High recruitment demand with roles including AI Engineer, Machine Learning Engineer, Data Scientist, and Prompt Engineer, with top packages ranging from 6 to 22 LPA.`;
+        }
+
+        // 23. Branch Inquiries: Computer Science & Engineering (CSE)
+        if (q.includes("cse") || q.includes("computer science")) {
+            return `**B.Tech in Computer Science and Engineering (CSE) at KHIT:**\n\n- **Head of Department (HOD):** **Dr. G. J. Sunny Deol**, Ph.D. (Specialization: **Big Data** | Date of Joining: **14-08-2020**)\n- **Annual Intake Capacity:** **540 seats** (Largest department at KHIT).\n- **Key Focus Areas:** Full-Stack Web Development, Data Structures & Algorithms, Cloud Computing, Database Management Systems (DBMS), Operating Systems, and Cybersecurity.\n- **Laboratory Facilities:**\n  - Central Computing Facility with 1000+ networked Intel Core i7 workstations.\n  - Cloud Computing & Virtualization Lab.\n  - Open Source & Linux Kernel Lab.\n- **Training & CRT:** Mandatory Campus Recruitment Training (CRT) starting in the 3rd year covering advanced DSA, competitive coding (LeetCode/HackerRank), and technical interview drills.\n- **Career Placements:** Highest placement volume at KHIT, recruited by TCS, Infosys, Wipro, Capgemini, HCL, Tech Mahindra, and specialized product firms with salaries ranging from 3.5 LPA to 22 LPA.`;
+        }
+
+        // 24. Branch Inquiries: Information Technology (IT)
+        if (q.includes("information technology") || q.includes(" it branch") || q.includes("it department") || q.includes("seats in it")) {
+            return `**B.Tech in Information Technology (IT) at KHIT:**\n\n- **Annual Intake Capacity:** **180 seats**\n- **Core Curriculum:** Software Engineering, Web Technologies, Distributed Systems, Information Security, and Enterprise Java/Python application development.\n- **Practical Infrastructure:** Specialized software design suites, enterprise database labs, and high-speed network development benches.\n- **Career Paths:** Software Developer, Systems Analyst, Cloud Engineer, DevOps Specialist, with strong recruitment overlap alongside CSE recruiters.`;
+        }
+
+        // 25. Branch Inquiries: Electronics & Communication Engineering (ECE)
+        if (q.includes("ece") || q.includes("electronics") || q.includes("communication engineering")) {
+            return `**B.Tech in Electronics & Communication Engineering (ECE) at KHIT:**\n\n- **Annual Intake Capacity:** **180 seats**\n- **Core Curriculum:** VLSI System Design, Embedded Systems, Digital Signal Processing (DSP), Internet of Things (IoT), Microwave Engineering, and Satellite Communications.\n- **Laboratory Infrastructure:**\n  - Cadence VLSI & EDA Simulation Lab.\n  - Microcontrollers & Embedded Systems Lab (ARM, Arduino, Raspberry Pi).\n  - Microwave, Fiber Optics, and Antenna Testing benches.\n- **Placements & Careers:** Dual career track opportunities in core semiconductor/electronics companies (VLSI, IoT) as well as IT services and software giants.`;
+        }
+
+        // 26. Branch Inquiries: Electrical & Electronics Engineering (EEE)
+        if (q.includes("eee") || q.includes("electrical engineering") || (q.includes("electrical") && !q.includes("electronics"))) {
+            return `**B.Tech in Electrical & Electronics Engineering (EEE) at KHIT:**\n\n- **Annual Intake Capacity:** **60 seats**\n- **Key Subjects:** Power Systems, Electric Drives, Control Systems, Renewable Energy (Solar & Wind), Electric Vehicles (EV), and Industrial Automation.\n- **Laboratories:** Electrical Machines Lab, Power Electronics Bench, Control Systems Simulation (MATLAB/Simulink), and High Voltage Testing Unit.\n- **Opportunities:** Power sector corporations (APTRANSCO, APGENCO), renewable energy firms, automotive EV manufacturers, and automation industries.`;
+        }
+
+        // 27. Branch Inquiries: Civil Engineering
+        if (q.includes("civil") || q.includes("civil engineering")) {
+            return `**B.Tech in Civil Engineering at KHIT:**\n\n- **Annual Intake Capacity:** **30 seats**\n- **Focus Areas:** Structural Analysis, Concrete Technology, Geotechnical Engineering, Transportation Engineering, Surveying, and Environmental Engineering.\n- **Laboratories:** Computer-Aided Design (AutoCAD & STAAD Pro), Strength of Materials Lab, Total Station & GPS Surveying Lab, and Soil Mechanics Lab.\n- **Career Prospects:** Infrastructure developers, government public works departments (PWD, Irrigation), consultancy firms, and construction contractors.`;
+        }
+
+        // 28. Branch Inquiries: Mechanical Engineering
+        if (q.includes("mech") || q.includes("mechanical") || q.includes("mechanical engineering")) {
+            return `**B.Tech in Mechanical Engineering at KHIT:**\n\n- **Annual Intake Capacity:** **30 seats**\n- **Core Curriculum:** Thermodynamics, Fluid Mechanics, CAD/CAM, CNC Machining, Robotics, Manufacturing Technology, and Automobile Engineering.\n- **Laboratories:** Modern CNC Machine Center, Thermal Engineering Lab, Robotics & Automation Workspace, Mechanics of Solids Lab.\n- **Industry Alignments:** Placements with automotive firms, manufacturing enterprises (including Amaron Batteries, Kallam Group units), and heavy machinery manufacturers.`;
+        }
+
+        // 29. Diploma / Polytechnic Stream
+        if (q.includes("diploma") || q.includes("polytechnic") || q.includes("polycet")) {
+            return `**Polytechnic Diploma Programs at KHIT:**\n\n- **Dean of Diploma:** **Dr. D. Venkata Rao** (Date of Joining: **06-05-2021**)\n- **Total Annual Intake:** **360 seats** across engineering branches:\n  - Diploma in Computer Engineering (DCME)\n  - Diploma in Electronics & Communication Engineering (DECE)\n  - Diploma in Electrical & Electronics Engineering (DEEE)\n  - Diploma in Civil Engineering (DCE)\n  - Diploma in Mechanical Engineering (DME)\n- **Eligibility & Admission:** Pass in 10th standard (SSC) + qualifying rank in the state-level **AP POLYCET** examination.\n- **Tuition Cost:** Approximately **₹75,000** total program cost (Eligible for AP state government fee reimbursement schemes).\n- **Key Advantage:** Direct lateral entry into the 2nd year of B.Tech (via AP ECET) upon successful diploma graduation.`;
+        }
+
+        // 30. Postgraduate Programs (MBA / MCA / M.Tech)
+        if (q.includes("mba") || q.includes("mca") || q.includes("mtech") || q.includes("m.tech") || q.includes("postgraduate") || q.includes("pg program") || q.includes("master")) {
+            return `**Postgraduate (PG) Programs at KHIT:**\n\n- **Master of Business Administration (MBA):**\n  - Specializations: Finance, Marketing, and Human Resource Management (HR).\n  - Admission: Valid score in the state **AP ICET** examination.\n- **Master of Computer Applications (MCA):**\n  - Focus: Advanced software development, enterprise applications, cloud systems, and database engineering.\n  - Admission: Valid score in **AP ICET**.\n- **Master of Technology (M.Tech):**\n  - Specializations in advanced Computer Science and VLSI Design.\n  - Admission: Through **GATE** or **AP PGECET** rankings.`;
+        }
+
+        // 31. Seats & Intake Capacity Overview (All Branches Table)
+        if (q.includes("seat") || q.includes("intake") || q.includes("capacity") || q.includes("all branch") || q.includes("courses offered") || q.includes("how many seats") || q.includes("branches") || q.includes("departments")) {
+            return `**KHIT Approved Intake & Seat Matrix:**\n\n### Undergraduate B.Tech Programs (Total: 1,380 Seats)\n- **Computer Science & Engineering (CSE):** 540 seats\n- **CSE – Artificial Intelligence & Machine Learning (AI-ML):** 360 seats\n- **Electronics & Communication Engineering (ECE):** 180 seats\n- **Information Technology (IT):** 180 seats\n- **Electrical & Electronics Engineering (EEE):** 60 seats\n- **Civil Engineering:** 30 seats\n- **Mechanical Engineering:** 30 seats\n\n### Polytechnic Diploma Programs (Total: 360 Seats)\n- Computer Engineering, ECE, EEE, Civil, Mechanical.\n\n### Postgraduate (PG) Programs\n- Master of Business Administration (MBA)\n- Master of Computer Applications (MCA)\n- Master of Technology (M.Tech) in CSE & VLSI.`;
+        }
+
+        // 32. Admissions & Entrance Exams
+        if (q.includes("admission") || q.includes("admissions") || q.includes("how to join") || q.includes("eligibility") || q.includes("eamcet") || q.includes("counseling") || q.includes("convenor") || q.includes("management quota") || q.includes("b category")) {
+            return `**KHIT Admissions & Eligibility Criteria:**\n\n- **B.Tech Degree Admissions:**\n  - **Eligibility:** 10+2 / Intermediate pass with Mathematics, Physics, and Chemistry (min 45% aggregate for general, 40% for reserved categories).\n  - **Entrance Exam:** Valid rank in **AP EAMCET (EAPCET)**.\n  - **Allotment:** Category A (Convenor Quota - 70%) through state web counseling; Category B (Management/NRI Quota - 30%) based on merit.\n  - **Counseling Code:** **KHIT**\n- **Polytechnic Diploma Admissions:**\n  - **Eligibility:** 10th standard pass (SSC).\n  - **Entrance Exam:** Cleared **AP POLYCET** counseling.\n- **MBA / MCA Admissions:**\n  - **Eligibility:** Any recognized bachelor's degree with Mathematics at 10+2 or degree level.\n  - **Entrance Exam:** Valid rank in **AP ICET**.\n- **Lateral Entry (2nd Year B.Tech):**\n  - Diploma holders with a qualifying rank in **AP ECET** are directly admitted to the 2nd year.`;
+        }
+
+        // 33. Tuition Fees & JVD Scholarships
+        if (q.includes("fee") || q.includes("fees") || q.includes("cost") || q.includes("tuition") || q.includes("scholarship") || q.includes("jvd") || q.includes("vidya deevena") || q.includes("vasathi deevena")) {
+            return `**KHIT Tuition Fees & State Scholarship Details:**\n\n- **B.Tech Tuition Fee:** Approximately **₹41,000 per year** under the state convenor allotment.\n- **Polytechnic Diploma Fee:** Approximately **₹75,000 total** program cost.\n- **Postgraduate Programs (MBA / MCA):** Standard state-regulated fee structure governed by the AP Higher Education Regulatory and Monitoring Commission (APHERMC).\n- **AP State Government Scholarships (JVD):**\n  - Eligible students from economically backward categories (SC, ST, BC, EBC, Minority) receive **100% full tuition fee reimbursement** directly under the **Jagananna Vidya Deevena (JVD)** scheme.\n  - Hostel maintenance allowances are credited under the **Jagananna Vasathi Deevena** scheme.`;
+        }
+
+        // 34. Hostel, Accommodation, Food & Gym
+        if (q.includes("hostel") || q.includes("room") || q.includes("mess") || q.includes("accommodation") || q.includes("food") || q.includes("living")) {
+            return `**KHIT Hostel Accommodation & Living Amenities:**\n\n- **Boys Hostel:**\n  - Annual Fee: Approximately **₹67,500 / year** (includes non-AC room + comprehensive mess package).\n  - Secure campus premises with 24/7 security and warden supervision.\n- **Girls Hostel:**\n  - Annual Fee: Ranges between **₹75,000 to ₹85,000 / year** (based on room occupancy and block tier).\n  - Biometric access, round-the-clock female security personnel, and CCTV monitoring.\n- **Mess & Dietary Provisions:**\n  - 4 nutritious meals provided daily: Breakfast, Lunch, Evening Snacks with Tea/Coffee, and Dinner.\n  - Hygienic steam-cooking infrastructure with purified RO drinking water on every floor.\n- **Gymnasium & Sports Footprint:**\n  - Dedicated **300 square meter indoor gymnasium** equipped with weight lifting machines, fitness gear, table tennis tables, and chess boards.\n- **Hostel Compliance Rule:** Use of electronic entertainment gadgets is strictly restricted during mandatory study windows to foster academic discipline.`;
+        }
+
+        // 35. Mandates, Rules, Attendance & Discipline
+        if (q.includes("mandate") || q.includes("rule") || q.includes("rules") || q.includes("attendance") || q.includes("internship") || q.includes("nptel") || q.includes("swayam") || q.includes("ncc") || q.includes("nss") || q.includes("gadget") || q.includes("discipline") || q.includes("dress code")) {
+            return `**KHIT Academic Mandates & Institutional Regulations:**\n\n- **Attendance Requirement:** A minimum of **75% aggregate attendance** is mandatory to be eligible to sit for university end-semester examinations.\n- **Compulsory Internship:** Every undergraduate student must complete a **10-month aggregate industrial/social internship** before final year graduation.\n- **SWAYAM / NPTEL Credits:** Students must earn designated elective credits online through the institutional SWAYAM NPTEL local chapter.\n- **Social Service Units:** All students are required to enroll in either the **National Cadet Corps (NCC)** or **National Service Scheme (NSS)** units.\n- **Academic Mentorship:** Every student is mapped to a dedicated **Faculty Advisor** who monitors attendance, academic performance, and semester registrations.\n- **Hostel Study Regulation:** Electronic entertainment devices are prohibited during designated evening study hours.`;
+        }
+
+        // 36. Anti-Ragging Policy & Safety
+        if (q.includes("ragging") || q.includes("anti ragging") || q.includes("safety") || q.includes("security") || q.includes("women protection") || q.includes("grievance")) {
+            return `**KHIT Anti-Ragging Policy & Student Safety Framework:**\n\n- **Zero-Tolerance Policy:** Ragging in any form (physical, verbal, psychological) is strictly prohibited across the campus, hostels, and college transport.\n- **Statutory Compliance:** Enforced in strict accordance with the Hon'ble Supreme Court of India guidelines and UGC/AICTE regulations.\n- **Anti-Ragging Squads:** Faculty patrols maintain vigilance across common spaces, canteen, and hostels during peak transit hours.\n- **Student Helplines & Redressal:**\n  - Institutional Anti-Ragging Committee Phone: **0863-2119726** / **+91-9885604528**.\n  - National Anti-Ragging Toll-Free Helpline: **1800-180-5522**.\n  - Dedicated Women Protection Cell & Internal Complaints Committee (ICC) ensuring complete safety.`;
+        }
+
+        // 37. Programming / Code Solutions (ONLY when specifically asking for code implementation)
+        const isProgrammingQuery = (
+            q.includes("program") || q.includes("algorithm") || q.includes("python") ||
+            q.includes("java") || q.includes("c++") || q.includes("javascript") ||
+            q.includes("binary search") || q.includes("factorial") || q.includes("fibonacci") ||
+            q.includes("coding") || q.includes("function") || q.includes("write code") ||
+            q.includes("source code") || q.includes("sample code")
+        ) && !isCollegeCodeQuery && !q.includes("dress code");
+
+        if (isProgrammingQuery) {
+            if (q.includes("python") || q.includes("binary search")) {
+                return `**Binary Search Implementation (Python 3):**\n\n\`\`\`python\ndef binary_search(arr, target):\n    \"\"\"\n    Performs binary search on a sorted list.\n    Time Complexity: O(log n) | Space Complexity: O(1)\n    \"\"\"\n    low, high = 0, len(arr) - 1\n    \n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return mid  # Found target at index mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n            \n    return -1  # Target not present in array\n\n# Example Usage:\nnumbers = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]\nresult = binary_search(numbers, 23)\nprint(f"Element found at index: {result}")\n\`\`\`\n\n- **Best Case:** O(1) when element is at the middle.\n- **Average & Worst Case:** O(log n).`;
+            } else if (q.includes("java")) {
+                return `**Array Processing Solution (Java):**\n\n\`\`\`java\npublic class ArraySolver {\n    public static int findMax(int[] arr) {\n        if (arr == null || arr.length == 0) {\n            throw new IllegalArgumentException("Array cannot be empty");\n        }\n        int max = arr[0];\n        for (int i = 1; i < arr.length; i++) {\n            if (arr[i] > max) {\n                max = arr[i];\n            }\n        }\n        return max;\n    }\n\n    public static void main(String[] args) {\n        int[] data = {14, 52, 98, 3, 76, 23};\n        System.out.println("Maximum value: " + findMax(data));\n    }\n}\n\`\`\``;
+            } else {
+                return `**Algorithm Implementation (JavaScript):**\n\n\`\`\`javascript\nfunction calculateFactorial(n) {\n    if (n < 0) return null;\n    if (n === 0 || n === 1) return 1;\n    let result = 1;\n    for (let i = 2; i <= n; i++) {\n        result *= i;\n    }\n    return result;\n}\n\nconsole.log("Factorial of 5:", calculateFactorial(5)); // Output: 120\n\`\`\``;
             }
         }
 
-        // 27. Strict Out-of-Domain Guardrail for Any Unrecognized Query
-        return `I do not have specific data regarding that query in the official campus database.
+        // 38. College Overview, History & Accreditations
+        if (q.includes("about khit") || q.includes("about college") || q.includes("about the college") || q.includes("history") || q.includes("naac") || q.includes("jntuk") || q.includes("aicte") || q.includes("campus size") || q.includes("acres") || q.includes("overview")) {
+            return `**About Kallam Haranadhareddy Institute of Technology (KHIT):**\n\n- **Year of Establishment:** 2010 by the **Kallam Academy of Educational Society (KAES)** under the leadership of Sri Haranadha Reddy Kallam.\n- **University Affiliation:** Permanently affiliated with **JNTU Kakinada (JNTUK)**.\n- **Accreditation & Approvals:**\n  - Accredited by **NAAC with 'A' Grade**.\n  - Approved by **AICTE**, New Delhi.\n  - Programs aligned with **NBA** standards.\n- **Campus Infrastructure:** Sprawled over an eco-friendly **11-acre campus** equipped with modern digital smart classrooms, high-speed campus-wide Wi-Fi, modern laboratories, a Central Computing Center, 300 sq.m gymnasium, and a sports pavilion.\n- **Academic Community:** More than **3,500+ active students** across Undergraduate B.Tech, Polytechnic Diploma, and Postgraduate programs.\n- **College Code:** **KHIT** (EAMCET / ECET / POLYCET / ICET).`;
+        }
 
-As the dedicated campus intelligence assistant for **Kallam Haranadhareddy Institute of Technology (KHIT)**, I am specialized in providing authoritative information on:
-- **Campus Leadership & History:** Founder Sri Haranadha Reddy Kallam, Director, Principal, and Institute Accreditations.
-- **Academic Departments & Seats:** CSE (540), AI-ML (360), IT (180), ECE (180), EEE (60), Civil (30), Mechanical (30), and Polytechnic Diploma (360).
-- **Placements & High Packages:** Peak packages up to 22 LPA, 88%–94%+ placement success rate, and Tier-1 MNC recruiters (TCS, Infosys, Wipro, Capgemini, Amazon).
-- **Academic Results & Marks:** 94.8% university pass percentage under JNTUK, over 82% First Class with Distinction, and university rank holders.
-- **Admissions & Fee Structures:** EAMCET/POLYCET procedures, tuition fees, and JVD state scholarship reimbursement.
-- **Campus Life:** Hostel amenities, mess schedule, gym facilities, timings (9:00 AM – 4:30 PM), and bus routes.
-- **Bulletins & Circulars:** Active examination schedules, hackathons, and official college circulars.
-
-Please feel free to ask any question regarding KHIT academics, facilities, or admissions!`;
+        // 39. Universal Grounded Fallback (Always helpful, contextual, and grounded in official KHIT data)
+        return `**KHIT Campus Intelligence & Academic Directory:**\n\nI am the dedicated campus intelligence assistant for **Kallam Haranadhareddy Institute of Technology (KHIT)**, Guntur. Here are key campus topics you can explore:\n\n- **Campus Leadership:** Founder Sri Haranadha Reddy Kallam, Director Dr. Umasankara Reddy Movva, Principal Dr. B. S. B. Reddy, Dean of Diploma Dr. D. Venkata Rao, and CSE HOD Dr. G. J. Sunny Deol.\n- **Academic Programs & Seats:** B.Tech CSE (540), AI-ML (360), IT (180), ECE (180), EEE (60), Civil (30), Mechanical (30), Polytechnic Diploma (360), and MBA/MCA.\n- **Admissions & Fees:** B.Tech convenor fees (₹41,000/yr), Diploma costs (₹75,000), JVD 100% full fee reimbursement, and EAMCET/POLYCET counseling.\n- **Placements & High Packages:** 88%–94%+ placement success rate, peak packages up to 22 LPA and 12 LPA, premier 5.0–7.2 LPA average CTC, and Tier-1 recruiters (TCS, Infosys, Wipro, Capgemini, Amazon).\n- **Academic Results & Marks:** Outstanding 94.8% university pass rate under JNTUK and 82%+ students graduating with First Class with Distinction.\n- **Campus Life & Facilities:** Central Library (40,000+ volumes), 300 sq.m gymnasium, sports pavilion, hygienic cafeteria, and boys/girls hostels.\n- **Timings & Bus Transportation:** 9:00 AM – 4:30 PM working schedule and 8 college bus express routes covering Guntur, Tenali, Vijayawada, and Chilakaluripet.\n\nPlease feel free to ask any specific question regarding KHIT academics, facilities, or admissions!`;
     }
 
     function parseMarkdownToHTML(text) {
@@ -2443,6 +2262,11 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
 
     function appendStreamingBubble(text, onComplete) {
         if (!chatWindow) return;
+        if (activeStreamingTimer) {
+            clearInterval(activeStreamingTimer);
+            activeStreamingTimer = null;
+        }
+
         const bubble = document.createElement("div");
         bubble.className = "flex gap-3.5 p-4.5 rounded-2xl message-bubble bg-[#0d111a]/50 border border-slate-800/60 max-w-3xl shadow-sm";
         
@@ -2472,29 +2296,43 @@ Please feel free to ask any question regarding KHIT academics, facilities, or ad
         scrollToBottom();
         
         const textBox = bubble.querySelector(".streaming-text-box");
-        const tokens = text.match(/<[^>]*>|[^< \n]+|\s+|\n/g) || [];
+        // Keep entire HTML component cards (like creator bio div or tables) intact as atomic tokens
+        const tokens = text.match(/<div[\s\S]*?<\/div>|<table[\s\S]*?<\/table>|<[^>]*>|[^< \n]+|\s+|\n/g) || [];
         let tokenIndex = 0;
         let currentRawText = "";
         
-        const timer = setInterval(() => {
+        // Dynamic chunk sizing for snappy, responsive streaming (~1.2s max)
+        const chunkSize = Math.max(2, Math.ceil(tokens.length / 35));
+        
+        activeStreamingTimer = setInterval(() => {
             if (tokenIndex < tokens.length) {
-                currentRawText += tokens[tokenIndex];
+                const nextLimit = Math.min(tokenIndex + chunkSize, tokens.length);
+                for (let i = tokenIndex; i < nextLimit; i++) {
+                    currentRawText += tokens[i];
+                }
+                tokenIndex = nextLimit;
+                
                 const parsedHtml = parseMarkdownToHTML(currentRawText);
                 if (textBox) textBox.innerHTML = parsedHtml;
                 if (voiceModeOverlayActive && voiceOverlayCaptions) {
                     voiceOverlayCaptions.innerHTML = parsedHtml;
                     voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
                 }
-                tokenIndex++;
                 scrollToBottom();
             } else {
-                clearInterval(timer);
+                clearInterval(activeStreamingTimer);
+                activeStreamingTimer = null;
+                // Final definitive render ensuring complete markup
+                const finalHtml = parseMarkdownToHTML(text);
+                if (textBox) textBox.innerHTML = finalHtml;
                 if (voiceModeOverlayActive && voiceOverlayCaptions) {
+                    voiceOverlayCaptions.innerHTML = finalHtml;
                     voiceOverlayCaptions.scrollTop = voiceOverlayCaptions.scrollHeight;
                 }
+                scrollToBottom();
                 if (onComplete) onComplete();
             }
-        }, 20);
+        }, 15);
     }
 
     function appendBubble(sender, text) {
@@ -3799,7 +3637,11 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         if (!currentUserDetails) return false;
         
         const q = userQuery.toLowerCase();
-        const isViolated = BANNED_KEYWORDS.some(word => q.includes(word));
+        // Use strict word boundary to prevent innocent academic terms (e.g. cluster, clustering, illustrate) from triggering safety filter
+        const isViolated = BANNED_KEYWORDS.some(word => {
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            return regex.test(q);
+        });
         
         if (isViolated) {
             console.warn("Safety violation: User query contains forbidden words. Restricting account.");
