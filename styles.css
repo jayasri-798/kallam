@@ -1097,8 +1097,62 @@ html, body {
     border-color: rgba(56, 189, 248, 0.5) !important;
     color: #38bdf8 !important;
 }
+/* Institutional Digital Approval Seal & Stamp */
+.khit-digital-seal {
+    border: 2px dashed #10b981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-radius: 0.75rem !important;
+    padding: 0.65rem 1rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    color: #34d399 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.06em !important;
+}
 
+.khit-digital-seal.seal-pending {
+    border-color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+    color: #fbbf24 !important;
+}
 
+.khit-digital-seal.seal-forwarded {
+    border-color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.08) !important;
+    color: #38bdf8 !important;
+}
 
+.khit-digital-seal.seal-rejected {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+    color: #f87171 !important;
+}
+
+/* Leave Approval Timeline Step */
+.leave-step-active {
+    border-color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.15) !important;
+    color: #38bdf8 !important;
+}
+
+.leave-step-done {
+    border-color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #10b981 !important;
+}
+
+.leave-step-pending {
+    border-color: #475569 !important;
+    background: rgba(30, 41, 59, 0.5) !important;
+    color: #94a3b8 !important;
+}
+
+/* Notes Analyzer High-Yield Badges */
+.study-card-accent {
+    border-left: 3px solid #38bdf8 !important;
+}
 
 

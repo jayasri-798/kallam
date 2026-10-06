@@ -242,6 +242,16 @@
                         </svg>
                         <span class="hidden sm:inline-block">Profile</span>
                     </button>
+                    <!-- Class Teacher Portal Toggle Button -->
+                    <button id="btn-teacher-toggle" class="hidden text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium" title="Class Teacher Portal">
+                        <span class="text-sm">👨‍🏫</span>
+                        <span class="hidden md:inline-block">Teacher Portal</span>
+                    </button>
+                    <!-- HOD Portal Toggle Button -->
+                    <button id="btn-hod-toggle" class="hidden text-xs framer-pill-button py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium" title="HOD Admin Portal">
+                        <span class="text-sm">🏛️</span>
+                        <span class="hidden md:inline-block">HOD Portal</span>
+                    </button>
                     <!-- Admin Console Toggle Button -->
                     <button id="btn-admin-toggle" class="hidden text-xs framer-pill-button framer-pill-active py-2 px-3 md:px-3.5 cursor-pointer flex items-center gap-1.5 font-medium">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-sky-400">
@@ -620,97 +630,204 @@
                     </div>
                 </div>
 
-                <!-- SUB-PANEL 3: FORMAL LEAVE & ON-DUTY (OD) GENERATOR -->
+                <!-- SUB-PANEL 3: FORMAL LEAVE & ON-DUTY (OD) WORKFLOW PORTAL -->
                 <div id="hub-panel-leave" class="space-y-6 hidden">
-                    <div class="hub-card p-5 sm:p-6 space-y-5">
-                        <div class="border-b border-slate-800/80 pb-3">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                <span>✉️</span>
-                                <span>Formal Leave & On-Duty (OD) Generator</span>
-                            </h3>
-                            <p class="text-[11px] text-slate-400">Official college format addressed to HOD or Dean. Complete all student details below to generate your official letter.</p>
-                        </div>
-
-                        <form id="leave-generator-form" class="space-y-3">
-                            <div class="p-2.5 rounded-xl bg-sky-950/40 border border-sky-500/20 text-[11px] text-sky-300 flex items-center gap-2">
-                                <span>✍️</span>
-                                <span>All details must be filled in personally by the applicant student.</span>
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Left: Student Leave Application Form (7 cols) -->
+                        <div class="lg:col-span-7 hub-card p-5 sm:p-6 space-y-4">
+                            <div class="border-b border-slate-800/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>✉️</span>
+                                        <span>Student Official Leave & On-Duty (OD) Application</span>
+                                    </h3>
+                                    <p class="text-[11px] text-slate-400">Routes directly to your assigned Class Teacher for verification, then to HOD for official digital sanction.</p>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 whitespace-nowrap">KHIT Multi-Tier Approval</span>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Student Name *</label>
-                                    <input type="text" id="leave-student-name" placeholder="Enter your full name" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                            <form id="leave-generator-form" class="space-y-3.5">
+                                <div class="p-2.5 rounded-xl bg-sky-950/40 border border-sky-500/20 text-[11px] text-sky-300 flex items-center gap-2">
+                                    <span>✍️</span>
+                                    <span><strong>Strict Policy:</strong> All details must be filled in personally by the applicant student. False declarations lead to attendance penalties.</span>
                                 </div>
-                                <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Roll Number *</label>
-                                    <input type="text" id="leave-roll-no" placeholder="Enter roll number (e.g. 218X1A...)" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
-                                </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Branch & Year *</label>
-                                    <input type="text" id="leave-branch" placeholder="Branch & Year (e.g. CSE-B III Year)" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Student Full Name *</label>
+                                        <input type="text" id="leave-student-name" placeholder="Enter your full name" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">University Roll Number *</label>
+                                        <input type="text" id="leave-roll-no" placeholder="e.g. 218X1A0501" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 font-mono">
+                                    </div>
                                 </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Branch / Department *</label>
+                                        <select id="leave-branch" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
+                                            <option value="CSE">Computer Science & Engineering (CSE)</option>
+                                            <option value="AIDS">AI & Data Science (AIDS)</option>
+                                            <option value="ECE">Electronics & Communication (ECE)</option>
+                                            <option value="EEE">Electrical & Electronics (EEE)</option>
+                                            <option value="MECH">Mechanical Engineering (MECH)</option>
+                                            <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                                            <option value="DIPLOMA">Diploma - CME (Polytechnic)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Year & Section *</label>
+                                        <select id="leave-section" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
+                                            <option value="IV Year - CSE A">IV Year - Section A</option>
+                                            <option value="IV Year - CSE B">IV Year - Section B</option>
+                                            <option value="IV Year - CSE C">IV Year - Section C</option>
+                                            <option value="III Year - Section A">III Year - Section A</option>
+                                            <option value="III Year - Section B">III Year - Section B</option>
+                                            <option value="III Year - Section C">III Year - Section C</option>
+                                            <option value="II Year - Section A">II Year - Section A</option>
+                                            <option value="II Year - Section B">II Year - Section B</option>
+                                            <option value="II Year - Section C">II Year - Section C</option>
+                                            <option value="I Year - Section A">I Year - Section A</option>
+                                            <option value="I Year - Section B">I Year - Section B</option>
+                                            <option value="Diploma - 3rd Year CME">Diploma - 3rd Year CME</option>
+                                            <option value="Diploma - 2nd Year CME">Diploma - 2nd Year CME</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Leave Application Type *</label>
+                                        <select id="leave-type" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500">
+                                            <option value="Official Normal Leave">Official Normal Leave</option>
+                                            <option value="Medical / Sick Leave">Medical / Sick Leave</option>
+                                            <option value="Academic On-Duty (OD) - Hackathon/Symposium">Academic On-Duty (OD)</option>
+                                            <option value="Internship / CRT Training Leave">Internship / CRT Training Leave</option>
+                                            <option value="Family / Personal Emergency">Family / Personal Emergency</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Assigned Class Teacher *</label>
+                                        <select id="leave-class-teacher" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
+                                            <option value="Mrs. P. Radhika (CSE-A)">Mrs. P. Radhika - Class In-Charge (CSE-A)</option>
+                                            <option value="Mr. K. Srinivasa Rao (CSE-B)">Mr. K. Srinivasa Rao - Class In-Charge (CSE-B)</option>
+                                            <option value="Mr. Ch. Ravi Kumar (CSE-C)">Mr. Ch. Ravi Kumar - Class In-Charge (CSE-C)</option>
+                                            <option value="Dr. M. Sravani (AI & DS)">Dr. M. Sravani - Class In-Charge (AI & DS)</option>
+                                            <option value="Mr. T. Naga Raju (ECE)">Mr. T. Naga Raju - Class In-Charge (ECE)</option>
+                                            <option value="Mrs. V. Swapna (Diploma CME)">Mrs. V. Swapna - Class In-Charge (Diploma CME)</option>
+                                            <option value="Class In-Charge">General Class Teacher / Section In-Charge</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">From Date *</label>
+                                        <input type="date" id="leave-start-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between">
+                                            <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">To Date *</label>
+                                            <span id="leave-duration-badge" class="text-[10px] font-bold text-cyan-400 hidden">Duration: 1 Day</span>
+                                        </div>
+                                        <input type="date" id="leave-end-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">Application Type</label>
-                                    <select id="leave-type" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500">
-                                        <option value="Medical / Sick Leave">Medical / Sick Leave</option>
-                                        <option value="Academic On-Duty (OD) - Hackathon/Symposium">Academic On-Duty (OD)</option>
-                                        <option value="Internship / CRT Training">Internship / CRT Training</option>
-                                        <option value="Personal / Family Emergency">Personal / Family Emergency</option>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Sanctioning Authority (HOD / Dean) *</label>
+                                    <select id="leave-addressed-to" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-medium">
+                                        <option value="HOD_CSE">Dr. G. J. Sunny Deol, Head of Department - CSE</option>
+                                        <option value="DEAN_DIPLOMA">Dr. D. Venkata Rao, Dean of Diploma (Polytechnic)</option>
+                                        <option value="HOD_AIDS">Head of Department - Artificial Intelligence & Data Science</option>
+                                        <option value="HOD_ECE">Head of Department - Electronics & Communication</option>
+                                        <option value="DEAN_ACADEMICS">Dean of Academic Affairs</option>
+                                        <option value="PRINCIPAL">Dr. B. S. B. Reddy, Principal, KHIT</option>
                                     </select>
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">From Date *</label>
-                                    <input type="date" id="leave-start-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Parent / Guardian Phone *</label>
+                                        <input type="tel" id="leave-parent-phone" placeholder="Parent contact (10 digits)" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Student Phone Number *</label>
+                                        <input type="tel" id="leave-student-phone" placeholder="Student contact (10 digits)" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                                    </div>
                                 </div>
+
                                 <div>
-                                    <label class="text-[10px] font-semibold text-slate-400 uppercase">To Date *</label>
-                                    <input type="date" id="leave-end-date" required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Specific Reason & Academic Plan *</label>
+                                    <textarea id="leave-reason" rows="2" placeholder="State your specific reason, medical details, or on-duty competition name..." required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"></textarea>
                                 </div>
-                            </div>
 
-                            <div>
-                                <label class="text-[10px] font-semibold text-slate-400 uppercase">Addressed To Authority</label>
-                                <select id="leave-addressed-to" class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500">
-                                    <option value="HOD_CSE">Dr. G. J. Sunny Deol, Head of Department - CSE</option>
-                                    <option value="DEAN_DIPLOMA">Dr. D. Venkata Rao, Dean of Diploma (Polytechnic)</option>
-                                    <option value="HOD_AIDS">Head of Department - AI & DS</option>
-                                    <option value="HOD_ECE">Head of Department - ECE</option>
-                                    <option value="DEAN_ACADEMICS">Dean of Academic Affairs</option>
-                                    <option value="PRINCIPAL">Principal, KHIT</option>
-                                </select>
-                            </div>
+                                <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                                    <label class="flex items-start gap-2.5 cursor-pointer text-[11px] text-slate-300">
+                                        <input type="checkbox" id="leave-student-declaration" required class="mt-0.5 rounded border-slate-700 bg-slate-950 text-cyan-500 focus:ring-cyan-500">
+                                        <span class="leading-relaxed">
+                                            <strong class="text-white">Student Solemn Declaration:</strong> I hereby declare that these application details are filled personally by me. I accept academic responsibility for missed coursework and practicals, and acknowledge that only student-submitted requests are processed.
+                                        </span>
+                                    </label>
+                                </div>
 
-                            <div>
-                                <label class="text-[10px] font-semibold text-slate-400 uppercase">Reason / Subject Details *</label>
-                                <textarea id="leave-reason" rows="2" placeholder="State your specific reason for leave or on-duty request..." required class="w-full mt-1 bg-slate-900 border border-slate-700/80 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500"></textarea>
-                            </div>
-
-                            <button type="submit" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
-                                <span>📄 Generate Official Letter</span>
-                            </button>
-                        </form>
-
-                        <!-- Generated Letter Modal / Card -->
-                        <div id="leave-preview-container" class="hidden space-y-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Official Letter Preview</span>
-                                <div class="flex items-center gap-2">
-                                    <button id="btn-copy-leave" type="button" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer border border-slate-700 transition">
-                                        📋 Copy
+                                <div class="flex flex-col sm:flex-row gap-2 pt-1">
+                                    <button type="submit" id="btn-submit-leave-app" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                                        <span>📨 Submit Application (Route to Class Teacher & HOD)</span>
                                     </button>
-                                    <button id="btn-print-leave" type="button" class="text-[11px] px-2.5 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer transition">
-                                        🖨️ Print / PDF
+                                    <button type="button" id="btn-quick-preview-letter" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition cursor-pointer border border-slate-700">
+                                        <span>👁️ Preview Letter</span>
                                     </button>
                                 </div>
+                            </form>
+
+                            <!-- Generated Letter Modal / Card -->
+                            <div id="leave-preview-container" class="hidden space-y-3 pt-3 border-t border-slate-800">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Official Application Preview</span>
+                                    <div class="flex items-center gap-2">
+                                        <button id="btn-copy-leave" type="button" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer border border-slate-700 transition">
+                                            📋 Copy
+                                        </button>
+                                        <button id="btn-print-leave" type="button" class="text-[11px] px-2.5 py-1 rounded bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer transition">
+                                            🖨️ Print / PDF
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="leave-letter-text" class="formal-letter-preview p-4 text-xs text-slate-200 max-h-[220px] overflow-y-auto whitespace-pre-wrap select-text font-mono">
+                                </div>
                             </div>
-                            <div id="leave-letter-text" class="formal-letter-preview p-4 text-xs text-slate-200 max-h-[220px] overflow-y-auto whitespace-pre-wrap select-text">
+                        </div>
+
+                        <!-- Right: Student Leave History & Real-Time Tracking Desk (5 cols) -->
+                        <div class="lg:col-span-5 hub-card p-5 sm:p-6 space-y-4">
+                            <div class="border-b border-slate-800/80 pb-3 flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>📋</span>
+                                        <span>My Applications & Live Status</span>
+                                    </h3>
+                                    <p class="text-[11px] text-slate-400">Track recommendation and final HOD sanction in real-time</p>
+                                </div>
+                                <button type="button" id="btn-refresh-student-leaves" class="text-[11px] p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition" title="Refresh Applications">
+                                    🔄
+                                </button>
+                            </div>
+
+                            <!-- Live Filter Tabs -->
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] font-semibold">
+                                <button type="button" class="leave-filter-btn px-2.5 py-1 rounded-lg bg-sky-500/15 text-sky-400 border border-sky-400/30 active" data-filter="all">All</button>
+                                <button type="button" class="leave-filter-btn px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-filter="pending_teacher">Teacher ⏳</button>
+                                <button type="button" class="leave-filter-btn px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-filter="forwarded_to_hod">HOD 🏛️</button>
+                                <button type="button" class="leave-filter-btn px-2.5 py-1 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800" data-filter="approved_by_hod">Sanctioned 🛡️</button>
+                            </div>
+
+                            <!-- Applications List -->
+                            <div id="student-leaves-list" class="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+                                <div class="text-center py-10 text-slate-500 text-xs italic">
+                                    No leave applications submitted yet.<br>Fill out the form on the left to submit an official request.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -937,23 +1054,45 @@
                     </div>
                 </div>
 
-                <!-- SUB-PANEL 4: NOTES & EXAM ANALYZER -->
+                <!-- SUB-PANEL 4: HIGH-EFFICIENCY ACADEMIC NOTES & EXAM ANALYZER -->
                 <div id="hub-panel-analyzer" class="space-y-6 hidden">
                     <div class="hub-card p-5 sm:p-6 space-y-4">
-                        <div class="border-b border-slate-800/80 pb-3">
-                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                <span>📝</span>
-                                <span>Academic Notes, Syllabus & Question Paper Analyzer</span>
-                            </h3>
-                            <p class="text-[11px] text-slate-400">Paste syllabus topics, lecture notes, or past questions to synthesize exam summaries, quizzes, or Telugu translations instantly</p>
+                        <div class="border-b border-slate-800/80 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>🧠</span>
+                                    <span>High-Efficiency Academic Notes & Question Paper Analyzer</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">High-yield study tool: Instant (<30ms) local extraction + hybrid Gemini AI grounding for rapid exam revision</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 w-fit">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>Zero-Latency NLP Turbo Engine</span>
+                            </span>
+                        </div>
+
+                        <!-- 1-Click High-Yield Preset Modules -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">⚡ 1-Click High-Yield Engineering Presets:</label>
+                                <span class="text-[10px] text-slate-500">Click to instantly load syllabus topic</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button type="button" class="btn-preset-topic text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-850 text-slate-300 hover:text-white transition cursor-pointer" data-preset="dsa">🌲 Binary Search Trees & AVL (DSA)</button>
+                                <button type="button" class="btn-preset-topic text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-850 text-slate-300 hover:text-white transition cursor-pointer" data-preset="os">⚡ CPU Scheduling & Deadlocks (OS)</button>
+                                <button type="button" class="btn-preset-topic text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-850 text-slate-300 hover:text-white transition cursor-pointer" data-preset="cn">🌐 TCP/IP 5-Layer Stack (CN)</button>
+                                <button type="button" class="btn-preset-topic text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-850 text-slate-300 hover:text-white transition cursor-pointer" data-preset="ai">🧠 Neural Nets & Backprop (AI)</button>
+                                <button type="button" class="btn-preset-topic text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-850 text-slate-300 hover:text-white transition cursor-pointer" data-preset="dbms">💾 B+ Trees & 3NF Normalization (DBMS)</button>
+                                <button type="button" class="btn-preset-topic text-[11px] font-medium px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-850 text-slate-300 hover:text-white transition cursor-pointer" data-preset="micro">⚙️ 8086 Microprocessor (ECE)</button>
+                            </div>
                         </div>
 
                         <div>
-                            <textarea id="analyzer-input-text" rows="5" placeholder="Paste your academic text, complex concept, or exam question paper content here..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20"></textarea>
+                            <textarea id="analyzer-input-text" rows="5" placeholder="Paste your academic text, lecture notes, complex derivation, or previous exam question paper content here..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl p-3.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20"></textarea>
                         </div>
 
-                        <!-- 4 Action Buttons -->
-                        <div class="flex flex-wrap items-center gap-2.5">
+                        <!-- 5 High-Efficiency Action Buttons -->
+                        <div class="flex flex-wrap items-center gap-2">
                             <button type="button" id="btn-analyzer-summary" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
                                 <span>💡</span> 3-Minute Exam Summary
                             </button>
@@ -961,7 +1100,10 @@
                                 <span>🎯</span> 5 Probable Exam Questions
                             </button>
                             <button type="button" id="btn-analyzer-elif" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
-                                <span>🧠</span> Explain Like I'm 5 (ELIF)
+                                <span>🧠</span> ELIF (Intuitive Analogy)
+                            </button>
+                            <button type="button" id="btn-analyzer-formulas" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
+                                <span>📐</span> Formulas & Cheat Sheet
                             </button>
                             <button type="button" id="btn-analyzer-telugu" class="text-xs font-semibold py-2 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white cursor-pointer transition shadow flex items-center gap-1.5">
                                 <span>🇮🇳</span> తెలుగు సారాంశం (Telugu)
@@ -974,12 +1116,20 @@
                         <!-- Analysis Output Card -->
                         <div id="analyzer-output-container" class="hidden space-y-3 pt-3 border-t border-slate-800/80">
                             <div class="flex items-center justify-between">
-                                <span id="analyzer-output-title" class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Analysis Result</span>
-                                <button type="button" id="btn-copy-analyzer" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer border border-slate-700 transition">
-                                    📋 Copy Result
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    <span id="analyzer-output-title" class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Analysis Result</span>
+                                    <span id="analyzer-latency-tag" class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Instant NLP (&lt;30ms)</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" id="btn-copy-analyzer" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer border border-slate-700 transition">
+                                        📋 Copy Result
+                                    </button>
+                                    <button type="button" id="btn-download-analyzer" class="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer border border-slate-700 transition">
+                                        📥 Save Notes
+                                    </button>
+                                </div>
                             </div>
-                            <div id="analyzer-output-content" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-200 leading-relaxed max-h-[350px] overflow-y-auto whitespace-pre-wrap select-text">
+                            <div id="analyzer-output-content" class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-200 leading-relaxed max-h-[380px] overflow-y-auto select-text font-sans">
                             </div>
                         </div>
                     </div>
@@ -1101,6 +1251,27 @@
                                     <span class="font-bold text-cyan-400">📧 Direct Redressal Email:</span>
                                     <p class="text-slate-400 text-[11px] font-mono">grievance@khitguntur.ac.in • Principal Office: Ext. 101</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Grievance Ticket Status Tracker Widget -->
+                        <div class="lg:col-span-12 hub-card p-4 sm:p-5 space-y-3 bg-slate-950/70 border border-slate-800">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                        <span>🔍</span>
+                                        <span>Track Grievance & Redressal Status</span>
+                                    </h4>
+                                    <p class="text-[11px] text-slate-400">Enter your grievance token (e.g. GRV-2026-XXXX) to check live redressal action and notes from your Class In-Charge & HOD.</p>
+                                </div>
+                                <div class="flex items-center gap-2 w-full sm:w-80">
+                                    <input type="text" id="input-track-grievance" placeholder="GRV-2026-..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white uppercase font-mono placeholder:text-slate-500 focus:outline-none focus:border-cyan-500">
+                                    <button type="button" id="btn-track-grievance" class="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold cursor-pointer transition whitespace-nowrap">
+                                        Track Status
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="grievance-track-result" class="hidden p-3.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs space-y-2">
                             </div>
                         </div>
                     </div>
@@ -1406,6 +1577,97 @@
                     </div>
                 </div>
 
+                <!-- Faculty & Authority Role Management Card (Google Account RBAC) -->
+                <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                    <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+                    
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                        <div>
+                            <h2 class="text-lg md:text-xl font-bold text-white uppercase flex items-center gap-2.5">
+                                <span>Faculty & Authority Role Management</span>
+                                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 font-bold">Google Auth RBAC</span>
+                            </h2>
+                            <p class="text-xs text-slate-300 font-medium mt-0.5">Assign Class Teacher or HOD administration privileges to Google accounts. Faculty logging in with these emails automatically gain portal access.</p>
+                        </div>
+                    </div>
+
+                    <!-- Role Assignment Form -->
+                    <form id="form-faculty-role" class="space-y-3.5 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Google Account Email *</label>
+                                <input type="email" id="input-faculty-email" placeholder="e.g. teacher@khit.edu.in" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Faculty Name & Title *</label>
+                                <input type="text" id="input-faculty-name" placeholder="e.g. Dr. G. J. Sunny Deol" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Assigned Role *</label>
+                                <select id="select-faculty-role" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
+                                    <option value="teacher">👨‍🏫 Class Teacher Admin</option>
+                                    <option value="hod">🏛️ Head of Department (HOD)</option>
+                                    <option value="admin">🛡️ System Super Admin</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Department / Section *</label>
+                                <select id="select-faculty-dept" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
+                                    <option value="CSE-A">CSE - Section A</option>
+                                    <option value="CSE-B">CSE - Section B</option>
+                                    <option value="CSE-C">CSE - Section C</option>
+                                    <option value="CSE">CSE Department (All)</option>
+                                    <option value="AIDS">AI & Data Science (AIDS)</option>
+                                    <option value="ECE">Electronics & Communication (ECE)</option>
+                                    <option value="EEE">Electrical & Electronics (EEE)</option>
+                                    <option value="MECH">Mechanical Engineering</option>
+                                    <option value="CIVIL">Civil Engineering</option>
+                                    <option value="DIPLOMA">Diploma - CME (Polytechnic)</option>
+                                    <option value="CAMPUS">All Institutional Campus</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+                            <button type="submit" id="btn-assign-faculty-role" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                                <span>➕ Grant Role Access</span>
+                            </button>
+                            <!-- Live Sandbox Switcher for Fast Testing -->
+                            <div class="flex items-center gap-1.5 text-[10px]">
+                                <span class="text-slate-400 font-medium">Quick Preview Sandbox:</span>
+                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-semibold cursor-pointer" data-role="student">Student</button>
+                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-semibold cursor-pointer" data-role="teacher">Teacher</button>
+                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-purple-400 border border-slate-700 font-semibold cursor-pointer" data-role="hod">HOD</button>
+                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-semibold cursor-pointer" data-role="admin">Admin</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Active Faculty Roster Table -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Authorized Faculty & Authority Roster</span>
+                            <span id="faculty-roles-count" class="text-[10px] text-slate-400">Loading directory...</span>
+                        </div>
+                        <div class="overflow-x-auto w-full border border-slate-800 rounded-xl bg-slate-950/60">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-800 bg-slate-950 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                        <th class="p-3">Google Email</th>
+                                        <th class="p-3">Faculty Name</th>
+                                        <th class="p-3">Role</th>
+                                        <th class="p-3">Department / Section</th>
+                                        <th class="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="faculty-roles-list" class="divide-y divide-slate-800/80 font-grotesk text-slate-200">
+                                    <!-- Injected dynamically by app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Publish Bulletin Card -->
                 <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
                     <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#38bdf8] to-transparent"></div>
@@ -1599,6 +1861,245 @@
 
                 </div>
             </div>
+
+            <!-- Class Teacher Admin Workspace Section -->
+            <div id="teacher-workspace" class="flex-1 h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] overflow-y-auto hidden w-full">
+                <div class="w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col items-center justify-start gap-6 pb-36">
+                    <!-- Header -->
+                    <div class="w-full space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                            <div>
+                                <div class="flex items-center gap-2.5">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                                        Faculty In-Charge Console
+                                    </span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                </div>
+                                <h1 class="text-xl md:text-2xl font-bold text-white uppercase mt-1 tracking-tight">Class Teacher Administration Portal</h1>
+                                <p class="text-xs text-slate-300 font-medium">Verify student attendance eligibility, review leave & OD requests, and recommend to HOD for final sanction.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-400 font-medium">Class Section:</span>
+                                <select id="teacher-section-filter" class="bg-slate-900 border border-slate-700 text-xs text-emerald-300 font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:border-emerald-500">
+                                    <option value="ALL">All Sections</option>
+                                    <option value="CSE-A">CSE - Section A</option>
+                                    <option value="CSE-B">CSE - Section B</option>
+                                    <option value="CSE-C">CSE - Section C</option>
+                                    <option value="AIDS">AI & Data Science</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="DIPLOMA">Diploma CME</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 4 Stat Cards -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 font-grotesk">
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Pending My Review</span>
+                                    <span class="text-xs">⏳</span>
+                                </div>
+                                <div>
+                                    <span id="stat-teacher-pending" class="text-2xl font-extrabold text-amber-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Awaiting Verification</p>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Forwarded to HOD</span>
+                                    <span class="text-xs">↗️</span>
+                                </div>
+                                <div>
+                                    <span id="stat-teacher-forwarded" class="text-2xl font-extrabold text-sky-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Recommended</p>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Officially Approved</span>
+                                    <span class="text-xs">🛡️</span>
+                                </div>
+                                <div>
+                                    <span id="stat-teacher-approved" class="text-2xl font-extrabold text-emerald-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">HOD Sanctioned</p>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Class Grievances</span>
+                                    <span class="text-xs">🎫</span>
+                                </div>
+                                <div>
+                                    <span id="stat-teacher-grievances" class="text-2xl font-extrabold text-purple-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Active Tickets</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Verification & Action Desk -->
+                    <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                        <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-white uppercase flex items-center gap-2">
+                                    <span>📝</span>
+                                    <span>Class Leave Verification & Recommendation Desk</span>
+                                </h2>
+                                <p class="text-xs text-slate-300 font-medium mt-0.5">Review student leave requests, check attendance threshold (≥75%), and endorse for HOD approval.</p>
+                            </div>
+                            <button type="button" id="btn-refresh-teacher-desk" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                                <span>🔄 Refresh Desk</span>
+                            </button>
+                        </div>
+
+                        <!-- Pending Leaves List -->
+                        <div id="teacher-leaves-container" class="space-y-4">
+                            <!-- Injected dynamically by app.js -->
+                            <div class="text-center py-12 text-slate-500 text-xs italic">
+                                Loading leave requests for your section...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Class Grievances Desk -->
+                    <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                        <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-white uppercase flex items-center gap-2">
+                                    <span>🎫</span>
+                                    <span>Section Grievances & Student Support Desk</span>
+                                </h2>
+                                <p class="text-xs text-slate-300 font-medium mt-0.5">Review student grievance issues, resolve academic queries, or escalate to HOD.</p>
+                            </div>
+                        </div>
+                        <div id="teacher-grievances-container" class="space-y-3">
+                            <!-- Injected dynamically by app.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HOD Admin Workspace Section -->
+            <div id="hod-workspace" class="flex-1 h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] overflow-y-auto hidden w-full">
+                <div class="w-full max-w-5xl mx-auto p-4 md:p-6 flex flex-col items-center justify-start gap-6 pb-36">
+                    <!-- HOD Header -->
+                    <div class="w-full space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                            <div>
+                                <div class="flex items-center gap-2.5">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-400/30 text-[10px] font-bold uppercase tracking-widest text-purple-400">
+                                        Executive Sanctioning Authority
+                                    </span>
+                                    <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                                </div>
+                                <h1 class="text-xl md:text-2xl font-bold text-white uppercase mt-1 tracking-tight">HOD Official Sanction Console</h1>
+                                <p class="text-xs text-slate-300 font-medium">Head of Department Office: Grant official digital sanction orders, institutional seals, and resolve departmental escalations.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-400 font-medium">Department:</span>
+                                <select id="hod-dept-filter" class="bg-slate-900 border border-slate-700 text-xs text-purple-300 font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:border-purple-500">
+                                    <option value="ALL">All Departments</option>
+                                    <option value="CSE">CSE (Dr. G. J. Sunny Deol)</option>
+                                    <option value="AIDS">AI & Data Science</option>
+                                    <option value="ECE">ECE</option>
+                                    <option value="DIPLOMA">Diploma (Dr. D. Venkata Rao)</option>
+                                    <option value="EEE">EEE</option>
+                                    <option value="MECH">MECH</option>
+                                    <option value="CIVIL">CIVIL</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 4 Stat Cards -->
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 font-grotesk">
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Awaiting HOD Sanction</span>
+                                    <span class="text-xs">🏛️</span>
+                                </div>
+                                <div>
+                                    <span id="stat-hod-pending" class="text-2xl font-extrabold text-purple-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Endorsed by Teachers</p>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Officially Sanctioned</span>
+                                    <span class="text-xs">🛡️</span>
+                                </div>
+                                <div>
+                                    <span id="stat-hod-sanctioned" class="text-2xl font-extrabold text-emerald-400">0</span>
+                                    <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">Digital Seal Issued</p>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Sanction Rejected</span>
+                                    <span class="text-xs">❌</span>
+                                </div>
+                                <div>
+                                    <span id="stat-hod-rejected" class="text-2xl font-extrabold text-rose-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Declined / Attendance</p>
+                                </div>
+                            </div>
+                            <div class="p-4 rounded-xl border border-slate-800 bg-slate-950/60 flex flex-col justify-between space-y-2 framer-neon-card">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] uppercase font-bold text-slate-300 tracking-wider">Grievance Cell</span>
+                                    <span class="text-xs">⚖️</span>
+                                </div>
+                                <div>
+                                    <span id="stat-hod-grievances" class="text-2xl font-extrabold text-sky-400">0</span>
+                                    <p class="text-[10px] text-slate-400 font-medium mt-0.5">Escalated Tickets</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HOD Official Sanction Desk -->
+                    <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                        <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-white uppercase flex items-center gap-2">
+                                    <span>🛡️</span>
+                                    <span>Official Leave Sanction & Institutional Seal Desk</span>
+                                </h2>
+                                <p class="text-xs text-slate-300 font-medium mt-0.5">Grant executive authorization with KHIT digital verification code and institutional approval seal.</p>
+                            </div>
+                            <button type="button" id="btn-refresh-hod-desk" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5 cursor-pointer">
+                                <span>🔄 Refresh Desk</span>
+                            </button>
+                        </div>
+
+                        <!-- Applications Awaiting HOD Sanction -->
+                        <div id="hod-leaves-container" class="space-y-4">
+                            <!-- Injected dynamically by app.js -->
+                            <div class="text-center py-12 text-slate-500 text-xs italic">
+                                Loading applications awaiting HOD sanction...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Department Grievance Redressal Cell -->
+                    <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                        <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+                        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h2 class="text-lg font-bold text-white uppercase flex items-center gap-2">
+                                    <span>🏛️</span>
+                                    <span>Department Grievance Redressal Cell</span>
+                                </h2>
+                                <p class="text-xs text-slate-300 font-medium mt-0.5">High-priority student issues escalated to the Department Head & Redressal Committee.</p>
+                            </div>
+                        </div>
+                        <div id="hod-grievances-container" class="space-y-3">
+                            <!-- Injected dynamically by app.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -1723,7 +2224,25 @@
         </div>
     </div>
 
+    <!-- Official Leave Sanction Order Modal Dialog -->
+    <div id="leave-order-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl relative text-slate-100 my-8">
+            <button id="btn-close-leave-modal" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-white text-base cursor-pointer">✕</button>
+            <div id="leave-order-modal-content" class="space-y-4">
+                <!-- Injected dynamically by app.js -->
+            </div>
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                <button id="btn-print-order-modal" type="button" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs cursor-pointer transition flex items-center gap-2">
+                    <span>🖨️ Print Sanction Order</span>
+                </button>
+                <button id="btn-close-order-modal-bottom" type="button" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs cursor-pointer transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Script -->
-    <script type="module" src="app.js?v=3.8.0"></script>
+    <script type="module" src="app.js?v=4.0.0"></script>
 </body>
 </html>
