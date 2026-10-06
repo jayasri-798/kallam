@@ -1155,4 +1155,414 @@ html, body {
     border-left: 3px solid #38bdf8 !important;
 }
 
+/* ==========================================================================
+   LIGHT MODE DESIGN SYSTEM (.light-theme & [data-theme="light"])
+   Enterprise Academic Precision Palette for High Legibility & Clarity
+   ========================================================================== */
+
+html.light-theme,
+body.light-theme,
+[data-theme="light"] {
+    --bg-primary: #f8fafc !important;
+    --bg-surface: #ffffff !important;
+    --bg-card: rgba(255, 255, 255, 0.94) !important;
+    --glass-bg: rgba(255, 255, 255, 0.9) !important;
+    --glass-border: rgba(0, 0, 0, 0.08) !important;
+    --border-subtle: rgba(0, 0, 0, 0.08) !important;
+    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    color-scheme: light !important;
+}
+
+/* Ambient Blobs in Light Theme */
+.light-theme .ambient-blob {
+    opacity: 0.12 !important;
+    mix-blend-mode: multiply !important;
+}
+.light-theme .blob-purple {
+    background: radial-gradient(circle, #c7d2fe, #bfdbfe) !important;
+}
+.light-theme .blob-cyan {
+    background: radial-gradient(circle, #bae6fd, #e0f2fe) !important;
+}
+.light-theme .blob-pink {
+    background: radial-gradient(circle, #ddd6fe, #e2e8f0) !important;
+}
+
+/* Layout Framework in Light Theme */
+.light-theme #app-container,
+.light-theme main {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+/* Header & Top Bar */
+.light-theme header {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.03) !important;
+}
+.light-theme header h2 {
+    color: #0f172a !important;
+}
+
+/* Left Sidebar in Light Theme */
+.light-theme #sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0 !important;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02) !important;
+}
+.light-theme #sidebar .border-b,
+.light-theme #sidebar .border-t {
+    border-color: #e2e8f0 !important;
+}
+.light-theme #sidebar h2 {
+    color: #475569 !important;
+}
+.light-theme #sidebar .bg-slate-950\/40 {
+    background-color: #f8fafc !important;
+}
+
+/* Framer Pill Buttons */
+.light-theme .framer-pill-button {
+    background: rgba(241, 245, 249, 0.95) !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+.light-theme .framer-pill-button:hover {
+    background: #ffffff !important;
+    border-color: #0284c7 !important;
+    color: #0284c7 !important;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12) !important;
+}
+.light-theme .framer-pill-active {
+    background: #0284c7 !important;
+    border-color: #0284c7 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(2, 132, 199, 0.25) !important;
+}
+.light-theme .framer-pill-active svg {
+    color: #ffffff !important;
+}
+
+/* Cards & Surface Containers */
+.light-theme .framer-neon-card,
+.light-theme .hub-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+}
+.light-theme .framer-neon-card:hover,
+.light-theme .hub-card:hover {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 10px 25px -3px rgba(2, 132, 199, 0.08), 0 4px 10px -2px rgba(2, 132, 199, 0.04) !important;
+}
+
+.light-theme .suggestion-card,
+.light-theme .circular-item {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #1e293b !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+.light-theme .suggestion-card:hover,
+.light-theme .circular-item:hover {
+    background: #f0f9ff !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.1) !important;
+}
+
+/* Background Adapters for Tailwind Utility Classes */
+.light-theme .bg-slate-900,
+.light-theme .bg-slate-900\/90,
+.light-theme .bg-slate-900\/80,
+.light-theme .bg-slate-900\/70,
+.light-theme .bg-slate-900\/60,
+.light-theme .bg-slate-900\/50,
+.light-theme .bg-slate-900\/40 {
+    background-color: #ffffff !important;
+}
+
+.light-theme .bg-slate-950,
+.light-theme .bg-slate-950\/90,
+.light-theme .bg-slate-950\/80,
+.light-theme .bg-slate-950\/70,
+.light-theme .bg-slate-950\/60,
+.light-theme .bg-slate-950\/50,
+.light-theme .bg-slate-950\/40,
+.light-theme .bg-slate-950\/30 {
+    background-color: #f8fafc !important;
+}
+
+.light-theme .bg-slate-800,
+.light-theme .bg-slate-800\/80,
+.light-theme .bg-slate-800\/60,
+.light-theme .bg-slate-850 {
+    background-color: #f1f5f9 !important;
+}
+
+.light-theme [class*="bg-[#040404]"] {
+    background-color: #ffffff !important;
+}
+.light-theme [class*="bg-[#07090e]"] {
+    background-color: #f8fafc !important;
+}
+.light-theme [class*="bg-[#0d111a]"] {
+    background-color: #ffffff !important;
+}
+.light-theme [class*="bg-[#161f33]"],
+.light-theme .message-bubble.flex-row-reverse {
+    background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+    color: #ffffff !important;
+}
+.light-theme [class*="bg-[#161f33]"] *,
+.light-theme .message-bubble.flex-row-reverse * {
+    color: #ffffff !important;
+}
+
+/* Border Adapters */
+.light-theme .border-slate-900,
+.light-theme .border-slate-800,
+.light-theme .border-slate-850,
+.light-theme .border-slate-700,
+.light-theme .border-slate-900\/90,
+.light-theme .border-slate-900\/80,
+.light-theme .border-slate-800\/80,
+.light-theme .border-slate-800\/60,
+.light-theme .border-slate-700\/80 {
+    border-color: #e2e8f0 !important;
+}
+
+/* Text Hierarchy in Light Theme */
+.light-theme .text-white,
+.light-theme .text-slate-100,
+.light-theme .text-slate-200 {
+    color: #0f172a !important;
+}
+
+.light-theme .text-slate-300,
+.light-theme .text-slate-400 {
+    color: #334155 !important;
+}
+
+.light-theme .text-slate-500 {
+    color: #64748b !important;
+}
+
+/* High-Contrast Color Accents for Light Mode */
+.light-theme .text-cyan-400 {
+    color: #0284c7 !important;
+}
+.light-theme .text-sky-400 {
+    color: #0369a1 !important;
+}
+.light-theme .text-indigo-400 {
+    color: #4f46e5 !important;
+}
+.light-theme .text-emerald-400 {
+    color: #059669 !important;
+}
+.light-theme .text-purple-400 {
+    color: #7c3aed !important;
+}
+.light-theme .text-amber-400 {
+    color: #b45309 !important;
+}
+.light-theme .text-rose-400 {
+    color: #e11d48 !important;
+}
+
+/* Inputs, Textareas, and Dropdown Selects */
+.light-theme input,
+.light-theme textarea,
+.light-theme select {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+.light-theme input::placeholder,
+.light-theme textarea::placeholder {
+    color: #94a3b8 !important;
+}
+.light-theme input:focus,
+.light-theme textarea:focus,
+.light-theme select:focus {
+    border-color: #0284c7 !important;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15) !important;
+}
+
+/* Chat Input Bar & Messaging Workspace */
+.light-theme #chat-container {
+    background-color: #f8fafc !important;
+}
+.light-theme #chat-input-container {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Chat Bubble Distinctions */
+.light-theme .message-bubble {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+.light-theme .message-bubble p,
+.light-theme .message-bubble li,
+.light-theme .message-bubble span {
+    color: #1e293b !important;
+}
+
+/* Hub Subtabs */
+.light-theme .hub-subtab {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+.light-theme .hub-subtab:hover {
+    background: #f0f9ff !important;
+    color: #0284c7 !important;
+    border-color: #bae6fd !important;
+}
+.light-theme .hub-subtab.active {
+    background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* Formal Application Letter Parchment Preview */
+.light-theme .formal-letter-preview {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Tables in Light Mode */
+.light-theme table thead {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+.light-theme table thead th {
+    color: #475569 !important;
+}
+.light-theme table tbody tr {
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+.light-theme table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+.light-theme table tbody td {
+    color: #1e293b !important;
+}
+
+/* Calendar Grid in Light Mode */
+.light-theme .calendar-grid {
+    background-color: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+.light-theme .calendar-day-cell {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+}
+.light-theme .calendar-day-cell:hover {
+    background: #f0f9ff !important;
+    border-color: #38bdf8 !important;
+}
+.light-theme .calendar-day-cell.calendar-day-active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+}
+.light-theme .calendar-day-cell.calendar-day-active * {
+    color: #ffffff !important;
+}
+
+/* Login Screen in Light Mode */
+.light-theme #login-screen {
+    background-color: rgba(248, 250, 252, 0.98) !important;
+}
+.light-theme #login-screen h1 {
+    color: #0f172a !important;
+}
+.light-theme #login-screen .framer-neon-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
+}
+.light-theme #btn-login {
+    background: #0f172a !important;
+    color: #ffffff !important;
+}
+.light-theme #btn-login:hover {
+    background: #1e293b !important;
+}
+
+/* Modal Windows in Light Mode */
+.light-theme #leave-order-modal {
+    background-color: rgba(15, 23, 42, 0.45) !important;
+}
+.light-theme #leave-order-modal > div {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Institutional Digital Seals in Light Mode */
+.light-theme .khit-digital-seal {
+    border-color: #059669 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+    color: #065f46 !important;
+}
+.light-theme .khit-digital-seal.seal-pending {
+    border-color: #d97706 !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+    color: #92400e !important;
+}
+.light-theme .khit-digital-seal.seal-forwarded {
+    border-color: #0284c7 !important;
+    background: rgba(2, 132, 199, 0.08) !important;
+    color: #0369a1 !important;
+}
+.light-theme .khit-digital-seal.seal-rejected {
+    border-color: #e11d48 !important;
+    background: rgba(225, 29, 72, 0.08) !important;
+    color: #9f1239 !important;
+}
+
+/* Leave Step Indicators in Light Mode */
+.light-theme .leave-step-active {
+    border-color: #0284c7 !important;
+    background: rgba(2, 132, 199, 0.1) !important;
+    color: #0369a1 !important;
+}
+.light-theme .leave-step-done {
+    border-color: #059669 !important;
+    background: rgba(5, 150, 105, 0.1) !important;
+    color: #065f46 !important;
+}
+.light-theme .leave-step-pending {
+    border-color: #cbd5e1 !important;
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+}
+
+/* Animated gradient text in light mode */
+.light-theme .animated-gradient-text {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #475569 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Universal Smooth Transition for theme changes */
+body, main, header, #sidebar, .hub-card, .framer-neon-card, .framer-pill-button, input, select, textarea, .circular-item, .suggestion-card {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease !important;
+}
+
 

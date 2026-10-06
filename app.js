@@ -439,6 +439,80 @@ function initializeApplication() {
         requestCount: 0
     };
 
+    // ==========================================
+    // THEME MANAGEMENT ENGINE (Dark / Light Mode)
+    // ==========================================
+    let btnThemeToggle, btnLoginThemeToggle;
+    try { btnThemeToggle = document.getElementById("btn-theme-toggle"); } catch(e) {}
+    try { btnLoginThemeToggle = document.getElementById("btn-login-theme-toggle"); } catch(e) {}
+
+    function getCurrentTheme() {
+        try {
+            const saved = localStorage.getItem("khit_pulse_theme");
+            if (saved === "light" || saved === "dark") return saved;
+        } catch(e) {}
+        return (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+    }
+
+    function applyTheme(themeName, showNotification = false) {
+        const isLight = (themeName === "light");
+        if (isLight) {
+            document.documentElement.classList.add("light-theme");
+            document.body.classList.add("light-theme");
+            document.documentElement.setAttribute("data-theme", "light");
+        } else {
+            document.documentElement.classList.remove("light-theme");
+            document.body.classList.remove("light-theme");
+            document.documentElement.setAttribute("data-theme", "dark");
+        }
+
+        try {
+            localStorage.setItem("khit_pulse_theme", isLight ? "light" : "dark");
+        } catch(e) {}
+
+        // Update all toggle button icons & labels across DOM
+        const themeIcons = document.querySelectorAll(".theme-icon");
+        const themeTexts = document.querySelectorAll(".theme-text");
+        themeIcons.forEach(icon => {
+            icon.textContent = isLight ? "☀️" : "🌙";
+        });
+        themeTexts.forEach(txt => {
+            txt.textContent = isLight ? "Light" : "Dark";
+        });
+
+        if (showNotification && typeof showToast === "function") {
+            showToast(isLight ? "Switched to Light Mode ☀️" : "Switched to Dark Mode 🌙");
+        }
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.classList.contains("light-theme") ? "light" : "dark";
+        const nextTheme = (current === "light") ? "dark" : "light";
+        applyTheme(nextTheme, true);
+    }
+
+    // Apply active theme immediately
+    applyTheme(getCurrentTheme(), false);
+
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener("click", toggleTheme);
+    }
+    if (btnLoginThemeToggle) {
+        btnLoginThemeToggle.addEventListener("click", toggleTheme);
+    }
+
+    // Listen to OS preference changes if no manual override
+    if (window.matchMedia) {
+        try {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+                const saved = localStorage.getItem("khit_pulse_theme");
+                if (!saved) {
+                    applyTheme(e.matches ? "dark" : "light", false);
+                }
+            });
+        } catch(e) {}
+    }
+
     function applyGuardrails(inputText) {
         if (!inputText) return "";
         let sanitized = inputText
