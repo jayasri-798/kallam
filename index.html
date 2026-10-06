@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=4.1.0">
+    <link rel="stylesheet" href="styles.css?v=4.2.0">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -48,6 +48,11 @@
                 transform: translateX(-100%) !important;
                 transition: transform 0.3s ease-in-out !important;
                 display: flex !important;
+            }
+            .light-theme #sidebar {
+                background-color: rgba(255, 255, 255, 0.98) !important;
+                border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.08) !important;
             }
             #sidebar.sidebar-open {
                 transform: translateX(0) !important;
@@ -160,7 +165,7 @@
             </div>
 
             <!-- User profile status footer -->
-            <div class="p-4 border-t border-slate-900/80 flex items-center gap-3 bg-slate-950/40">
+            <div id="sidebar-user-footer" class="p-4 border-t border-slate-900/80 flex items-center gap-3 bg-slate-950/40">
                 <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-[11px] font-bold text-white shadow-md" id="user-avatar-initial">
                     U
                 </div>
@@ -361,7 +366,7 @@
                 </div>
 
                 <!-- Bottom Floating Input Console -->
-                <footer class="p-6 bg-gradient-to-t from-[#07090e] via-[#07090e]/95 to-transparent shrink-0">
+                <footer id="chat-input-footer" class="p-6 chat-input-footer shrink-0">
                     <div class="max-w-3xl mx-auto">
                         <!-- Text transcription overlay status -->
                         <div id="interim-overlay" class="text-xs text-sky-400 font-medium italic mb-2 pl-6 transition duration-200 min-h-4"></div>
@@ -2256,6 +2261,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=4.1.0"></script>
+    <script type="module" src="app.js?v=4.2.0"></script>
 </body>
 </html>

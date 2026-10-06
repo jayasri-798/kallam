@@ -1155,6 +1155,13 @@ html, body {
     border-left: 3px solid #38bdf8 !important;
 }
 
+/* Bottom Floating Input Console (Default Dark Theme) */
+#chat-input-footer,
+footer.chat-input-footer {
+    background: linear-gradient(to top, #07090e 0%, rgba(7, 9, 14, 0.95) 75%, rgba(7, 9, 14, 0) 100%);
+    background-image: linear-gradient(to top, #07090e 0%, rgba(7, 9, 14, 0.95) 75%, rgba(7, 9, 14, 0) 100%);
+}
+
 /* ==========================================================================
    LIGHT MODE DESIGN SYSTEM (.light-theme & [data-theme="light"])
    Enterprise Academic Precision Palette for High Legibility & Clarity
@@ -1393,14 +1400,154 @@ body.light-theme,
     box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15) !important;
 }
 
-/* Chat Input Bar & Messaging Workspace */
+/* Chat Input Bar & Messaging Workspace in Light Theme */
 .light-theme #chat-container {
     background-color: #f8fafc !important;
 }
-.light-theme #chat-input-container {
+
+.light-theme #chat-input-footer,
+.light-theme footer.chat-input-footer,
+.light-theme footer {
+    background: linear-gradient(to top, #f8fafc 0%, rgba(248, 250, 252, 0.96) 75%, rgba(248, 250, 252, 0) 100%) !important;
+    background-image: linear-gradient(to top, #f8fafc 0%, rgba(248, 250, 252, 0.96) 75%, rgba(248, 250, 252, 0) 100%) !important;
+}
+
+.light-theme #query-form {
     background-color: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.light-theme #query-form:focus-within {
+    border-color: #0284c7 !important;
+    box-shadow: 0 4px 20px -2px rgba(2, 132, 199, 0.15), 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+.light-theme #input-query {
+    color: #0f172a !important;
+    background-color: transparent !important;
+}
+
+.light-theme #input-query::placeholder {
+    color: #94a3b8 !important;
+}
+
+.light-theme #btn-voice-mode {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.light-theme #btn-voice-mode:hover {
+    background-color: #f0f9ff !important;
+    border-color: #0284c7 !important;
+    color: #0284c7 !important;
+}
+
+.light-theme #chat-input-footer .text-slate-400,
+.light-theme #chat-input-footer .text-slate-500 {
+    color: #64748b !important;
+}
+
+/* Left Sidebar Bottom Profile in Light Mode */
+.light-theme #sidebar-user-footer {
+    background-color: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+}
+
+.light-theme #sidebar-user-footer #user-display-name {
+    color: #0f172a !important;
+}
+
+.light-theme #sidebar-user-footer #user-display-email,
+.light-theme #sidebar-user-footer #btn-logout {
+    color: #64748b !important;
+}
+
+.light-theme #sidebar-user-footer #btn-logout:hover {
+    color: #ef4444 !important;
+}
+
+/* Welcome View in Light Mode */
+.light-theme #welcome-view h2 {
+    color: #0f172a !important;
+}
+
+.light-theme #welcome-view h2 span {
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 50%, #4f46e5 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+.light-theme #welcome-view p {
+    color: #475569 !important;
+}
+
+.light-theme .suggestion-card h3 {
+    color: #0f172a !important;
+}
+
+.light-theme .suggestion-card p {
+    color: #64748b !important;
+}
+
+/* Voice Mode Overlay in Light Theme */
+.light-theme #voice-overlay {
+    background-color: rgba(248, 250, 252, 0.98) !important;
+    color: #0f172a !important;
+}
+
+.light-theme #voice-overlay h2 {
+    color: #0f172a !important;
+}
+
+.light-theme #btn-close-voice {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme #btn-close-voice:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+.light-theme .voice-transcript-panel {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+}
+
+.light-theme .voice-transcript-panel .bg-slate-950\/60,
+.light-theme .voice-transcript-panel .bg-slate-950\/40 {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+.light-theme #voice-overlay-captions {
+    color: #0f172a !important;
+}
+
+.light-theme #voice-status-indicator {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+.light-theme #sel-voice-lang,
+.light-theme #btn-voice-mute {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+.light-theme #sel-voice-lang:hover,
+.light-theme #btn-voice-mute:hover {
+    background: #f8fafc !important;
+    color: #0284c7 !important;
 }
 
 /* Chat Bubble Distinctions */
