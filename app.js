@@ -62,20 +62,6 @@ function initializeApplication() {
 
     console.log("Firebase Cloud Stream initialized manually within DOMContentLoaded.");
 
-    // Handle redirect result diagnostic catch
-    getRedirectResult(auth)
-        .then((result) => {
-            if (result) {
-                console.log("Redirect sign-in successful. User:", result.user.email);
-            }
-        })
-        .catch((error) => {
-            console.error("Redirect sign-in error details:", error);
-            if (loginError) {
-                loginError.textContent = `Redirect sign-in failed: ${error.message}`;
-                loginError.classList.remove("hidden");
-            }
-        });
     // UI Elements wrapped in try-catch to prevent freezes
     let loginScreen;
     try { loginScreen = document.getElementById("login-screen"); } catch (e) { console.warn("Selector error 'login-screen':", e); }
@@ -102,6 +88,21 @@ function initializeApplication() {
     
     let userDisplayEmail;
     try { userDisplayEmail = document.getElementById("user-display-email"); } catch (e) { console.warn("Selector error 'user-display-email':", e); }
+
+    // Handle redirect result diagnostic catch
+    getRedirectResult(auth)
+        .then((result) => {
+            if (result) {
+                console.log("Redirect sign-in successful. User:", result.user.email);
+            }
+        })
+        .catch((error) => {
+            console.error("Redirect sign-in error details:", error);
+            if (loginError) {
+                loginError.textContent = `Redirect sign-in failed: ${error.message}`;
+                loginError.classList.remove("hidden");
+            }
+        });
     
     let sidebar;
     try { sidebar = document.getElementById("sidebar"); } catch (e) { console.warn("Selector error 'sidebar':", e); }
@@ -366,6 +367,12 @@ function initializeApplication() {
     try { btnRefreshHodDesk = document.getElementById("btn-refresh-hod-desk"); } catch(e) {}
     try { hodLeavesContainer = document.getElementById("hod-leaves-container"); } catch(e) {}
     try { hodGrievancesContainer = document.getElementById("hod-grievances-container"); } catch(e) {}
+
+    // Desk Rendering Functions (Hoisted to initializeApplication scope)
+    let renderTeacherLeaveDesk = () => {};
+    let renderTeacherGrievanceDesk = () => {};
+    let renderHodLeaveDesk = () => {};
+    let renderHodGrievanceDesk = () => {};
 
     // Faculty Role Management & HOD/Teacher Setup Elements
     let formFacultyRole, inputFacultyEmail, inputFacultyName, selectFacultyRole, selectFacultyDept, btnAssignFacultyRole, facultyRolesCount, facultyRolesList;
@@ -1203,11 +1210,54 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         btnLogin.addEventListener("click", async () => {
             console.log("Google Auth Clicked");
             setLoginBtnLoading(true);
+            if (loginError) loginError.classList.add("hidden");
             try {
                 console.log("Popup Attempted");
                 await signInWithPopup(auth, provider);
             } catch (err) {
                 console.warn("signInWithPopup failed, triggering defensive redirect pipeline:", err);
+
+                // If user deliberately closed/cancelled the popup, do not redirect
+                if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+                    console.info("Sign-in popup closed or cancelled by user.");
+                    setLoginBtnLoading(false);
+                    return;
+                }
+
+                // If domain is unauthorized in Firebase console
+                if (err.code === "auth/unauthorized-domain") {
+                    console.warn("Unauthorized domain for Firebase Auth:", window.location.hostname);
+                    if (loginError) {
+                        loginError.innerHTML = `
+                            <div class="space-y-1">
+                                <div class="font-bold text-amber-300">⚠️ Domain Whitelist Notice</div>
+                                <div class="text-[11px] text-slate-300">Domain <code>${window.location.hostname}</code> is not yet whitelisted in Firebase Console.</div>
+                                <div class="text-[11px] text-cyan-300 font-medium pt-1">👉 Click <strong>"Continue as Student (Instant Access)"</strong> or choose any role below to enter immediately!</div>
+                            </div>
+                        `;
+                        loginError.classList.remove("hidden");
+                    }
+                    setLoginBtnLoading(false);
+                    return;
+                }
+
+                // If popup was blocked
+                if (err.code === "auth/popup-blocked") {
+                    console.warn("Popup blocked by browser.");
+                    if (loginError) {
+                        loginError.innerHTML = `
+                            <div class="space-y-1">
+                                <div class="font-bold text-amber-300">⚠️ Browser Blocked Popup</div>
+                                <div class="text-[11px] text-slate-300">Please allow popups for this site, or click <strong>Instant Access</strong> below.</div>
+                            </div>
+                        `;
+                        loginError.classList.remove("hidden");
+                    }
+                    setLoginBtnLoading(false);
+                    return;
+                }
+
+                // Fallback redirect pipeline
                 console.log("Redirect Triggered");
                 try {
                     // Clear authentication state cache
@@ -1220,11 +1270,23 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                 } catch (redirectErr) {
                     console.error("Redirect login failed:", redirectErr);
                     if (loginError) {
-                        loginError.textContent = `Sign-in failed: ${redirectErr.message}`;
+                        loginError.innerHTML = `
+                            <div class="space-y-1">
+                                <div class="font-bold text-rose-400">Sign-in failed: ${redirectErr.message}</div>
+                                <div class="text-[11px] text-cyan-300">👉 Use <strong>Continue as Student (Instant Access)</strong> below to enter without Google account.</div>
+                            </div>
+                        `;
                         loginError.classList.remove("hidden");
                     }
                     setLoginBtnLoading(false);
                 }
+            } finally {
+                // Defensive timeout safeguard to ensure button never stays permanently disabled
+                setTimeout(() => {
+                    if (loginScreen && !loginScreen.classList.contains("hidden")) {
+                        setLoginBtnLoading(false);
+                    }
+                }, 3000);
             }
         });
     }
@@ -1240,6 +1302,10 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                 await signInWithPopup(auth, appleProvider);
             } catch (err) {
                 console.warn("Apple signInWithPopup encounter:", err);
+                if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+                    setAppleLoginBtnLoading(false);
+                    return;
+                }
                 // If Apple Provider is not yet enabled in Firebase Console project:
                 if (err.code === "auth/operation-not-allowed" || err.code === "auth/configuration-not-found") {
                     console.info("Apple Sign-In provider not yet activated in Firebase project console. Providing seamless Apple Academic Scholar profile.");
@@ -1253,6 +1319,7 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                     chatHistory = [];
                     setupUserUI(currentUserDetails);
                     showDashboard();
+                    switchWorkspace("hub");
                     subscribeToCirculars();
                     setAppleLoginBtnLoading(false);
                     return;
@@ -1273,19 +1340,26 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                     }
                     setAppleLoginBtnLoading(false);
                 }
+            } finally {
+                setTimeout(() => {
+                    if (loginScreen && !loginScreen.classList.contains("hidden")) {
+                        setAppleLoginBtnLoading(false);
+                    }
+                }, 3000);
             }
         });
     }
 
-    // 2.5. Campus Guest login click handler - instant local transition
+    // 2.5. Campus Guest / Instant Student login click handler - local instant transition
     if (btnGuestLogin) {
         btnGuestLogin.addEventListener("click", () => {
-            console.log("Guest Login Triggered - local instant bypass");
+            console.log("Guest / Instant Student Login Triggered");
+            if (loginError) loginError.classList.add("hidden");
             
             currentUserDetails = {
-                uid: "guest_user_id",
-                displayName: "Academic Guest",
-                email: "guest@khit.edu.in",
+                uid: "guest_student_" + Date.now(),
+                displayName: "Academic Student",
+                email: "student@khit.edu.in",
                 photoURL: ""
             };
             currentUserDetails.accountRole = "student";
@@ -1293,7 +1367,9 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             
             setupUserUI(currentUserDetails);
             showDashboard();
+            switchWorkspace("hub");
             subscribeToCirculars(); // Listen to DB or fall back to local templates
+            showToast("Welcome to KHIT-Pulse! (Student Access) 🎓");
             
             // Fetch Gemini API Key in the background
             try {
@@ -1314,6 +1390,77 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             }
         });
     }
+
+    // 2.6. Direct 1-Click Role Testing Selectors on Login Screen
+    const quickRoleButtons = document.querySelectorAll(".btn-login-quick-role");
+    quickRoleButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const role = btn.getAttribute("data-role") || "student";
+            console.log("Login screen quick role selected:", role);
+            if (loginError) loginError.classList.add("hidden");
+
+            if (role === "teacher") {
+                currentUserDetails = {
+                    uid: "teacher_user_" + Date.now(),
+                    displayName: "Prof. K. Ramesh (Faculty)",
+                    email: "ramesh.cse@khit.edu.in",
+                    photoURL: "",
+                    accountRole: "teacher",
+                    facultyName: "Prof. K. Ramesh",
+                    facultyDept: "Computer Science & Engineering"
+                };
+            } else if (role === "hod") {
+                currentUserDetails = {
+                    uid: "hod_user_" + Date.now(),
+                    displayName: "Dr. K. Venkata Rao (HOD)",
+                    email: "hod.cse@khit.edu.in",
+                    photoURL: "",
+                    accountRole: "hod",
+                    facultyName: "Dr. K. Venkata Rao",
+                    facultyDept: "Computer Science & Engineering"
+                };
+            } else if (role === "admin") {
+                currentUserDetails = {
+                    uid: "admin_user_" + Date.now(),
+                    displayName: "System Administrator",
+                    email: "admin@khit.edu.in",
+                    photoURL: "",
+                    accountRole: "admin"
+                };
+            } else {
+                currentUserDetails = {
+                    uid: "student_user_" + Date.now(),
+                    displayName: "Academic Student",
+                    email: "student@khit.edu.in",
+                    photoURL: "",
+                    accountRole: "student"
+                };
+            }
+
+            chatHistory = [];
+            setupUserUI(currentUserDetails);
+            showDashboard();
+            if (role === "teacher") switchWorkspace("teacher");
+            else if (role === "hod") switchWorkspace("hod");
+            else if (role === "admin") switchWorkspace("admin");
+            else switchWorkspace("hub");
+            subscribeToCirculars();
+            showToast(`Logged into ${role.toUpperCase()} Workspace 🚀`);
+
+            // Fetch Gemini API Key in the background
+            try {
+                const configDocRef = doc(db, "config", "gemini");
+                getDoc(configDocRef).then(configSnap => {
+                    if (configSnap.exists()) {
+                        const dbKey = configSnap.data().apiKey;
+                        if (dbKey) {
+                            geminiApiKey = dbKey;
+                        }
+                    }
+                }).catch(e => console.warn(e));
+            } catch (e) {}
+        });
+    });
 
     // 3. Logout action
     if (btnLogout) {
@@ -3647,21 +3794,23 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             if (teacherWorkspace) teacherWorkspace.classList.remove("hidden");
             if (btnTeacherToggle) btnTeacherToggle.classList.add("framer-pill-active");
             if (btnClearChat) btnClearChat.classList.add("hidden");
-            renderTeacherLeaveDesk();
-            renderTeacherGrievanceDesk();
+            if (typeof initCampusHubSuite === "function") initCampusHubSuite();
+            if (typeof renderTeacherLeaveDesk === "function") renderTeacherLeaveDesk();
+            if (typeof renderTeacherGrievanceDesk === "function") renderTeacherGrievanceDesk();
         } else if (target === "hod") {
             if (hodWorkspace) hodWorkspace.classList.remove("hidden");
             if (btnHodToggle) btnHodToggle.classList.add("framer-pill-active");
             if (btnClearChat) btnClearChat.classList.add("hidden");
-            renderHodLeaveDesk();
-            renderHodGrievanceDesk();
+            if (typeof initCampusHubSuite === "function") initCampusHubSuite();
+            if (typeof renderHodLeaveDesk === "function") renderHodLeaveDesk();
+            if (typeof renderHodGrievanceDesk === "function") renderHodGrievanceDesk();
         } else if (target === "admin") {
             if (adminWorkspace) adminWorkspace.classList.remove("hidden");
             if (btnAdminToggle) btnAdminToggle.classList.add("framer-pill-active");
             if (btnClearChat) btnClearChat.classList.add("hidden");
-            renderFacultyRolesList(currentFacultyRoleFilter);
-            renderHodSetupGrid();
-            renderTeacherSetupGrid();
+            if (typeof renderFacultyRolesList === "function") renderFacultyRolesList(currentFacultyRoleFilter);
+            if (typeof renderHodSetupGrid === "function") renderHodSetupGrid();
+            if (typeof renderTeacherSetupGrid === "function") renderTeacherSetupGrid();
         }
     }
 
@@ -5116,6 +5265,9 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
                     sgpaResultCard.classList.remove("hidden");
                     sgpaResultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
                 }
+            });
+        }
+
         // Cumulative CGPA Estimator Calculation Engine
         if (btnCalculateCgpa) {
             btnCalculateCgpa.addEventListener("click", () => {
@@ -5749,7 +5901,7 @@ KHIT Guntur`;
         // ==========================================
         // 3.1. CLASS TEACHER ADMIN PORTAL DESK
         // ==========================================
-        function renderTeacherLeaveDesk() {
+        renderTeacherLeaveDesk = function() {
             if (!teacherLeavesContainer) return;
             const leaves = getStoredLeaves();
             const filterSec = teacherSectionFilter ? teacherSectionFilter.value : "ALL";
@@ -5875,7 +6027,7 @@ KHIT Guntur`;
             });
         }
 
-        function renderTeacherGrievanceDesk() {
+        renderTeacherGrievanceDesk = function() {
             if (!teacherGrievancesContainer) return;
             teacherGrievancesContainer.innerHTML = `
                 <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
@@ -5892,12 +6044,12 @@ KHIT Guntur`;
                     </div>
                 </div>
             `;
-        }
+        };
 
         // ==========================================
         // 3.2. HOD ADMIN SANCTION CONSOLE DESK
         // ==========================================
-        function renderHodLeaveDesk() {
+        renderHodLeaveDesk = function() {
             if (!hodLeavesContainer) return;
             const leaves = getStoredLeaves();
             const filterDept = hodDeptFilter ? hodDeptFilter.value : "ALL";
@@ -6045,7 +6197,7 @@ KHIT Guntur`;
             });
         }
 
-        function renderHodGrievanceDesk() {
+        renderHodGrievanceDesk = function() {
             if (!hodGrievancesContainer) return;
             hodGrievancesContainer.innerHTML = `
                 <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">

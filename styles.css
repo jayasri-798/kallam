@@ -1648,6 +1648,21 @@ body.light-theme,
 .light-theme #btn-login:hover {
     background: #1e293b !important;
 }
+.light-theme .btn-login-quick-role {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+.light-theme .btn-login-quick-role:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+.light-theme .btn-login-quick-role span.text-slate-400 {
+    color: #64748b !important;
+}
+.light-theme #login-screen .border-slate-800 {
+    border-color: #e2e8f0 !important;
+}
 
 /* Modal Windows in Light Mode */
 .light-theme #leave-order-modal {

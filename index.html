@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=4.3.0">
+    <link rel="stylesheet" href="styles.css?v=4.3.1">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -121,8 +121,40 @@
             <div class="pt-2 space-y-3">
                 <button id="btn-login" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-semibold py-3.5 px-5 rounded-xl shadow-lg cursor-pointer hover:bg-slate-100 hover:scale-[1.01] transition duration-200 text-sm">
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google Logo">
-                    Sign in with Institutional Account
+                    <span>Sign in with Institutional Account</span>
                 </button>
+
+                <!-- Instant Access Student Bypass Button -->
+                <button id="btn-guest-login" type="button" class="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-5 rounded-xl shadow-md cursor-pointer hover:scale-[1.01] transition duration-200 text-sm">
+                    <span>🎓</span>
+                    <span>Continue as Student (Instant Access)</span>
+                </button>
+
+                <!-- Clean Divider for Role Testing Consoles -->
+                <div class="relative flex py-1.5 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-3 text-[10px] text-slate-400 font-semibold tracking-wider uppercase">or Instant Role Testing</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+
+                <!-- 1-Click Role Sandbox Grid -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" class="btn-login-quick-role flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 transition cursor-pointer" data-role="teacher" title="Login as Faculty / Class Teacher">
+                        <span class="text-base mb-1">👨‍🏫</span>
+                        <span class="text-[11px] font-semibold">Teacher</span>
+                        <span class="text-[9px] text-slate-400">Class Incharge</span>
+                    </button>
+                    <button type="button" class="btn-login-quick-role flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 transition cursor-pointer" data-role="hod" title="Login as Head of Department">
+                        <span class="text-base mb-1">🏛️</span>
+                        <span class="text-[11px] font-semibold">HOD</span>
+                        <span class="text-[9px] text-slate-400">Dept Head</span>
+                    </button>
+                    <button type="button" class="btn-login-quick-role flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 transition cursor-pointer" data-role="admin" title="Login as System Administrator">
+                        <span class="text-base mb-1">🛡️</span>
+                        <span class="text-[11px] font-semibold">Admin</span>
+                        <span class="text-[9px] text-slate-400">Console</span>
+                    </button>
+                </div>
             </div>
             
             <p id="login-error" class="text-rose-400 text-xs mt-4 hidden bg-rose-950/30 border border-rose-900/30 p-3 rounded-xl"></p>
@@ -2485,6 +2517,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=4.3.0"></script>
+    <script type="module" src="app.js?v=4.3.1"></script>
 </body>
 </html>
