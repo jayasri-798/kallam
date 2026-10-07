@@ -861,40 +861,78 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         let resolvedName = null;
         let resolvedDept = null;
 
-        // 1. Direct Firestore faculty_roles document check
         if (db) {
-            try {
-                const roleDocRef = doc(db, "faculty_roles", docId);
-                const roleSnap = await getDoc(roleDocRef);
-                if (roleSnap.exists()) {
-                    const data = roleSnap.data();
-                    if (data && data.role) {
-                        resolvedRole = data.role;
-                        resolvedName = data.name;
-                        resolvedDept = data.dept;
-                        console.log("Resolved role directly from Firestore faculty_roles:", resolvedRole, data);
-                    }
-                }
-            } catch (err) {
-                console.warn("Firestore faculty_roles lookup warning:", err);
-            }
-
-            // 2. Direct Firestore users document check if uid provided
-            if (!resolvedRole && uid) {
+            // Priority 1: Direct Firestore users/{uid} document lookup (Matches user's Cloud Firestore screenshot: users/{uid} -> accountRole)
+            if (uid) {
                 try {
                     const userDocRef = doc(db, "users", uid);
                     const userSnap = await getDoc(userDocRef);
                     if (userSnap.exists()) {
                         const uData = userSnap.data();
-                        if (uData.accountRole && uData.accountRole !== "student") {
-                            resolvedRole = uData.accountRole;
+                        if (uData.accountRole) {
+                            resolvedRole = String(uData.accountRole).toLowerCase().trim();
                             resolvedName = uData.name || uData.displayName;
                             resolvedDept = uData.facultyDept || "";
-                            console.log("Resolved role directly from Firestore users collection:", resolvedRole);
+                            console.log(`[Firestore DB Verified] User UID '${uid}' assigned role: '${resolvedRole}'`);
                         }
                     }
                 } catch (err) {
-                    console.warn("Firestore users collection lookup warning:", err);
+                    console.warn("Firestore users/{uid} lookup warning:", err);
+                }
+            }
+
+            // Priority 2: Query Firestore users collection by email (For official email sign-in where UID is determined by email)
+            if (!resolvedRole && email) {
+                try {
+                    const usersRef = collection(db, "users");
+                    const q = query(usersRef, where("email", "==", email));
+                    const qSnap = await getDocs(q);
+                    if (!qSnap.empty) {
+                        const docData = qSnap.docs[0].data();
+                        if (docData.accountRole) {
+                            resolvedRole = String(docData.accountRole).toLowerCase().trim();
+                            resolvedName = docData.name || docData.displayName;
+                            resolvedDept = docData.facultyDept || "";
+                            console.log(`[Firestore DB Verified] Email '${email}' resolved from users query -> role: '${resolvedRole}'`);
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Firestore users collection email query warning:", err);
+                }
+            }
+
+            // Priority 3: Check Firestore users collection by docId or email directly
+            if (!resolvedRole && email) {
+                try {
+                    const emailDocRef = doc(db, "users", docId);
+                    const emailSnap = await getDoc(emailDocRef);
+                    if (emailSnap.exists()) {
+                        const uData = emailSnap.data();
+                        if (uData.accountRole) {
+                            resolvedRole = String(uData.accountRole).toLowerCase().trim();
+                            resolvedName = uData.name || uData.displayName;
+                            resolvedDept = uData.facultyDept || "";
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // Priority 4: Direct Firestore faculty_roles document lookup
+            if (!resolvedRole && email) {
+                try {
+                    const roleDocRef = doc(db, "faculty_roles", docId);
+                    const roleSnap = await getDoc(roleDocRef);
+                    if (roleSnap.exists()) {
+                        const data = roleSnap.data();
+                        if (data && data.role) {
+                            resolvedRole = String(data.role).toLowerCase().trim();
+                            resolvedName = data.name;
+                            resolvedDept = data.dept;
+                            console.log(`[Firestore DB Verified] Email '${email}' resolved from faculty_roles -> role: '${resolvedRole}'`);
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Firestore faculty_roles lookup warning:", err);
                 }
             }
         }
@@ -1813,18 +1851,21 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             if (adminWorkspace) adminWorkspace.classList.add("hidden");
         }
 
-        // Quick Role Switcher Pill in Top Header:
-        // Only visible for super admin so users cannot spoof or bypass their database-locked role
-        if (roleSwitcherContainer) {
-            if (isSuperAdmin) {
-                roleSwitcherContainer.classList.remove("hidden");
+        // Update Read-Only Institutional Role Badge (Locked from Database, Non-Clickable)
+        const roleBadgeContainer = document.getElementById("role-badge-container");
+        if (roleBadgeContainer) {
+            if (role === "hod") {
+                roleBadgeContainer.className = "inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 shadow-sm";
+            } else if (role === "teacher") {
+                roleBadgeContainer.className = "inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-sm";
+            } else if (role === "admin") {
+                roleBadgeContainer.className = "inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 shadow-sm";
             } else {
-                roleSwitcherContainer.classList.add("hidden");
+                roleBadgeContainer.className = "inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 shadow-sm";
             }
         }
-
         if (roleSwitcherLabel) {
-            roleSwitcherLabel.textContent = role.toUpperCase();
+            roleSwitcherLabel.textContent = role === "hod" ? "HOD" : (role === "teacher" ? "FACULTY" : (role === "admin" ? "ADMIN" : "STUDENT"));
         }
         if (roleSwitcherIcon) {
             if (role === "teacher") roleSwitcherIcon.textContent = "👨‍🏫";

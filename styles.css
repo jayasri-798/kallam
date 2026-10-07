@@ -1686,6 +1686,14 @@ body.light-theme,
 .light-theme #btn-profile-logout:hover {
     background-color: #ffe4e6 !important;
 }
+.light-theme #role-badge-container {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+.light-theme #role-badge-container #role-switcher-label {
+    color: #1e293b !important;
+}
 
 /* Modal Windows in Light Mode */
 .light-theme #leave-order-modal {
