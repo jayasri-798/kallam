@@ -367,8 +367,9 @@ function initializeApplication() {
     try { hodLeavesContainer = document.getElementById("hod-leaves-container"); } catch(e) {}
     try { hodGrievancesContainer = document.getElementById("hod-grievances-container"); } catch(e) {}
 
-    // Faculty Role Management Elements
+    // Faculty Role Management & HOD/Teacher Setup Elements
     let formFacultyRole, inputFacultyEmail, inputFacultyName, selectFacultyRole, selectFacultyDept, btnAssignFacultyRole, facultyRolesCount, facultyRolesList;
+    let hodDepartmentsGrid, teacherSectionsGrid, btnRoleSwitcher, roleSwitcherMenu, roleSwitcherLabel, roleSwitcherIcon;
     try { formFacultyRole = document.getElementById("form-faculty-role"); } catch(e) {}
     try { inputFacultyEmail = document.getElementById("input-faculty-email"); } catch(e) {}
     try { inputFacultyName = document.getElementById("input-faculty-name"); } catch(e) {}
@@ -377,6 +378,23 @@ function initializeApplication() {
     try { btnAssignFacultyRole = document.getElementById("btn-assign-faculty-role"); } catch(e) {}
     try { facultyRolesCount = document.getElementById("faculty-roles-count"); } catch(e) {}
     try { facultyRolesList = document.getElementById("faculty-roles-list"); } catch(e) {}
+    try { hodDepartmentsGrid = document.getElementById("hod-departments-grid"); } catch(e) {}
+    try { teacherSectionsGrid = document.getElementById("teacher-sections-grid"); } catch(e) {}
+    try { btnRoleSwitcher = document.getElementById("btn-role-switcher"); } catch(e) {}
+    try { roleSwitcherMenu = document.getElementById("role-switcher-menu"); } catch(e) {}
+    try { roleSwitcherLabel = document.getElementById("role-switcher-label"); } catch(e) {}
+    try { roleSwitcherIcon = document.getElementById("role-switcher-icon"); } catch(e) {}
+
+    // Academics Extension Elements (SGPA Branch/Sem, CGPA Estimator, Drives & Mess Tables)
+    let calcBranch, calcSemester, btnCalculateCgpa, btnResetCgpa, cgpaSummaryBadge;
+    let upcomingDrivesTable, hostelMessTable;
+    try { calcBranch = document.getElementById("calc-branch"); } catch(e) {}
+    try { calcSemester = document.getElementById("calc-semester"); } catch(e) {}
+    try { btnCalculateCgpa = document.getElementById("btn-calculate-cgpa"); } catch(e) {}
+    try { btnResetCgpa = document.getElementById("btn-reset-cgpa"); } catch(e) {}
+    try { cgpaSummaryBadge = document.getElementById("cgpa-summary-badge"); } catch(e) {}
+    try { upcomingDrivesTable = document.getElementById("upcoming-drives-table"); } catch(e) {}
+    try { hostelMessTable = document.getElementById("hostel-mess-table"); } catch(e) {}
 
     // Grievance Token Tracker Elements
     let inputTrackGrievance, btnTrackGrievance, grievanceTrackResult;
@@ -717,21 +735,37 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
     }
 
     // --- Faculty & Authority Role Management System (RBAC for Google Accounts) ---
+    const DEFAULT_FACULTY_ROLES = {
+        "hod.cse@khit.edu.in": { email: "hod.cse@khit.edu.in", name: "Dr. G. J. Sunny Deol", role: "hod", dept: "CSE" },
+        "hod.aids@khit.edu.in": { email: "hod.aids@khit.edu.in", name: "Dr. M. Sravani", role: "hod", dept: "AIDS" },
+        "hod.ece@khit.edu.in": { email: "hod.ece@khit.edu.in", name: "Dr. P. Krishna", role: "hod", dept: "ECE" },
+        "hod.eee@khit.edu.in": { email: "hod.eee@khit.edu.in", name: "Dr. K. Venkata Rao", role: "hod", dept: "EEE" },
+        "hod.mech@khit.edu.in": { email: "hod.mech@khit.edu.in", name: "Dr. S. B. Reddy", role: "hod", dept: "MECH" },
+        "hod.civil@khit.edu.in": { email: "hod.civil@khit.edu.in", name: "Dr. C. H. Mohan", role: "hod", dept: "CIVIL" },
+        "dean.diploma@khit.edu.in": { email: "dean.diploma@khit.edu.in", name: "Dr. D. Venkata Rao", role: "hod", dept: "DIPLOMA" },
+        "teacher.csea@khit.edu.in": { email: "teacher.csea@khit.edu.in", name: "Mrs. P. Radhika", role: "teacher", dept: "CSE-A" },
+        "teacher.cseb@khit.edu.in": { email: "teacher.cseb@khit.edu.in", name: "Mr. K. Srinivasa Rao", role: "teacher", dept: "CSE-B" },
+        "teacher.csec@khit.edu.in": { email: "teacher.csec@khit.edu.in", name: "Mr. Ch. Ravi Kumar", role: "teacher", dept: "CSE-C" },
+        "teacher.aids@khit.edu.in": { email: "teacher.aids@khit.edu.in", name: "Dr. M. Sravani", role: "teacher", dept: "AIDS" },
+        "teacher.ece@khit.edu.in": { email: "teacher.ece@khit.edu.in", name: "Mr. T. Naga Raju", role: "teacher", dept: "ECE" },
+        "teacher.diploma@khit.edu.in": { email: "teacher.diploma@khit.edu.in", name: "Mrs. V. Swapna", role: "teacher", dept: "DIPLOMA" },
+        "principal@khit.edu.in": { email: "principal@khit.edu.in", name: "Dr. B. S. B. Reddy", role: "admin", dept: "CAMPUS" }
+    };
+
     function getAssignedFacultyRoles() {
         let roles = {};
         try {
             const stored = localStorage.getItem("khit_faculty_roles");
             if (stored) roles = JSON.parse(stored);
         } catch(e) {}
-        if (Object.keys(roles).length === 0) {
-            roles = {
-                "hod.cse@khit.edu.in": { email: "hod.cse@khit.edu.in", name: "Dr. G. J. Sunny Deol", role: "hod", dept: "CSE" },
-                "dean.diploma@khit.edu.in": { email: "dean.diploma@khit.edu.in", name: "Dr. D. Venkata Rao", role: "hod", dept: "DIPLOMA" },
-                "teacher.csea@khit.edu.in": { email: "teacher.csea@khit.edu.in", name: "Mrs. P. Radhika", role: "teacher", dept: "CSE-A" },
-                "teacher.cseb@khit.edu.in": { email: "teacher.cseb@khit.edu.in", name: "Mr. K. Srinivasa Rao", role: "teacher", dept: "CSE-B" },
-                "teacher.csec@khit.edu.in": { email: "teacher.csec@khit.edu.in", name: "Mr. Ch. Ravi Kumar", role: "teacher", dept: "CSE-C" },
-                "principal@khit.edu.in": { email: "principal@khit.edu.in", name: "Dr. B. S. B. Reddy", role: "admin", dept: "CAMPUS" }
-            };
+        let updated = false;
+        Object.entries(DEFAULT_FACULTY_ROLES).forEach(([k, v]) => {
+            if (!roles[k]) {
+                roles[k] = v;
+                updated = true;
+            }
+        });
+        if (updated) {
             try { localStorage.setItem("khit_faculty_roles", JSON.stringify(roles)); } catch(e) {}
         }
         return roles;
@@ -756,7 +790,7 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         }
     }
 
-    async function saveAssignedFacultyRole(email, name, role, dept) {
+    async function saveAssignedFacultyRole(email, role, name, dept) {
         if (!email) return;
         const key = email.toLowerCase().trim();
         const roleRecord = { email: key, name: name || "Faculty Member", role: role || "teacher", dept: dept || "CSE", updatedAt: new Date().toISOString() };
@@ -772,8 +806,11 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                 console.warn("Firestore role write error:", e);
             }
         }
-        renderFacultyRolesList();
-        showToast(`Role '${role.toUpperCase()}' granted to ${key}! 🛡️`);
+        renderFacultyRolesList(currentFacultyRoleFilter);
+        renderHodSetupGrid();
+        renderTeacherSetupGrid();
+        updateLeaveFormAuthorities();
+        showToast(`Role '${(role || "teacher").toUpperCase()}' granted to ${key}! 🛡️`);
     }
 
     async function revokeAssignedFacultyRole(email) {
@@ -791,18 +828,29 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                 console.warn("Firestore role delete error:", e);
             }
         }
-        renderFacultyRolesList();
+        renderFacultyRolesList(currentFacultyRoleFilter);
+        renderHodSetupGrid();
+        renderTeacherSetupGrid();
+        updateLeaveFormAuthorities();
         showToast(`Access revoked for ${key}`);
     }
 
-    function renderFacultyRolesList() {
+    let currentFacultyRoleFilter = "all";
+
+    function renderFacultyRolesList(filter = "all") {
+        currentFacultyRoleFilter = filter;
         if (!facultyRolesList) return;
         const roles = getAssignedFacultyRoles();
-        const list = Object.values(roles);
+        let list = Object.values(roles);
+
+        if (filter !== "all") {
+            list = list.filter(r => r.role === filter);
+        }
+
         if (facultyRolesCount) facultyRolesCount.textContent = `${list.length} Authorized Accounts`;
 
         if (list.length === 0) {
-            facultyRolesList.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">No faculty accounts configured yet.</td></tr>`;
+            facultyRolesList.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">No faculty accounts configured for filter "${filter.toUpperCase()}".</td></tr>`;
             return;
         }
 
@@ -837,6 +885,181 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             }
             facultyRolesList.appendChild(tr);
         });
+    }
+
+    function renderHodSetupGrid() {
+        if (!hodDepartmentsGrid) return;
+        const roles = getAssignedFacultyRoles();
+        const depts = [
+            { code: "CSE", name: "Computer Science & Engineering", icon: "💻", fallbackName: "Dr. G. J. Sunny Deol", fallbackEmail: "hod.cse@khit.edu.in" },
+            { code: "AIDS", name: "AI & Data Science", icon: "🧠", fallbackName: "Dr. M. Sravani", fallbackEmail: "hod.aids@khit.edu.in" },
+            { code: "ECE", name: "Electronics & Communication", icon: "📡", fallbackName: "Dr. P. Krishna", fallbackEmail: "hod.ece@khit.edu.in" },
+            { code: "EEE", name: "Electrical & Electronics", icon: "⚡", fallbackName: "Dr. K. Venkata Rao", fallbackEmail: "hod.eee@khit.edu.in" },
+            { code: "MECH", name: "Mechanical Engineering", icon: "⚙️", fallbackName: "Dr. S. B. Reddy", fallbackEmail: "hod.mech@khit.edu.in" },
+            { code: "CIVIL", name: "Civil Engineering", icon: "🏗️", fallbackName: "Dr. C. H. Mohan", fallbackEmail: "hod.civil@khit.edu.in" },
+            { code: "DIPLOMA", name: "Polytechnic Diploma (CME)", icon: "🎓", fallbackName: "Dr. D. Venkata Rao", fallbackEmail: "dean.diploma@khit.edu.in" }
+        ];
+
+        hodDepartmentsGrid.innerHTML = "";
+        depts.forEach(d => {
+            const assigned = Object.values(roles).find(r => r.role === "hod" && (r.dept === d.code || (d.code === "DIPLOMA" && (r.dept || "").includes("DIPLOMA"))));
+            const hodName = assigned ? assigned.name : d.fallbackName;
+            const hodEmail = assigned ? assigned.email : d.fallbackEmail;
+
+            const card = document.createElement("div");
+            card.className = "p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5 hover:border-purple-500/40 transition flex flex-col justify-between";
+            card.innerHTML = `
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span>${d.icon}</span>
+                            <span>${d.code}</span>
+                        </span>
+                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">HOD SANCTION</span>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-200">${hodName}</div>
+                    <div class="text-[10px] font-mono text-cyan-400 truncate" title="${hodEmail}">${hodEmail}</div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1">
+                        <span class="text-emerald-400">🛡️</span>
+                        <span>Digital Seal Authorization</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pt-2 border-t border-slate-800/60">
+                    <button type="button" class="btn-test-hod flex-1 py-1 px-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 border border-purple-500/30 text-[10px] font-semibold cursor-pointer transition text-center" data-dept="${d.code}">
+                        🧪 Test as HOD
+                    </button>
+                    <button type="button" class="btn-edit-faculty py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-medium cursor-pointer transition" data-role="hod" data-dept="${d.code}" title="Edit / Change Assigned Google Account">
+                        ✏️ Edit
+                    </button>
+                </div>
+            `;
+
+            const testBtn = card.querySelector(".btn-test-hod");
+            if (testBtn) {
+                testBtn.addEventListener("click", () => {
+                    switchTestingRole("hod");
+                    if (hodDeptFilter) {
+                        hodDeptFilter.value = d.code;
+                    }
+                    renderHodLeaveDesk();
+                    showToast(`Logged in as HOD: ${hodName} (${d.code}) 🏛️`);
+                });
+            }
+
+            const editBtn = card.querySelector(".btn-edit-faculty");
+            if (editBtn) {
+                editBtn.addEventListener("click", () => {
+                    if (inputFacultyEmail) inputFacultyEmail.value = hodEmail;
+                    if (inputFacultyName) inputFacultyName.value = hodName;
+                    if (selectFacultyRole) selectFacultyRole.value = "hod";
+                    if (selectFacultyDept) selectFacultyDept.value = d.code;
+                    if (formFacultyRole) formFacultyRole.scrollIntoView({ behavior: "smooth" });
+                    if (inputFacultyEmail) inputFacultyEmail.focus();
+                });
+            }
+
+            hodDepartmentsGrid.appendChild(card);
+        });
+    }
+
+    function renderTeacherSetupGrid() {
+        if (!teacherSectionsGrid) return;
+        const roles = getAssignedFacultyRoles();
+        const sections = [
+            { code: "CSE-A", name: "CSE - Section A", icon: "👨‍🏫", fallbackName: "Mrs. P. Radhika", fallbackEmail: "teacher.csea@khit.edu.in" },
+            { code: "CSE-B", name: "CSE - Section B", icon: "👨‍🏫", fallbackName: "Mr. K. Srinivasa Rao", fallbackEmail: "teacher.cseb@khit.edu.in" },
+            { code: "CSE-C", name: "CSE - Section C", icon: "👨‍🏫", fallbackName: "Mr. Ch. Ravi Kumar", fallbackEmail: "teacher.csec@khit.edu.in" },
+            { code: "AIDS", name: "AI & Data Science", icon: "👩‍🏫", fallbackName: "Dr. M. Sravani", fallbackEmail: "teacher.aids@khit.edu.in" },
+            { code: "ECE", name: "ECE Section In-Charge", icon: "👨‍🏫", fallbackName: "Mr. T. Naga Raju", fallbackEmail: "teacher.ece@khit.edu.in" },
+            { code: "DIPLOMA", name: "Diploma CME Section", icon: "👩‍🏫", fallbackName: "Mrs. V. Swapna", fallbackEmail: "teacher.diploma@khit.edu.in" }
+        ];
+
+        teacherSectionsGrid.innerHTML = "";
+        sections.forEach(s => {
+            const assigned = Object.values(roles).find(r => r.role === "teacher" && (r.dept === s.code || (s.code === "DIPLOMA" && (r.dept || "").includes("DIPLOMA"))));
+            const teacherName = assigned ? assigned.name : s.fallbackName;
+            const teacherEmail = assigned ? assigned.email : s.fallbackEmail;
+
+            const card = document.createElement("div");
+            card.className = "p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5 hover:border-emerald-500/40 transition flex flex-col justify-between";
+            card.innerHTML = `
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span>${s.icon}</span>
+                            <span>${s.code}</span>
+                        </span>
+                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">CLASS TEACHER</span>
+                    </div>
+                    <div class="text-[11px] font-semibold text-slate-200">${teacherName}</div>
+                    <div class="text-[10px] font-mono text-cyan-400 truncate" title="${teacherEmail}">${teacherEmail}</div>
+                    <div class="text-[10px] text-slate-400 flex items-center gap-1">
+                        <span class="text-sky-400">📝</span>
+                        <span>Attendance & Recommendation</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pt-2 border-t border-slate-800/60">
+                    <button type="button" class="btn-test-teacher flex-1 py-1 px-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 border border-emerald-500/30 text-[10px] font-semibold cursor-pointer transition text-center" data-dept="${s.code}">
+                        🧪 Test as Teacher
+                    </button>
+                    <button type="button" class="btn-edit-faculty py-1 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-medium cursor-pointer transition" data-role="teacher" data-dept="${s.code}" title="Edit / Change Assigned Google Account">
+                        ✏️ Edit
+                    </button>
+                </div>
+            `;
+
+            const testBtn = card.querySelector(".btn-test-teacher");
+            if (testBtn) {
+                testBtn.addEventListener("click", () => {
+                    switchTestingRole("teacher");
+                    if (teacherSectionFilter) {
+                        teacherSectionFilter.value = s.code;
+                    }
+                    renderTeacherLeaveDesk();
+                    showToast(`Logged in as Class Teacher: ${teacherName} (${s.code}) 👨‍🏫`);
+                });
+            }
+
+            const editBtn = card.querySelector(".btn-edit-faculty");
+            if (editBtn) {
+                editBtn.addEventListener("click", () => {
+                    if (inputFacultyEmail) inputFacultyEmail.value = teacherEmail;
+                    if (inputFacultyName) inputFacultyName.value = teacherName;
+                    if (selectFacultyRole) selectFacultyRole.value = "teacher";
+                    if (selectFacultyDept) selectFacultyDept.value = s.code;
+                    if (formFacultyRole) formFacultyRole.scrollIntoView({ behavior: "smooth" });
+                    if (inputFacultyEmail) inputFacultyEmail.focus();
+                });
+            }
+
+            teacherSectionsGrid.appendChild(card);
+        });
+    }
+
+    function updateLeaveFormAuthorities() {
+        const roles = getAssignedFacultyRoles();
+        if (leaveClassTeacher) {
+            const teachers = Object.values(roles).filter(r => r.role === "teacher");
+            if (teachers.length > 0) {
+                const currentVal = leaveClassTeacher.value;
+                leaveClassTeacher.innerHTML = teachers.map(t => `<option value="${t.name} (${t.dept})">${t.name} - Class In-Charge (${t.dept})</option>`).join("") +
+                    `<option value="Class In-Charge">General Class Teacher / Section In-Charge</option>`;
+                if (currentVal && leaveClassTeacher.querySelector(`option[value="${currentVal}"]`)) {
+                    leaveClassTeacher.value = currentVal;
+                }
+            }
+        }
+        if (leaveAddressedTo) {
+            const hods = Object.values(roles).filter(r => r.role === "hod");
+            if (hods.length > 0) {
+                const currentVal = leaveAddressedTo.value;
+                leaveAddressedTo.innerHTML = hods.map(h => `<option value="HOD_${h.dept}">${h.name}, Head of Department - ${h.dept}</option>`).join("") +
+                    `<option value="DEAN_ACADEMICS">Dean of Academic Affairs</option><option value="PRINCIPAL">Dr. B. S. B. Reddy, Principal, KHIT</option>`;
+                if (currentVal && leaveAddressedTo.querySelector(`option[value="${currentVal}"]`)) {
+                    leaveAddressedTo.value = currentVal;
+                }
+            }
+        }
     }
 
     function switchTestingRole(newRole) {
@@ -1190,6 +1413,16 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             } else {
                 btnHodToggle.classList.add("hidden");
             }
+        }
+
+        if (roleSwitcherLabel) {
+            roleSwitcherLabel.textContent = role.toUpperCase();
+        }
+        if (roleSwitcherIcon) {
+            if (role === "teacher") roleSwitcherIcon.textContent = "👨‍🏫";
+            else if (role === "hod") roleSwitcherIcon.textContent = "🏛️";
+            else if (role === "admin") roleSwitcherIcon.textContent = "🛡️";
+            else roleSwitcherIcon.textContent = "🎓";
         }
 
         if (welcomeView) {
@@ -3426,7 +3659,9 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             if (adminWorkspace) adminWorkspace.classList.remove("hidden");
             if (btnAdminToggle) btnAdminToggle.classList.add("framer-pill-active");
             if (btnClearChat) btnClearChat.classList.add("hidden");
-            renderFacultyRolesList();
+            renderFacultyRolesList(currentFacultyRoleFilter);
+            renderHodSetupGrid();
+            renderTeacherSetupGrid();
         }
     }
 
@@ -4774,12 +5009,31 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
         function populateDefaultSgpaCourses() {
             if (!sgpaCoursesList) return;
             sgpaCoursesList.innerHTML = "";
-            renderCourseRow("Automata & Compiler Design", "3.0", "10");
-            renderCourseRow("Design & Analysis of Algorithms", "3.0", "9");
-            renderCourseRow("Computer Networks & Security", "3.0", "9");
-            renderCourseRow("Data Mining & Warehousing", "3.0", "8");
-            renderCourseRow("Compiler Design Practical Lab", "1.5", "10");
-            renderCourseRow("Data Mining Python Lab", "1.5", "10");
+            const branch = (calcBranch ? calcBranch.value : "CSE") || "CSE";
+            const sem = (calcSemester ? calcSemester.value : "3-1") || "3-1";
+
+            const branchCourses = KHIT_SYLLABUS_DATA[branch] || KHIT_SYLLABUS_DATA["CSE"];
+            const list = branchCourses[sem] || branchCourses["3-1"] || [];
+
+            if (list.length > 0) {
+                list.forEach(c => {
+                    renderCourseRow(c.title, c.credits || "3.0", "10");
+                });
+            } else {
+                renderCourseRow("Automata & Compiler Design", "3.0", "10");
+                renderCourseRow("Design & Analysis of Algorithms", "3.0", "9");
+                renderCourseRow("Computer Networks & Security", "3.0", "9");
+                renderCourseRow("Data Mining & Warehousing", "3.0", "8");
+                renderCourseRow("Compiler Design Practical Lab", "1.5", "10");
+                renderCourseRow("Data Mining Python Lab", "1.5", "10");
+            }
+        }
+
+        if (calcBranch) {
+            calcBranch.addEventListener("change", populateDefaultSgpaCourses);
+        }
+        if (calcSemester) {
+            calcSemester.addEventListener("change", populateDefaultSgpaCourses);
         }
 
         if (btnAddCourse) {
@@ -4862,6 +5116,39 @@ Ensure the output is ONLY a valid JSON object, without any markdown code blocks,
                     sgpaResultCard.classList.remove("hidden");
                     sgpaResultCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
                 }
+        // Cumulative CGPA Estimator Calculation Engine
+        if (btnCalculateCgpa) {
+            btnCalculateCgpa.addEventListener("click", () => {
+                const semInputs = document.querySelectorAll(".input-cgpa-sem");
+                let sum = 0;
+                let count = 0;
+                semInputs.forEach(inp => {
+                    const val = parseFloat(inp.value);
+                    if (!isNaN(val) && val > 0 && val <= 10) {
+                        sum += val;
+                        count++;
+                    }
+                });
+                if (count === 0) {
+                    showToast("Please enter at least one semester SGPA (between 1.0 and 10.0).");
+                    return;
+                }
+                const cgpa = (sum / count).toFixed(2);
+                const percentage = Math.max(0, ((parseFloat(cgpa) - 0.75) * 10)).toFixed(1);
+                if (cgpaSummaryBadge) {
+                    cgpaSummaryBadge.classList.remove("hidden");
+                    cgpaSummaryBadge.innerHTML = `<span>🎯 Estimated Cumulative CGPA: <strong class="text-white text-sm font-extrabold">${cgpa}</strong> (${percentage}% Equivalent over ${count} Semester${count > 1 ? 's' : ''})</span>`;
+                }
+                showToast(`Cumulative CGPA: ${cgpa} (${percentage}%) 📊`);
+            });
+        }
+
+        if (btnResetCgpa) {
+            btnResetCgpa.addEventListener("click", () => {
+                const semInputs = document.querySelectorAll(".input-cgpa-sem");
+                semInputs.forEach(inp => inp.value = "");
+                if (cgpaSummaryBadge) cgpaSummaryBadge.classList.add("hidden");
+                showToast("CGPA inputs cleared");
             });
         }
 
@@ -5876,6 +6163,75 @@ KHIT Guntur`;
             });
         }
 
+        const KHIT_UPCOMING_DRIVES = [
+            {
+                company: "Amazon Web Services (AWS)",
+                role: "Cloud Support / SDE (₹14.5 LPA)",
+                branches: "CSE, AIDS, ECE",
+                criteria: "7.5+ CGPA • Zero Active Backlogs",
+                date: "28 March 2026",
+                rounds: "DSA Online + 2 Tech + Bar Raiser"
+            },
+            {
+                company: "Tata Consultancy Services (TCS)",
+                role: "Digital & Prime (₹7.5 - 9.0 LPA)",
+                branches: "All B.Tech Branches",
+                criteria: "65%+ Aggregate",
+                date: "04 April 2026",
+                rounds: "TCS NQT + Technical + HR"
+            },
+            {
+                company: "Infosys Limited",
+                role: "Specialist Programmer (₹9.5 LPA)",
+                branches: "CSE, AIDS, IT",
+                criteria: "7.0+ CGPA",
+                date: "12 April 2026",
+                rounds: "InfyTQ Coding + Technical Panel"
+            },
+            {
+                company: "Cognizant Technology Solutions",
+                role: "GenC Elevate Developer (₹6.5 LPA)",
+                branches: "CSE, ECE, EEE, MECH, CIVIL",
+                criteria: "60% Throughout Academics",
+                date: "20 April 2026",
+                rounds: "AMCAT Aptitude + Tech + HR"
+            },
+            {
+                company: "Tech Mahindra",
+                role: "Software Engineer Trainee (₹4.2 LPA)",
+                branches: "All B.Tech & Diploma CME",
+                criteria: "60% Minimum",
+                date: "02 May 2026",
+                rounds: "Coding Round + Tech Interview"
+            },
+            {
+                company: "Capgemini Exceller",
+                role: "Senior Analyst (₹7.5 LPA)",
+                branches: "CSE, AIDS, ECE",
+                criteria: "65%+ Aggregate",
+                date: "15 May 2026",
+                rounds: "Pseudo-code + Coding + Technical"
+            }
+        ];
+
+        function renderUpcomingDrives() {
+            if (!upcomingDrivesTable) return;
+            upcomingDrivesTable.innerHTML = "";
+            KHIT_UPCOMING_DRIVES.forEach(drive => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-900/50 transition border-b border-slate-800/60";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white">${drive.company}</td>
+                    <td class="p-3 text-cyan-300 font-medium">${drive.role}</td>
+                    <td class="p-3 text-slate-300">${drive.branches}</td>
+                    <td class="p-3 text-amber-300 font-mono text-[11px]">${drive.criteria}</td>
+                    <td class="p-3 text-emerald-400 font-semibold">${drive.date}</td>
+                    <td class="p-3 text-right text-slate-400 text-[11px]">${drive.rounds}</td>
+                `;
+                upcomingDrivesTable.appendChild(tr);
+            });
+        }
+
         // Wire CRT prep quick launch buttons
         const crtButtons = document.querySelectorAll(".btn-crt-prep");
         crtButtons.forEach(btn => {
@@ -5946,6 +6302,33 @@ KHIT Guntur`;
         if (transitSearchInput) {
             transitSearchInput.addEventListener("input", (e) => {
                 renderTransitRoutes(e.target.value);
+            });
+        }
+
+        const KHIT_HOSTEL_MESS_MENU = [
+            { day: "Monday", breakfast: "Idli, Sambar, Coconut Chutney & Tea/Coffee", lunch: "Rice, Sambar, Cabbage Fry, Rasam, Fresh Curd, Appalam", snack: "Veg Puff & Special Tea", dinner: "Chapati, Dal Tadka, Veg Fried Rice, Raitha, Banana" },
+            { day: "Tuesday", breakfast: "Poori, Aloo Masala & Tea/Coffee", lunch: "Rice, Tomato Dal, Potato Vepudu, Rasam, Curd, Papad", snack: "Mirchi Bajji & Ginger Tea", dinner: "Rice, Egg Curry / Paneer Butter Masala, Rasam, Curd" },
+            { day: "Wednesday", breakfast: "Upma, Palli Chutney & Tea/Coffee", lunch: "Bagara Rice, Chicken Curry (Special) / Paneer Curry, Dal, Curd", snack: "Sweet Corn & Tea", dinner: "Chapati, Mixed Veg Curry, Rasam Rice, Fresh Curd" },
+            { day: "Thursday", breakfast: "Mysore Bonda, Allam Chutney & Tea/Coffee", lunch: "Rice, Dosakaya Pappu, Bendakaya Fry, Rasam, Curd, Appalam", snack: "Onion Samosa & Masala Tea", dinner: "Vegetable Biryani, Mirchi ka Salan, Raitha, Gulab Jamun" },
+            { day: "Friday", breakfast: "Dosa, Peanut Chutney, Sambar & Tea/Coffee", lunch: "Rice, Palak Dal, Aloo Fry, Rasam, Fresh Curd, Papad", snack: "Biscuits & Lemon Tea", dinner: "Chapati, Meal Maker Curry, Rasam Rice, Butter Milk" },
+            { day: "Saturday", breakfast: "Semiya Upma, Chutney & Tea/Coffee", lunch: "Lemon Rice, White Rice, Dal Tadka, Dondakaya Fry, Curd", snack: "Osmania Biscuits & Special Tea", dinner: "Phulka, Paneer Korma / Egg Bhurji, White Rice, Rasam" },
+            { day: "Sunday", breakfast: "Masala Dosa, Potato Palya, Chutney & Coffee", lunch: "Hyderabadi Chicken Dum Biryani (Special) / Shahi Paneer Biryani, Raitha, Sweet", snack: "Tea & Mixture", dinner: "Light Khichdi / Rice, Tomato Rasam, Curd, Fresh Fruit" }
+        ];
+
+        function renderHostelMessMenu() {
+            if (!hostelMessTable) return;
+            hostelMessTable.innerHTML = "";
+            KHIT_HOSTEL_MESS_MENU.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-900/50 transition border-b border-slate-800/60";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white whitespace-nowrap">${item.day}</td>
+                    <td class="p-3 text-slate-300 text-[11px]">${item.breakfast}</td>
+                    <td class="p-3 text-slate-300 text-[11px]">${item.lunch}</td>
+                    <td class="p-3 text-slate-300 text-[11px]">${item.snack}</td>
+                    <td class="p-3 text-slate-300 text-[11px]">${item.dinner}</td>
+                `;
+                hostelMessTable.appendChild(tr);
             });
         }
 
@@ -6583,12 +6966,56 @@ KHIT Guntur`;
             });
         });
 
+        // Top Header Quick Role Switcher Menu Events
+        if (btnRoleSwitcher && roleSwitcherMenu) {
+            btnRoleSwitcher.addEventListener("click", (e) => {
+                e.stopPropagation();
+                roleSwitcherMenu.classList.toggle("hidden");
+            });
+            document.addEventListener("click", (e) => {
+                if (!roleSwitcherMenu.classList.contains("hidden")) {
+                    if (!roleSwitcherMenu.contains(e.target) && e.target !== btnRoleSwitcher) {
+                        roleSwitcherMenu.classList.add("hidden");
+                    }
+                }
+            });
+            const roleButtons = document.querySelectorAll(".btn-select-role");
+            roleButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const targetRole = btn.getAttribute("data-role") || "student";
+                    switchTestingRole(targetRole);
+                    roleSwitcherMenu.classList.add("hidden");
+                });
+            });
+        }
+
+        // Faculty Roster Filter Tabs
+        const facultyRosterFilters = document.querySelectorAll(".faculty-roster-filter");
+        facultyRosterFilters.forEach(btn => {
+            btn.addEventListener("click", () => {
+                facultyRosterFilters.forEach(b => {
+                    b.classList.remove("bg-sky-500/15", "text-sky-400", "border-sky-400/30", "font-bold", "active");
+                    b.classList.add("bg-slate-900", "text-slate-400", "border-slate-800");
+                });
+                btn.classList.remove("bg-slate-900", "text-slate-400", "border-slate-800");
+                btn.classList.add("bg-sky-500/15", "text-sky-400", "border-sky-400/30", "font-bold", "active");
+                const filter = btn.getAttribute("data-filter") || "all";
+                renderFacultyRolesList(filter);
+            });
+        });
+
         // Initialize default views
         populateDefaultSgpaCourses();
         renderSyllabus();
         renderRecruiters();
+        renderUpcomingDrives();
         renderTransitRoutes();
+        renderHostelMessMenu();
         renderCampusBlocks();
+        renderFacultyRolesList(currentFacultyRoleFilter);
+        renderHodSetupGrid();
+        renderTeacherSetupGrid();
+        updateLeaveFormAuthorities();
     }
 
     // Auto-initialize Campus Hub Suite

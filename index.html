@@ -12,7 +12,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="styles.css?v=4.2.0">
+    <link rel="stylesheet" href="styles.css?v=4.3.0">
     <style>
         /* Framework-independent layout rules for full-screen sizing */
         #app-container:not(.hidden) {
@@ -278,6 +278,30 @@
                         </svg>
                         <span class="hidden md:inline-block">Admin Console</span>
                     </button>
+
+                    <!-- Quick Role Switcher Pill (Student / Teacher / HOD / Admin) -->
+                    <div class="relative inline-block" id="role-switcher-container">
+                        <button id="btn-role-switcher" type="button" class="text-xs framer-pill-button py-2 px-2.5 md:px-3 cursor-pointer flex items-center gap-1.5 font-bold" title="Switch Testing Role">
+                            <span id="role-switcher-icon">🎓</span>
+                            <span id="role-switcher-label" class="text-[11px] uppercase tracking-wider hidden sm:inline-block">Student</span>
+                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div id="role-switcher-menu" class="hidden absolute right-0 mt-2 w-56 bg-slate-900/95 border border-slate-700/80 rounded-xl shadow-2xl py-1.5 z-50 text-xs backdrop-blur-xl">
+                            <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">Switch Active Role</div>
+                            <button type="button" class="btn-select-role w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition" data-role="student">
+                                <span>🎓</span> <span>Student (Hub & Chat)</span>
+                            </button>
+                            <button type="button" class="btn-select-role w-full text-left px-3 py-2 text-emerald-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition" data-role="teacher">
+                                <span>👨‍🏫</span> <span>Class Teacher Portal</span>
+                            </button>
+                            <button type="button" class="btn-select-role w-full text-left px-3 py-2 text-purple-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition" data-role="hod">
+                                <span>🏛️</span> <span>HOD Admin Portal</span>
+                            </button>
+                            <button type="button" class="btn-select-role w-full text-left px-3 py-2 text-rose-300 hover:bg-slate-800 flex items-center gap-2 cursor-pointer transition" data-role="admin">
+                                <span>🛡️</span> <span>System Super Admin</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -485,12 +509,39 @@
                                     </h3>
                                     <p class="text-[11px] text-slate-400">JNTUK autonomous credit-based grade point evaluation</p>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-slate-400">Regulation:</span>
-                                    <select id="calc-regulation" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-2.5 py-1 focus:outline-none focus:border-cyan-500">
-                                        <option value="R23">R23 (Autonomous)</option>
-                                        <option value="R20">R20 (Autonomous)</option>
-                                    </select>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[10px] text-slate-400">Branch:</span>
+                                        <select id="calc-branch" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-500">
+                                            <option value="CSE">CSE</option>
+                                            <option value="AIDS">AIDS</option>
+                                            <option value="ECE">ECE</option>
+                                            <option value="EEE">EEE</option>
+                                            <option value="MECH">MECH</option>
+                                            <option value="CIVIL">CIVIL</option>
+                                            <option value="DIPLOMA">DIPLOMA</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[10px] text-slate-400">Sem:</span>
+                                        <select id="calc-semester" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-500">
+                                            <option value="3-1">3-1</option>
+                                            <option value="3-2">3-2</option>
+                                            <option value="4-1">4-1</option>
+                                            <option value="4-2">4-2</option>
+                                            <option value="2-1">2-1</option>
+                                            <option value="2-2">2-2</option>
+                                            <option value="1-1">1-1</option>
+                                            <option value="1-2">1-2</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-[10px] text-slate-400">Reg:</span>
+                                        <select id="calc-regulation" class="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold rounded-lg px-2 py-1 focus:outline-none focus:border-cyan-500">
+                                            <option value="R23">R23 (Autonomous)</option>
+                                            <option value="R20">R20 (Autonomous)</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
@@ -575,6 +626,66 @@
                                     <span class="font-bold text-cyan-400 text-[11px]">📐 Formula:</span>
                                     <p class="text-[11px] text-slate-400">$$\text{Percentage} = (\text{CGPA} - 0.75) \times 10$$</p>
                                     <p class="text-[10px] text-slate-500">Degree Threshold: ≥ 160 Credits (Regular) / ≥ 120 Credits (Lateral Entry).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full-Width Cumulative CGPA Estimator Card -->
+                        <div class="lg:col-span-12 hub-card p-5 sm:p-6 space-y-4 bg-slate-950/60 border border-slate-800">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        <span>📈</span>
+                                        <span>Cumulative CGPA & Degree Classification Estimator</span>
+                                    </h3>
+                                    <p class="text-[11px] text-slate-400">Enter semester SGPAs to compute cumulative CGPA across 8 semesters</p>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">All 8 Semesters</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-center">
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 1 (1-1)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="1" value="8.50">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 2 (1-2)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="2" value="8.75">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 3 (2-1)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="3" value="8.60">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 4 (2-2)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="4" value="8.80">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 5 (3-1)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="5" value="9.12">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 6 (3-2)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="6">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 7 (4-1)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="7">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 block mb-1">Sem 8 (4-2)</label>
+                                    <input type="number" step="0.01" min="0" max="10" placeholder="9.0" class="input-cgpa-sem w-full bg-slate-900 border border-slate-700 rounded-lg p-1.5 text-xs text-white text-center font-bold focus:outline-none focus:border-cyan-500" data-sem="8">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800">
+                                <button type="button" id="btn-calculate-cgpa" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs transition shadow cursor-pointer flex items-center justify-center gap-2">
+                                    <span>📊 Compute Cumulative CGPA</span>
+                                </button>
+                                <div id="cgpa-summary-badge" class="flex flex-wrap items-center gap-3 text-xs">
+                                    <div class="text-slate-300">CGPA: <strong id="cgpa-display-val" class="text-base text-white">8.75</strong></div>
+                                    <div class="text-cyan-400">Equivalent: <strong id="cgpa-display-pct" class="text-white">80.0%</strong></div>
+                                    <span id="cgpa-display-tier" class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 text-[10px]">First Class with Distinction</span>
                                 </div>
                             </div>
                         </div>
@@ -1002,6 +1113,40 @@
                             <!-- Populated dynamically via JS -->
                         </div>
                     </div>
+
+                    <!-- Upcoming Recruitment Drives & CRT Interview Rounds Schedule Card -->
+                    <div class="hub-card p-5 sm:p-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>📅</span>
+                                    <span>Upcoming On-Campus Drives & CRT Interview Schedule (2025–26)</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Official scheduled campus visits, salary package, eligibility criteria, and selection rounds</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span>Live CRT Schedule</span>
+                            </span>
+                        </div>
+                        <div class="overflow-x-auto w-full border border-slate-800/80 rounded-xl bg-slate-950/60">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-800 bg-slate-900/90 text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                                        <th class="p-3">Recruiting Company</th>
+                                        <th class="p-3">Designation & Package</th>
+                                        <th class="p-3">Eligible Branches</th>
+                                        <th class="p-3">Eligibility Cut-off</th>
+                                        <th class="p-3">Drive Date</th>
+                                        <th class="p-3 text-right">Selection Process</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="upcoming-drives-table" class="divide-y divide-slate-800/50 text-slate-300">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- SUB-PANEL 3: TRANSIT & HOSTEL NAVIGATOR -->
@@ -1068,6 +1213,39 @@
                                     <p class="text-slate-400 text-[11px]">24/7 dedicated medical assistant on campus with visiting medical officer. Dedicated emergency campus ambulance on standby.</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Hostel Mess Day-by-Day Menu Schedule Card -->
+                    <div class="hub-card p-5 sm:p-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>🍲</span>
+                                    <span>Weekly Hostel Mess Menu & Dietary Schedule</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-400">Nutritious South Indian culinary schedule inspected weekly by the KHIT Student Welfare Committee</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                                <span>Mon – Sun Menu Cycle</span>
+                            </span>
+                        </div>
+                        <div class="overflow-x-auto w-full border border-slate-800/80 rounded-xl bg-slate-950/60">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-slate-800 bg-slate-900/90 text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                                        <th class="p-3">Day</th>
+                                        <th class="p-3">Breakfast (07:30 – 08:30)</th>
+                                        <th class="p-3">Lunch (12:30 – 01:30)</th>
+                                        <th class="p-3">Snack (05:00 – 05:45)</th>
+                                        <th class="p-3">Dinner (07:30 – 08:45)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hostel-mess-table" class="divide-y divide-slate-800/50 text-slate-300">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1595,77 +1773,123 @@
                     </div>
                 </div>
 
-                <!-- Faculty & Authority Role Management Card (Google Account RBAC) -->
-                <div class="w-full framer-neon-card p-5 md:p-6 space-y-5 relative bg-slate-950/50">
+                <!-- Faculty, HOD & Class Teacher Administration Setup Center -->
+                <div class="w-full framer-neon-card p-5 md:p-6 space-y-6 relative bg-slate-950/50">
                     <div class="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
                     
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
                         <div>
-                            <h2 class="text-lg md:text-xl font-bold text-white uppercase flex items-center gap-2.5">
-                                <span>Faculty & Authority Role Management</span>
-                                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 font-bold">Google Auth RBAC</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-400/30">Google RBAC Governance</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-400/30">HOD & Teacher Setup</span>
+                            </div>
+                            <h2 class="text-lg md:text-xl font-bold text-white uppercase mt-1 tracking-tight flex items-center gap-2">
+                                <span>HOD & Class Teacher Administration Setup</span>
                             </h2>
-                            <p class="text-xs text-slate-300 font-medium mt-0.5">Assign Class Teacher or HOD administration privileges to Google accounts. Faculty logging in with these emails automatically gain portal access.</p>
+                            <p class="text-xs text-slate-300 font-medium mt-0.5">Configure Head of Department (HOD) authorizations and Section Class In-Charge assignments. Google accounts mapped here automatically inherit official approval powers.</p>
+                        </div>
+                        <!-- Sandbox Quick Switcher Buttons -->
+                        <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px]">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase px-1.5">Test As:</span>
+                            <button type="button" class="btn-sandbox-switch px-2.5 py-1 rounded-lg bg-sky-500/15 text-sky-400 border border-sky-400/30 font-semibold cursor-pointer hover:bg-sky-500/25 transition" data-role="student">🎓 Student</button>
+                            <button type="button" class="btn-sandbox-switch px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-400/30 font-semibold cursor-pointer hover:bg-emerald-500/25 transition" data-role="teacher">👨‍🏫 Teacher</button>
+                            <button type="button" class="btn-sandbox-switch px-2.5 py-1 rounded-lg bg-purple-500/15 text-purple-400 border border-purple-400/30 font-semibold cursor-pointer hover:bg-purple-500/25 transition" data-role="hod">🏛️ HOD</button>
+                            <button type="button" class="btn-sandbox-switch px-2.5 py-1 rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/30 font-semibold cursor-pointer hover:bg-rose-500/25 transition" data-role="admin">🛡️ Admin</button>
                         </div>
                     </div>
 
-                    <!-- Role Assignment Form -->
-                    <form id="form-faculty-role" class="space-y-3.5 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                            <div>
-                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Google Account Email *</label>
-                                <input type="email" id="input-faculty-email" placeholder="e.g. teacher@khit.edu.in" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Faculty Name & Title *</label>
-                                <input type="text" id="input-faculty-name" placeholder="e.g. Dr. G. J. Sunny Deol" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Assigned Role *</label>
-                                <select id="select-faculty-role" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
-                                    <option value="teacher">👨‍🏫 Class Teacher Admin</option>
-                                    <option value="hod">🏛️ Head of Department (HOD)</option>
-                                    <option value="admin">🛡️ System Super Admin</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Department / Section *</label>
-                                <select id="select-faculty-dept" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
-                                    <option value="CSE-A">CSE - Section A</option>
-                                    <option value="CSE-B">CSE - Section B</option>
-                                    <option value="CSE-C">CSE - Section C</option>
-                                    <option value="CSE">CSE Department (All)</option>
-                                    <option value="AIDS">AI & Data Science (AIDS)</option>
-                                    <option value="ECE">Electronics & Communication (ECE)</option>
-                                    <option value="EEE">Electrical & Electronics (EEE)</option>
-                                    <option value="MECH">Mechanical Engineering</option>
-                                    <option value="CIVIL">Civil Engineering</option>
-                                    <option value="DIPLOMA">Diploma - CME (Polytechnic)</option>
-                                    <option value="CAMPUS">All Institutional Campus</option>
-                                </select>
-                            </div>
+                    <!-- Department HOD Administration Setup Grid -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-300 flex items-center gap-2">
+                                <span>🏛️ Department Heads (HOD Executive Authorities)</span>
+                            </h3>
+                            <span class="text-[10px] text-slate-400">Sanctions leaves with digital seal & resolves grievances</span>
                         </div>
+                        <div id="hod-departments-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- Populated dynamically via JS with CSE, AIDS, ECE, EEE, MECH, CIVIL, DIPLOMA -->
+                        </div>
+                    </div>
 
-                        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-                            <button type="submit" id="btn-assign-faculty-role" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
-                                <span>➕ Grant Role Access</span>
-                            </button>
-                            <!-- Live Sandbox Switcher for Fast Testing -->
-                            <div class="flex items-center gap-1.5 text-[10px]">
-                                <span class="text-slate-400 font-medium">Quick Preview Sandbox:</span>
-                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 font-semibold cursor-pointer" data-role="student">Student</button>
-                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-semibold cursor-pointer" data-role="teacher">Teacher</button>
-                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-purple-400 border border-slate-700 font-semibold cursor-pointer" data-role="hod">HOD</button>
-                                <button type="button" class="btn-sandbox-switch px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-semibold cursor-pointer" data-role="admin">Admin</button>
-                            </div>
+                    <!-- Section Class Teacher Administration Setup Grid -->
+                    <div class="space-y-3 pt-2 border-t border-slate-800/60">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-2">
+                                <span>👨‍🏫 Class Teachers (Section In-Charges)</span>
+                            </h3>
+                            <span class="text-[10px] text-slate-400">First-tier attendance auditor & recommender to HOD</span>
                         </div>
-                    </form>
+                        <div id="teacher-sections-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- Populated dynamically via JS with CSE-A, CSE-B, CSE-C, AIDS, ECE, DIPLOMA -->
+                        </div>
+                    </div>
+
+                    <!-- Role Assignment Form (Google Auth RBAC) -->
+                    <div class="pt-2 border-t border-slate-800/60 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-2">
+                                <span>➕ Grant / Update Authority Role to Google Account</span>
+                            </h3>
+                            <span class="text-[10px] text-slate-400">Enter personal Gmail or @khit.edu.in account</span>
+                        </div>
+                        <form id="form-faculty-role" class="space-y-3 bg-slate-900/70 p-4 rounded-xl border border-slate-800">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Google Account Email *</label>
+                                    <input type="email" id="input-faculty-email" placeholder="e.g. professor@gmail.com" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 font-mono">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Faculty Full Name & Title *</label>
+                                    <input type="text" id="input-faculty-name" placeholder="e.g. Dr. G. J. Sunny Deol" required class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Assigned Role *</label>
+                                    <select id="select-faculty-role" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
+                                        <option value="hod">🏛️ Head of Department (HOD)</option>
+                                        <option value="teacher">👨‍🏫 Class Teacher Admin</option>
+                                        <option value="admin">🛡️ System Super Admin</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Department / Section *</label>
+                                    <select id="select-faculty-dept" class="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-500 font-semibold">
+                                        <option value="CSE">CSE Department (HOD)</option>
+                                        <option value="CSE-A">CSE - Section A (Teacher)</option>
+                                        <option value="CSE-B">CSE - Section B (Teacher)</option>
+                                        <option value="CSE-C">CSE - Section C (Teacher)</option>
+                                        <option value="AIDS">AI & Data Science (AIDS)</option>
+                                        <option value="ECE">Electronics & Communication (ECE)</option>
+                                        <option value="EEE">Electrical & Electronics (EEE)</option>
+                                        <option value="MECH">Mechanical Engineering</option>
+                                        <option value="CIVIL">Civil Engineering</option>
+                                        <option value="DIPLOMA">Diploma - CME (Polytechnic)</option>
+                                        <option value="CAMPUS">All Institutional Campus</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+                                <button type="submit" id="btn-assign-faculty-role" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <span>➕ Save & Grant Role Access</span>
+                                </button>
+                                <span class="text-[11px] text-slate-400">Takes effect instantly upon Google sign-in.</span>
+                            </div>
+                        </form>
+                    </div>
 
                     <!-- Active Faculty Roster Table -->
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
+                    <div class="space-y-2 pt-2 border-t border-slate-800/60">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Authorized Faculty & Authority Roster</span>
-                            <span id="faculty-roles-count" class="text-[10px] text-slate-400">Loading directory...</span>
+                            <div class="flex items-center gap-2">
+                                <span id="faculty-roles-count" class="text-[10px] text-slate-400">Loading directory...</span>
+                                <div class="flex items-center gap-1 text-[10px]">
+                                    <button type="button" class="faculty-roster-filter px-2 py-0.5 rounded bg-sky-500/15 text-sky-400 border border-sky-400/30 font-bold active" data-filter="all">All</button>
+                                    <button type="button" class="faculty-roster-filter px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800" data-filter="hod">HODs</button>
+                                    <button type="button" class="faculty-roster-filter px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800" data-filter="teacher">Teachers</button>
+                                    <button type="button" class="faculty-roster-filter px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800" data-filter="admin">Admins</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="overflow-x-auto w-full border border-slate-800 rounded-xl bg-slate-950/60">
                             <table class="w-full text-left border-collapse text-xs">
@@ -2261,6 +2485,6 @@
     </div>
 
     <!-- Application Script -->
-    <script type="module" src="app.js?v=4.2.0"></script>
+    <script type="module" src="app.js?v=4.3.0"></script>
 </body>
 </html>
