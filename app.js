@@ -74,8 +74,14 @@ function initializeApplication() {
     try { btnAppleLogin = document.getElementById("btn-apple-login"); } catch (e) { console.warn("Selector error 'btn-apple-login':", e); }
     try { btnGuestLogin = document.getElementById("btn-guest-login"); } catch (e) { console.warn("Selector error 'btn-guest-login':", e); }
     
-    let btnLogout;
+    let btnLogout, btnHeaderLogout, btnProfileLogout;
     try { btnLogout = document.getElementById("btn-logout"); } catch (e) { console.warn("Selector error 'btn-logout':", e); }
+    try { btnHeaderLogout = document.getElementById("btn-header-logout"); } catch (e) { console.warn("Selector error 'btn-header-logout':", e); }
+    try { btnProfileLogout = document.getElementById("btn-profile-logout"); } catch (e) { console.warn("Selector error 'btn-profile-logout':", e); }
+    
+    let inputLoginEmail, btnEmailLogin;
+    try { inputLoginEmail = document.getElementById("input-login-email"); } catch (e) { console.warn("Selector error 'input-login-email':", e); }
+    try { btnEmailLogin = document.getElementById("btn-email-login"); } catch (e) { console.warn("Selector error 'btn-email-login':", e); }
     
     let loginError;
     try { loginError = document.getElementById("login-error"); } catch (e) { console.warn("Selector error 'login-error':", e); }
@@ -376,7 +382,7 @@ function initializeApplication() {
 
     // Faculty Role Management & HOD/Teacher Setup Elements
     let formFacultyRole, inputFacultyEmail, inputFacultyName, selectFacultyRole, selectFacultyDept, btnAssignFacultyRole, facultyRolesCount, facultyRolesList;
-    let hodDepartmentsGrid, teacherSectionsGrid, btnRoleSwitcher, roleSwitcherMenu, roleSwitcherLabel, roleSwitcherIcon;
+    let hodDepartmentsGrid, teacherSectionsGrid, btnRoleSwitcher, roleSwitcherMenu, roleSwitcherLabel, roleSwitcherIcon, roleSwitcherContainer;
     try { formFacultyRole = document.getElementById("form-faculty-role"); } catch(e) {}
     try { inputFacultyEmail = document.getElementById("input-faculty-email"); } catch(e) {}
     try { inputFacultyName = document.getElementById("input-faculty-name"); } catch(e) {}
@@ -391,6 +397,7 @@ function initializeApplication() {
     try { roleSwitcherMenu = document.getElementById("role-switcher-menu"); } catch(e) {}
     try { roleSwitcherLabel = document.getElementById("role-switcher-label"); } catch(e) {}
     try { roleSwitcherIcon = document.getElementById("role-switcher-icon"); } catch(e) {}
+    try { roleSwitcherContainer = document.getElementById("role-switcher-container"); } catch(e) {}
 
     // Academics Extension Elements (SGPA Branch/Sem, CGPA Estimator, Drives & Mess Tables)
     let calcBranch, calcSemester, btnCalculateCgpa, btnResetCgpa, cgpaSummaryBadge;
@@ -842,6 +849,95 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         showToast(`Access revoked for ${key}`);
     }
 
+    // Direct Database Role Resolution Engine (Firestore faculty_roles -> users doc -> local cache)
+    async function resolveUserRoleFromDatabase(rawEmail, uid) {
+        if (!rawEmail) {
+            return { role: "student", name: "Academic Guest", dept: "General", email: "" };
+        }
+        const email = rawEmail.toLowerCase().trim();
+        const docId = email.replace(/[^a-zA-Z0-9]/g, "_");
+
+        let resolvedRole = null;
+        let resolvedName = null;
+        let resolvedDept = null;
+
+        // 1. Direct Firestore faculty_roles document check
+        if (db) {
+            try {
+                const roleDocRef = doc(db, "faculty_roles", docId);
+                const roleSnap = await getDoc(roleDocRef);
+                if (roleSnap.exists()) {
+                    const data = roleSnap.data();
+                    if (data && data.role) {
+                        resolvedRole = data.role;
+                        resolvedName = data.name;
+                        resolvedDept = data.dept;
+                        console.log("Resolved role directly from Firestore faculty_roles:", resolvedRole, data);
+                    }
+                }
+            } catch (err) {
+                console.warn("Firestore faculty_roles lookup warning:", err);
+            }
+
+            // 2. Direct Firestore users document check if uid provided
+            if (!resolvedRole && uid) {
+                try {
+                    const userDocRef = doc(db, "users", uid);
+                    const userSnap = await getDoc(userDocRef);
+                    if (userSnap.exists()) {
+                        const uData = userSnap.data();
+                        if (uData.accountRole && uData.accountRole !== "student") {
+                            resolvedRole = uData.accountRole;
+                            resolvedName = uData.name || uData.displayName;
+                            resolvedDept = uData.facultyDept || "";
+                            console.log("Resolved role directly from Firestore users collection:", resolvedRole);
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Firestore users collection lookup warning:", err);
+                }
+            }
+        }
+
+        // 3. Fallback to cached faculty role assignments and defaults
+        if (!resolvedRole) {
+            const facultyRoles = getAssignedFacultyRoles();
+            if (facultyRoles[email]) {
+                const localData = facultyRoles[email];
+                resolvedRole = localData.role;
+                resolvedName = localData.name;
+                resolvedDept = localData.dept;
+                console.log("Resolved role from faculty roles registry cache:", resolvedRole);
+            }
+        }
+
+        // 4. Institutional email prefix/format heuristics if not yet configured in DB
+        if (!resolvedRole) {
+            if (email.startsWith("hod.") || email.includes(".hod@") || email.startsWith("hod_")) {
+                resolvedRole = "hod";
+                resolvedName = "Head of Department (" + email.split("@")[0].toUpperCase() + ")";
+                resolvedDept = email.split("@")[0].split(".")[1]?.toUpperCase() || "CSE";
+            } else if (email.startsWith("teacher.") || email.startsWith("faculty.") || email.startsWith("prof.")) {
+                resolvedRole = "teacher";
+                resolvedName = "Class Teacher (" + email.split("@")[0].toUpperCase() + ")";
+                resolvedDept = email.split("@")[0].split(".")[1]?.toUpperCase() || "CSE";
+            } else if (email.startsWith("admin.") || email.startsWith("principal")) {
+                resolvedRole = "admin";
+                resolvedName = "Administrator (" + email.split("@")[0].toUpperCase() + ")";
+                resolvedDept = "Administration";
+            } else {
+                resolvedRole = "student";
+            }
+        }
+
+        return {
+            role: resolvedRole || "student",
+            name: resolvedName || (email.split("@")[0].replace(/[._]/g, " ").toUpperCase()),
+            dept: resolvedDept || "CSE",
+            email: email
+        };
+    }
+
     let currentFacultyRoleFilter = "all";
 
     function renderFacultyRolesList(filter = "all") {
@@ -1100,13 +1196,22 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             const isGuest = user.isAnonymous || user.uid === "guest_user_id";
             if (!isGuest) {
                 try {
-                    console.log("Firestore Sync Init");
-                    // Update user record in Firestore
+                    console.log("Firestore Sync & Role Verification Init");
+                    
+                    // 1. Resolve role directly from database
+                    const resolvedInfo = await resolveUserRoleFromDatabase(user.email, user.uid);
+                    role = resolvedInfo.role || "student";
+                    currentUserDetails.facultyName = resolvedInfo.name;
+                    currentUserDetails.facultyDept = resolvedInfo.dept;
+                    if (!currentUserDetails.displayName || currentUserDetails.displayName === "Academic Guest") {
+                        currentUserDetails.displayName = resolvedInfo.name;
+                    }
+
+                    // 2. Check for banned user in Firestore users collection
                     const userDocRef = doc(db, "users", user.uid);
                     const userSnap = await getDoc(userDocRef);
                     if (userSnap.exists()) {
                         const userData = userSnap.data();
-                        role = userData.accountRole || "student";
                         savedHistory = userData.chatHistory || [];
                         if (userData.banned === true) {
                             triggerBanScreen();
@@ -1114,35 +1219,29 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                         }
                     }
 
-                    // Check for assigned faculty privileges via email
-                    await syncFacultyRolesFromFirestore();
-                    const facultyRoles = getAssignedFacultyRoles();
-                    const userEmailKey = (user.email || "").toLowerCase().trim();
-                    if (facultyRoles[userEmailKey]) {
-                        role = facultyRoles[userEmailKey].role || role;
-                        currentUserDetails.facultyName = facultyRoles[userEmailKey].name;
-                        currentUserDetails.facultyDept = facultyRoles[userEmailKey].dept;
-                    }
-                    if (window.location.hash === "#admin") role = "admin";
-                    else if (window.location.hash === "#teacher") role = "teacher";
-                    else if (window.location.hash === "#hod") role = "hod";
-                    
+                    // 3. Save/update user profile in Firestore
                     await setDoc(userDocRef, {
                         uid: user.uid,
-                        name: user.displayName,
+                        name: currentUserDetails.displayName,
                         email: user.email,
                         avatar: user.photoURL,
                         accountRole: role,
+                        facultyName: currentUserDetails.facultyName || "",
+                        facultyDept: currentUserDetails.facultyDept || "",
                         lastActive: new Date()
                     }, { merge: true });
                     console.log("User profile synchronised with Firestore cloud architecture. Assigned role:", role);
                 } catch (error) {
                     console.error("Firestore user sync error:", error);
+                    try {
+                        const fallbackInfo = await resolveUserRoleFromDatabase(user.email, user.uid);
+                        role = fallbackInfo.role || "student";
+                    } catch(e) {
+                        role = "student";
+                    }
                 }
             } else {
-                if (window.location.hash === "#admin") role = "admin";
-                else if (window.location.hash === "#teacher") role = "teacher";
-                else if (window.location.hash === "#hod") role = "hod";
+                role = "student";
             }
 
             currentUserDetails.accountRole = role;
@@ -1151,6 +1250,12 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             setupUserUI(currentUserDetails);
             showDashboard();
             subscribeToCirculars();
+
+            // Direct route to dedicated workspace
+            if (role === "hod") switchWorkspace("hod");
+            else if (role === "teacher") switchWorkspace("teacher");
+            else if (role === "admin") switchWorkspace("admin");
+            else switchWorkspace("hub");
 
             // Load Gemini API Key dynamically from Firestore config to avoid secrets leaks
             try {
@@ -1201,6 +1306,8 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                 }
             }
         } else {
+            currentUserDetails = null;
+            chatHistory = [];
             hideDashboard();
         }
     });
@@ -1391,6 +1498,108 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         });
     }
 
+    // 2.55 Official Institutional Email Direct Login Handler
+    async function handleEmailLogin() {
+        if (!inputLoginEmail) return;
+        const emailVal = inputLoginEmail.value ? inputLoginEmail.value.trim() : "";
+        if (!emailVal || !emailVal.includes("@")) {
+            if (loginError) {
+                loginError.textContent = "Please enter a valid institutional email address (e.g. hod.cse@khit.edu.in or teacher.csea@khit.edu.in).";
+                loginError.classList.remove("hidden");
+            }
+            if (inputLoginEmail) inputLoginEmail.focus();
+            return;
+        }
+
+        if (loginError) loginError.classList.add("hidden");
+        const originalBtnHtml = btnEmailLogin ? btnEmailLogin.innerHTML : "";
+        if (btnEmailLogin) {
+            btnEmailLogin.disabled = true;
+            btnEmailLogin.innerHTML = `
+                <svg class="animate-spin h-3.5 w-3.5 text-white inline-block" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Verifying...</span>
+            `;
+        }
+
+        try {
+            // Check faculty role in Firestore and database
+            const facultyInfo = await resolveUserRoleFromDatabase(emailVal);
+            console.log("Email login resolved faculty info:", facultyInfo);
+
+            const uid = "faculty_" + emailVal.toLowerCase().replace(/[^a-z0-9]/g, "_");
+            currentUserDetails = {
+                uid: uid,
+                displayName: facultyInfo.name || emailVal.split("@")[0].toUpperCase(),
+                email: emailVal.toLowerCase().trim(),
+                photoURL: "",
+                accountRole: facultyInfo.role,
+                facultyName: facultyInfo.name,
+                facultyDept: facultyInfo.dept
+            };
+
+            // Save/merge user profile in Firestore
+            if (db) {
+                try {
+                    await setDoc(doc(db, "users", uid), {
+                        uid: uid,
+                        name: currentUserDetails.displayName,
+                        email: currentUserDetails.email,
+                        accountRole: currentUserDetails.accountRole,
+                        facultyDept: currentUserDetails.facultyDept || "",
+                        facultyName: currentUserDetails.facultyName || "",
+                        lastActive: new Date()
+                    }, { merge: true });
+                } catch(e) {
+                    console.warn("Firestore user sync error:", e);
+                }
+            }
+
+            chatHistory = [];
+            setupUserUI(currentUserDetails);
+            showDashboard();
+
+            // Direct route to dedicated workspace
+            if (currentUserDetails.accountRole === "hod") {
+                switchWorkspace("hod");
+            } else if (currentUserDetails.accountRole === "teacher") {
+                switchWorkspace("teacher");
+            } else if (currentUserDetails.accountRole === "admin") {
+                switchWorkspace("admin");
+            } else {
+                switchWorkspace("hub");
+            }
+
+            subscribeToCirculars();
+            showToast(`Welcome ${currentUserDetails.displayName}! Logged in as ${currentUserDetails.accountRole.toUpperCase()} 🚀`);
+        } catch(err) {
+            console.error("Email login error:", err);
+            if (loginError) {
+                loginError.textContent = `Login failed: ${err.message}`;
+                loginError.classList.remove("hidden");
+            }
+        } finally {
+            if (btnEmailLogin) {
+                btnEmailLogin.disabled = false;
+                btnEmailLogin.innerHTML = originalBtnHtml;
+            }
+        }
+    }
+
+    if (btnEmailLogin) {
+        btnEmailLogin.addEventListener("click", handleEmailLogin);
+    }
+    if (inputLoginEmail) {
+        inputLoginEmail.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                handleEmailLogin();
+            }
+        });
+    }
+
     // 2.6. Direct 1-Click Role Testing Selectors on Login Screen
     const quickRoleButtons = document.querySelectorAll(".btn-login-quick-role");
     quickRoleButtons.forEach(btn => {
@@ -1462,15 +1671,42 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         });
     });
 
-    // 3. Logout action
-    if (btnLogout) {
-        btnLogout.addEventListener("click", async () => {
-            try {
+    // 3. Centralized Universal Logout Action
+    async function performLogout() {
+        console.log("Universal performLogout triggered");
+        try {
+            if (auth && auth.currentUser) {
                 await signOut(auth);
-            } catch (err) {
-                console.error("Logout failed:", err);
             }
-        });
+        } catch (err) {
+            console.warn("Firebase signOut error (proceeding with clean local reset):", err);
+        }
+
+        // Always clean up local user state
+        currentUserDetails = null;
+        chatHistory = [];
+
+        if (window.speechSynthesis && window.speechSynthesis.cancel) {
+            window.speechSynthesis.cancel();
+        }
+
+        hideDashboard();
+
+        if (inputLoginEmail) {
+            inputLoginEmail.value = "";
+        }
+
+        showToast("Signed out successfully. See you again! 👋");
+    }
+
+    if (btnLogout) {
+        btnLogout.addEventListener("click", performLogout);
+    }
+    if (btnHeaderLogout) {
+        btnHeaderLogout.addEventListener("click", performLogout);
+    }
+    if (btnProfileLogout) {
+        btnProfileLogout.addEventListener("click", performLogout);
     }
 
     // --- Dynamic UI Setup Helpers ---
@@ -1534,9 +1770,9 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         }
         
         const role = (user && user.accountRole) ? user.accountRole : "student";
-        const isSuperAdmin = role === "admin" || window.location.hash === "#admin";
-        const isTeacher = role === "teacher" || isSuperAdmin || window.location.hash === "#teacher";
-        const isHod = role === "hod" || isSuperAdmin || window.location.hash === "#hod";
+        const isSuperAdmin = role === "admin";
+        const isTeacher = role === "teacher" || isSuperAdmin;
+        const isHod = role === "hod" || isSuperAdmin;
 
         if (btnAdminToggle) {
             if (isSuperAdmin) {
@@ -1546,8 +1782,10 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             }
         }
 
+        // Strict Mutual Exclusivity:
+        // HOD page is NOT visible to Teacher, and Teacher page is NOT visible to HOD
         if (btnTeacherToggle) {
-            if (isTeacher) {
+            if (role === "teacher" || isSuperAdmin) {
                 btnTeacherToggle.classList.remove("hidden");
             } else {
                 btnTeacherToggle.classList.add("hidden");
@@ -1555,10 +1793,33 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         }
 
         if (btnHodToggle) {
-            if (isHod) {
+            if (role === "hod" || isSuperAdmin) {
                 btnHodToggle.classList.remove("hidden");
             } else {
                 btnHodToggle.classList.add("hidden");
+            }
+        }
+
+        // Hide unauthorized workspace elements completely from the DOM view
+        if (role === "hod") {
+            if (teacherWorkspace) teacherWorkspace.classList.add("hidden");
+            if (adminWorkspace) adminWorkspace.classList.add("hidden");
+        } else if (role === "teacher") {
+            if (hodWorkspace) hodWorkspace.classList.add("hidden");
+            if (adminWorkspace) adminWorkspace.classList.add("hidden");
+        } else if (role === "student") {
+            if (teacherWorkspace) teacherWorkspace.classList.add("hidden");
+            if (hodWorkspace) hodWorkspace.classList.add("hidden");
+            if (adminWorkspace) adminWorkspace.classList.add("hidden");
+        }
+
+        // Quick Role Switcher Pill in Top Header:
+        // Only visible for super admin so users cannot spoof or bypass their database-locked role
+        if (roleSwitcherContainer) {
+            if (isSuperAdmin) {
+                roleSwitcherContainer.classList.remove("hidden");
+            } else {
+                roleSwitcherContainer.classList.add("hidden");
             }
         }
 
@@ -1618,10 +1879,14 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         if (adminWorkspace) adminWorkspace.classList.add("hidden");
         if (teacherWorkspace) teacherWorkspace.classList.add("hidden");
         if (hodWorkspace) hodWorkspace.classList.add("hidden");
+        if (hubWorkspace) hubWorkspace.classList.add("hidden");
+        if (calendarWorkspace) calendarWorkspace.classList.add("hidden");
+        if (profileWorkspace) profileWorkspace.classList.add("hidden");
         if (chatWorkspace) chatWorkspace.classList.remove("hidden");
         if (btnAdminToggle) btnAdminToggle.classList.add("hidden");
         if (btnTeacherToggle) btnTeacherToggle.classList.add("hidden");
         if (btnHodToggle) btnHodToggle.classList.add("hidden");
+        if (roleSwitcherContainer) roleSwitcherContainer.classList.add("hidden");
         resetAdminForm();
 
         if (appContainer) appContainer.classList.add("opacity-0");
@@ -3753,6 +4018,26 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
 
     // --- Workspace Toggling Control Panel ---
     function switchWorkspace(target) {
+        const currentRole = (currentUserDetails && currentUserDetails.accountRole) ? currentUserDetails.accountRole : "student";
+        const isSuperAdmin = currentRole === "admin";
+
+        // Security Guard: Strict Role Isolation & Mutual Exclusivity
+        if (target === "teacher" && currentRole !== "teacher" && !isSuperAdmin) {
+            console.warn("Unauthorized attempt to access Teacher workspace by role:", currentRole);
+            showToast("⛔ Access Denied: Class Teacher workspace is restricted to Class Teachers.");
+            target = (currentRole === "hod") ? "hod" : "hub";
+        }
+        if (target === "hod" && currentRole !== "hod" && !isSuperAdmin) {
+            console.warn("Unauthorized attempt to access HOD workspace by role:", currentRole);
+            showToast("⛔ Access Denied: HOD workspace is restricted to Heads of Department.");
+            target = (currentRole === "teacher") ? "teacher" : "hub";
+        }
+        if (target === "admin" && !isSuperAdmin) {
+            console.warn("Unauthorized attempt to access Admin workspace by role:", currentRole);
+            showToast("⛔ Access Denied: Admin console requires Administrator privileges.");
+            target = (currentRole === "hod") ? "hod" : ((currentRole === "teacher") ? "teacher" : "hub");
+        }
+
         // Reset active highlights on header toggle buttons
         if (btnChatToggle) btnChatToggle.classList.remove("framer-pill-active");
         if (btnHubToggle) btnHubToggle.classList.remove("framer-pill-active");

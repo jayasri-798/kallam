@@ -1663,6 +1663,29 @@ body.light-theme,
 .light-theme #login-screen .border-slate-800 {
     border-color: #e2e8f0 !important;
 }
+.light-theme #input-login-email {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+.light-theme #input-login-email::placeholder {
+    color: #94a3b8 !important;
+}
+.light-theme #btn-header-logout {
+    color: #e11d48 !important;
+}
+.light-theme #btn-header-logout:hover {
+    background-color: #fff1f2 !important;
+    border-color: #fecdd3 !important;
+}
+.light-theme #btn-profile-logout {
+    background-color: #fff1f2 !important;
+    border-color: #fecdd3 !important;
+    color: #e11d48 !important;
+}
+.light-theme #btn-profile-logout:hover {
+    background-color: #ffe4e6 !important;
+}
 
 /* Modal Windows in Light Mode */
 .light-theme #leave-order-modal {
