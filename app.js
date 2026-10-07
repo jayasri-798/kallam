@@ -223,6 +223,32 @@ function initializeApplication() {
     try { geminiKeyFeedback = document.getElementById("gemini-key-feedback"); } catch(e) {}
     try { aiEngineStatusBadge = document.getElementById("ai-engine-status-badge"); } catch(e) {}
 
+    // Users & Database Access Control Workspace Elements (Restricted Exclusively to chinthalacheruvuamareswar@gmail.com)
+    let btnUsersAccessToggle, usersAccessWorkspace, badgeUsersHeaderCount;
+    let dbUsersTableBody, inputSearchDbUsers, btnAddDbUserModal, modalAddDbUser, formAddDbUser;
+    let btnCloseAddUserModal, btnCancelAddUser, btnSeedSampleUsers, btnOpenInteractiveMap, modalInteractiveMap, btnCloseMapModal;
+    let metricDbGrantedCount, metricDbTotalCount, metricDbGrantedLabel;
+    let btnAccessLangEn, btnAccessLangTe;
+    try { btnUsersAccessToggle = document.getElementById("btn-users-access-toggle"); } catch(e) {}
+    try { usersAccessWorkspace = document.getElementById("users-access-workspace"); } catch(e) {}
+    try { badgeUsersHeaderCount = document.getElementById("badge-users-header-count"); } catch(e) {}
+    try { dbUsersTableBody = document.getElementById("db-users-table-body"); } catch(e) {}
+    try { inputSearchDbUsers = document.getElementById("input-search-db-users"); } catch(e) {}
+    try { btnAddDbUserModal = document.getElementById("btn-add-db-user-modal"); } catch(e) {}
+    try { modalAddDbUser = document.getElementById("modal-add-db-user"); } catch(e) {}
+    try { formAddDbUser = document.getElementById("form-add-db-user"); } catch(e) {}
+    try { btnCloseAddUserModal = document.getElementById("btn-close-add-user-modal"); } catch(e) {}
+    try { btnCancelAddUser = document.getElementById("btn-cancel-add-user"); } catch(e) {}
+    try { btnSeedSampleUsers = document.getElementById("btn-seed-sample-users"); } catch(e) {}
+    try { btnOpenInteractiveMap = document.getElementById("btn-open-interactive-map"); } catch(e) {}
+    try { modalInteractiveMap = document.getElementById("modal-interactive-map"); } catch(e) {}
+    try { btnCloseMapModal = document.getElementById("btn-close-map-modal"); } catch(e) {}
+    try { metricDbGrantedCount = document.getElementById("metric-db-granted-count"); } catch(e) {}
+    try { metricDbTotalCount = document.getElementById("metric-db-total-count"); } catch(e) {}
+    try { metricDbGrantedLabel = document.getElementById("metric-db-granted-label"); } catch(e) {}
+    try { btnAccessLangEn = document.getElementById("btn-access-lang-en"); } catch(e) {}
+    try { btnAccessLangTe = document.getElementById("btn-access-lang-te"); } catch(e) {}
+
     // Campus Hub Workspace & Header Elements
     let btnChatToggle, btnHubToggle, btnHubBackToChat, hubWorkspace, btnLangToggle, langToggleText;
     let hubTabAcademics, hubTabExamTarget, hubTabLeave, hubTabSyllabus, hubTabPlacements, hubTabTransit, hubTabCampusMap, hubTabHelpdesk, hubTabScholarships, hubTabAnalyzer;
@@ -1851,6 +1877,22 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             if (adminWorkspace) adminWorkspace.classList.add("hidden");
         }
 
+        // Security Gate: Users & Database Access Control Workspace
+        // STRICT USER CONSTRAINT: Visible ONLY to chinthalacheruvuamareswar@gmail.com (and alias anareswarchinthalacheruvu@gmail.com)
+        const userEmailLower = (user && user.email) ? user.email.toLowerCase().trim() : "";
+        const isSuperDevOwner = userEmailLower === "chinthalacheruvuamareswar@gmail.com" || userEmailLower === "anareswarchinthalacheruvu@gmail.com";
+
+        if (btnUsersAccessToggle) {
+            if (isSuperDevOwner) {
+                btnUsersAccessToggle.classList.remove("hidden");
+            } else {
+                btnUsersAccessToggle.classList.add("hidden");
+            }
+        }
+        if (!isSuperDevOwner && usersAccessWorkspace) {
+            usersAccessWorkspace.classList.add("hidden");
+        }
+
         // Update Read-Only Institutional Role Badge (Locked from Database, Non-Clickable)
         const roleBadgeContainer = document.getElementById("role-badge-container");
         if (roleBadgeContainer) {
@@ -1927,6 +1969,8 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         if (btnAdminToggle) btnAdminToggle.classList.add("hidden");
         if (btnTeacherToggle) btnTeacherToggle.classList.add("hidden");
         if (btnHodToggle) btnHodToggle.classList.add("hidden");
+        if (btnUsersAccessToggle) btnUsersAccessToggle.classList.add("hidden");
+        if (usersAccessWorkspace) usersAccessWorkspace.classList.add("hidden");
         if (roleSwitcherContainer) roleSwitcherContainer.classList.add("hidden");
         resetAdminForm();
 
@@ -4078,6 +4122,15 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             showToast("⛔ Access Denied: Admin console requires Administrator privileges.");
             target = (currentRole === "hod") ? "hod" : ((currentRole === "teacher") ? "teacher" : "hub");
         }
+        if (target === "users-access") {
+            const userEmail = (currentUserDetails && currentUserDetails.email) ? currentUserDetails.email.toLowerCase().trim() : "";
+            const isSuperDevOwner = userEmail === "chinthalacheruvuamareswar@gmail.com" || userEmail === "anareswarchinthalacheruvu@gmail.com";
+            if (!isSuperDevOwner) {
+                console.warn("Unauthorized attempt to access Users & Database Access page by user:", userEmail);
+                showToast("⛔ Restricted: This page is accessible solely to chinthalacheruvuamareswar@gmail.com.");
+                target = (currentRole === "hod") ? "hod" : ((currentRole === "teacher") ? "teacher" : "hub");
+            }
+        }
 
         // Reset active highlights on header toggle buttons
         if (btnChatToggle) btnChatToggle.classList.remove("framer-pill-active");
@@ -4087,6 +4140,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         if (btnTeacherToggle) btnTeacherToggle.classList.remove("framer-pill-active");
         if (btnHodToggle) btnHodToggle.classList.remove("framer-pill-active");
         if (btnAdminToggle) btnAdminToggle.classList.remove("framer-pill-active");
+        if (btnUsersAccessToggle) btnUsersAccessToggle.classList.remove("framer-pill-active");
         
         // Hide all workspace wrappers
         if (chatWorkspace) chatWorkspace.classList.add("hidden");
@@ -4096,6 +4150,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         if (teacherWorkspace) teacherWorkspace.classList.add("hidden");
         if (hodWorkspace) hodWorkspace.classList.add("hidden");
         if (adminWorkspace) adminWorkspace.classList.add("hidden");
+        if (usersAccessWorkspace) usersAccessWorkspace.classList.add("hidden");
 
         if (target === "chat") {
             if (chatWorkspace) chatWorkspace.classList.remove("hidden");
@@ -4137,6 +4192,11 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             if (typeof renderFacultyRolesList === "function") renderFacultyRolesList(currentFacultyRoleFilter);
             if (typeof renderHodSetupGrid === "function") renderHodSetupGrid();
             if (typeof renderTeacherSetupGrid === "function") renderTeacherSetupGrid();
+        } else if (target === "users-access") {
+            if (usersAccessWorkspace) usersAccessWorkspace.classList.remove("hidden");
+            if (btnUsersAccessToggle) btnUsersAccessToggle.classList.add("framer-pill-active");
+            if (btnClearChat) btnClearChat.classList.add("hidden");
+            if (typeof loadDatabaseUsersAndAccess === "function") loadDatabaseUsersAndAccess();
         }
     }
 
@@ -4463,6 +4523,17 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             const isHodHidden = hodWorkspace.classList.contains("hidden");
             if (isHodHidden) {
                 switchWorkspace("hod");
+            } else {
+                switchWorkspace("chat");
+            }
+        });
+    }
+
+    if (btnUsersAccessToggle && chatWorkspace && usersAccessWorkspace) {
+        btnUsersAccessToggle.addEventListener("click", () => {
+            const isAccessHidden = usersAccessWorkspace.classList.contains("hidden");
+            if (isAccessHidden) {
+                switchWorkspace("users-access");
             } else {
                 switchWorkspace("chat");
             }
@@ -7496,8 +7567,510 @@ KHIT Guntur`;
         updateLeaveFormAuthorities();
     }
 
-    // Auto-initialize Campus Hub Suite
+    // ==========================================================================
+    // USERS & DATABASE ACCESS CONTROL ENGINE
+    // Restricted Exclusively to chinthalacheruvuamareswar@gmail.com
+    // ==========================================================================
+
+    const DEFAULT_DATABASE_USERS = [
+        {
+            uid: "user_anareswar_owner",
+            displayName: "Chinthalacheruvu Amareswar",
+            name: "Chinthalacheruvu Amareswar",
+            email: "anareswarchinthalacheruvu@gmail.com",
+            accountRole: "admin",
+            accessStatus: "granted",
+            createdAt: new Date().toISOString()
+        },
+        {
+            uid: "user_ammulu_admin",
+            displayName: "ammulu",
+            name: "ammulu",
+            email: "chinthalacheruvuamareswar@gmail.com",
+            accountRole: "admin",
+            accessStatus: "granted",
+            createdAt: new Date().toISOString()
+        },
+        {
+            uid: "user_amareswar_primary",
+            displayName: "Chinthalacheruvu Amareswar",
+            name: "Chinthalacheruvu Amareswar",
+            email: "chinthalacheruvuamareswar@gmail.com",
+            accountRole: "admin",
+            accessStatus: "granted",
+            createdAt: new Date().toISOString()
+        },
+        {
+            uid: "user_jayasri_student",
+            displayName: "Jaya Sri",
+            name: "Jaya Sri",
+            email: "pakanatjayasri@gmail.com",
+            accountRole: "student",
+            accessStatus: "granted",
+            createdAt: new Date().toISOString()
+        },
+        {
+            uid: "user_jakeerbasha_admin",
+            displayName: "Shaik Jakeer Basha",
+            name: "Shaik Jakeer Basha",
+            email: "shaikjakeerbasha282@gmail.com",
+            accountRole: "admin",
+            accessStatus: "granted",
+            createdAt: new Date().toISOString()
+        }
+    ];
+
+    let cachedDatabaseUsers = [];
+    let currentDbUsersSearchFilter = "";
+
+    function formatRoleTitle(role) {
+        if (!role) return "Student / Viewer";
+        const r = String(role).toLowerCase();
+        if (r === "admin") return "Administrator";
+        if (r === "hod") return "HOD";
+        if (r === "teacher") return "Class Teacher";
+        return "Student / Viewer";
+    }
+
+    function getStoredDatabaseUsers() {
+        try {
+            const raw = localStorage.getItem("khit_db_users_access");
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch (e) {
+            console.warn("Error reading local db users:", e);
+        }
+        return [...DEFAULT_DATABASE_USERS];
+    }
+
+    function saveStoredDatabaseUsers(users) {
+        cachedDatabaseUsers = users;
+        try {
+            localStorage.setItem("khit_db_users_access", JSON.stringify(users));
+        } catch (e) {}
+    }
+
+    async function loadDatabaseUsersAndAccess() {
+        if (!cachedDatabaseUsers || cachedDatabaseUsers.length === 0) {
+            cachedDatabaseUsers = getStoredDatabaseUsers();
+        }
+
+        renderDatabaseUsersTable(currentDbUsersSearchFilter);
+
+        if (db) {
+            try {
+                const usersCol = collection(db, "users");
+                const snap = await getDocs(usersCol);
+                if (!snap.empty) {
+                    const firestoreUsersMap = new Map();
+                    snap.forEach(docSnap => {
+                        const data = docSnap.data();
+                        const uid = docSnap.id;
+                        const email = (data.email || "").toLowerCase().trim();
+                        if (email) {
+                            firestoreUsersMap.set(email, {
+                                uid: uid,
+                                displayName: data.displayName || data.name || email.split("@")[0],
+                                name: data.name || data.displayName || email.split("@")[0],
+                                email: email,
+                                accountRole: (data.accountRole || "student").toLowerCase(),
+                                accessStatus: data.accessStatus || "granted",
+                                photoURL: data.avatar || data.photoURL || "",
+                                createdAt: data.createdAt || new Date().toISOString()
+                            });
+                        }
+                    });
+
+                    const merged = [...cachedDatabaseUsers];
+                    firestoreUsersMap.forEach((fUser, fEmail) => {
+                        const idx = merged.findIndex(u => u.email.toLowerCase().trim() === fEmail);
+                        if (idx >= 0) {
+                            merged[idx] = { ...merged[idx], ...fUser };
+                        } else {
+                            merged.push(fUser);
+                        }
+                    });
+
+                    saveStoredDatabaseUsers(merged);
+                    renderDatabaseUsersTable(currentDbUsersSearchFilter);
+                } else {
+                    seedSampleUsersToFirestore(false);
+                }
+            } catch (err) {
+                console.warn("Firestore fetch users error:", err);
+            }
+        }
+    }
+
+    async function seedSampleUsersToFirestore(showSuccessToast = true) {
+        cachedDatabaseUsers = [...DEFAULT_DATABASE_USERS];
+        saveStoredDatabaseUsers(cachedDatabaseUsers);
+        renderDatabaseUsersTable(currentDbUsersSearchFilter);
+
+        if (db) {
+            try {
+                for (const u of DEFAULT_DATABASE_USERS) {
+                    const docId = u.uid || ("user_" + u.email.replace(/[^a-zA-Z0-9]/g, "_"));
+                    await setDoc(doc(db, "users", docId), {
+                        uid: docId,
+                        displayName: u.displayName,
+                        name: u.name,
+                        email: u.email,
+                        accountRole: u.accountRole,
+                        accessStatus: u.accessStatus || "granted",
+                        lastActive: new Date(),
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+
+                    if (u.accountRole === "hod" || u.accountRole === "teacher" || u.accountRole === "admin") {
+                        const fDocId = u.email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+                        await setDoc(doc(db, "faculty_roles", fDocId), {
+                            email: u.email.toLowerCase().trim(),
+                            name: u.name,
+                            role: u.accountRole,
+                            dept: u.accountRole === "hod" ? "CSE" : (u.accountRole === "teacher" ? "CSE-A" : "ADMIN"),
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                    }
+                }
+                if (showSuccessToast) {
+                    showToast("Sample database users synchronized to Firestore! 🚀");
+                }
+            } catch (e) {
+                console.warn("Seeding sample users error:", e);
+                if (showSuccessToast) showToast("Synchronized locally (Firestore offline).");
+            }
+        } else if (showSuccessToast) {
+            showToast("5 sample users initialized in local cache! ✅");
+        }
+    }
+
+    function renderDatabaseUsersTable(filterSearch = "") {
+        if (!dbUsersTableBody) return;
+
+        const usersList = (cachedDatabaseUsers && cachedDatabaseUsers.length > 0)
+            ? cachedDatabaseUsers
+            : getStoredDatabaseUsers();
+
+        const filtered = filterSearch
+            ? usersList.filter(u => {
+                const nameMatch = (u.displayName || u.name || "").toLowerCase().includes(filterSearch);
+                const emailMatch = (u.email || "").toLowerCase().includes(filterSearch);
+                return nameMatch || emailMatch;
+            })
+            : usersList;
+
+        const totalUsers = usersList.length;
+        const grantedUsers = usersList.filter(u => u.accessStatus !== "revoked").length;
+        if (metricDbGrantedCount) metricDbGrantedCount.textContent = grantedUsers;
+        if (metricDbTotalCount) metricDbTotalCount.textContent = totalUsers;
+        if (metricDbGrantedLabel) metricDbGrantedLabel.textContent = `${grantedUsers} Access Granted`;
+        if (badgeUsersHeaderCount) badgeUsersHeaderCount.textContent = totalUsers;
+
+        if (filtered.length === 0) {
+            dbUsersTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="py-12 text-center text-slate-500 italic text-xs">
+                        No database users found matching "${filterSearch}".
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        dbUsersTableBody.innerHTML = filtered.map(user => {
+            const role = (user.accountRole || "student").toLowerCase();
+            const isGranted = user.accessStatus !== "revoked";
+            const initials = (user.displayName || user.name || user.email || "KH")
+                .split(" ")
+                .filter(Boolean)
+                .map(n => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2) || "KH";
+
+            const roleTitle = formatRoleTitle(role);
+
+            return `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm flex-shrink-0">
+                                ${initials}
+                            </div>
+                            <div>
+                                <div class="font-bold text-white text-xs">${user.displayName || user.name || "Academic User"}</div>
+                                <div class="text-[10px] text-slate-400 capitalize">${roleTitle}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 font-mono text-slate-300 text-xs">
+                        ${user.email}
+                    </td>
+                    <td class="py-3 px-4">
+                        <select data-uid="${user.uid}" class="select-user-role-control bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-cyan-500 cursor-pointer">
+                            <option value="admin" ${role === "admin" ? "selected" : ""}>Administrator</option>
+                            <option value="hod" ${role === "hod" ? "selected" : ""}>HOD</option>
+                            <option value="teacher" ${role === "teacher" ? "selected" : ""}>Class Teacher</option>
+                            <option value="student" ${role === "student" ? "selected" : ""}>Student / Viewer</option>
+                        </select>
+                    </td>
+                    <td class="py-3 px-4">
+                        ${isGranted ? `
+                            <span class="access-badge-granted">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Access Granted
+                            </span>
+                        ` : `
+                            <span class="access-badge-revoked">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                                Revoked
+                            </span>
+                        `}
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button type="button" data-uid="${user.uid}" class="btn-toggle-user-access px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                                isGranted 
+                                    ? "border border-rose-500/30 text-rose-400 hover:bg-rose-500/10"
+                                    : "border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                            }">
+                                ${isGranted ? "Revoke Access" : "Grant Access"}
+                            </button>
+                            <button type="button" data-uid="${user.uid}" class="btn-delete-user-access p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer" title="Delete User">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        dbUsersTableBody.querySelectorAll(".select-user-role-control").forEach(sel => {
+            sel.addEventListener("change", async (e) => {
+                const uid = sel.getAttribute("data-uid");
+                const newRole = sel.value;
+                const userObj = cachedDatabaseUsers.find(u => u.uid === uid || u.email === uid);
+                if (!userObj) return;
+
+                userObj.accountRole = newRole;
+                saveStoredDatabaseUsers(cachedDatabaseUsers);
+
+                if (db) {
+                    try {
+                        await setDoc(doc(db, "users", userObj.uid), {
+                            accountRole: newRole,
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+
+                        const fDocId = userObj.email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+                        await setDoc(doc(db, "faculty_roles", fDocId), {
+                            email: userObj.email.toLowerCase().trim(),
+                            name: userObj.displayName || userObj.name,
+                            role: newRole,
+                            dept: newRole === "hod" ? "CSE" : (newRole === "teacher" ? "CSE-A" : "ADMIN"),
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                    } catch (err) {
+                        console.warn("Firestore update role error:", err);
+                    }
+                }
+
+                renderDatabaseUsersTable(currentDbUsersSearchFilter);
+                showToast(`Role for ${userObj.email} updated to ${formatRoleTitle(newRole).toUpperCase()}! 🛡️`);
+            });
+        });
+
+        dbUsersTableBody.querySelectorAll(".btn-toggle-user-access").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const uid = btn.getAttribute("data-uid");
+                const userObj = cachedDatabaseUsers.find(u => u.uid === uid || u.email === uid);
+                if (!userObj) return;
+
+                const isCurrentlyGranted = userObj.accessStatus !== "revoked";
+                userObj.accessStatus = isCurrentlyGranted ? "revoked" : "granted";
+                saveStoredDatabaseUsers(cachedDatabaseUsers);
+
+                if (db) {
+                    try {
+                        await setDoc(doc(db, "users", userObj.uid), {
+                            accessStatus: userObj.accessStatus,
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                    } catch (err) {
+                        console.warn("Firestore update access error:", err);
+                    }
+                }
+
+                renderDatabaseUsersTable(currentDbUsersSearchFilter);
+                showToast(userObj.accessStatus === "granted"
+                    ? `Access GRANTED to ${userObj.email} ✅`
+                    : `Access REVOKED for ${userObj.email} ⛔`);
+            });
+        });
+
+        dbUsersTableBody.querySelectorAll(".btn-delete-user-access").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const uid = btn.getAttribute("data-uid");
+                const userObj = cachedDatabaseUsers.find(u => u.uid === uid || u.email === uid);
+                if (!userObj) return;
+
+                if (!confirm(`Are you sure you want to delete user ${userObj.email} and revoke all access?`)) {
+                    return;
+                }
+
+                cachedDatabaseUsers = cachedDatabaseUsers.filter(u => u.uid !== uid && u.email !== userObj.email);
+                saveStoredDatabaseUsers(cachedDatabaseUsers);
+
+                if (db) {
+                    try {
+                        await deleteDoc(doc(db, "users", userObj.uid));
+                        const fDocId = userObj.email.toLowerCase().trim().replace(/[^a-zA-Z0-9]/g, "_");
+                        await deleteDoc(doc(db, "faculty_roles", fDocId));
+                    } catch (err) {
+                        console.warn("Firestore delete user error:", err);
+                    }
+                }
+
+                renderDatabaseUsersTable(currentDbUsersSearchFilter);
+                showToast(`User ${userObj.email} deleted from database.`);
+            });
+        });
+    }
+
+    function initUsersAccessSuite() {
+        cachedDatabaseUsers = getStoredDatabaseUsers();
+        renderDatabaseUsersTable("");
+
+        if (inputSearchDbUsers) {
+            inputSearchDbUsers.addEventListener("input", (e) => {
+                currentDbUsersSearchFilter = e.target.value.toLowerCase().trim();
+                renderDatabaseUsersTable(currentDbUsersSearchFilter);
+            });
+        }
+
+        if (btnSeedSampleUsers) {
+            btnSeedSampleUsers.addEventListener("click", () => {
+                seedSampleUsersToFirestore(true);
+            });
+        }
+
+        if (btnAddDbUserModal && modalAddDbUser) {
+            btnAddDbUserModal.addEventListener("click", () => {
+                modalAddDbUser.classList.remove("hidden");
+            });
+        }
+        if (btnCloseAddUserModal && modalAddDbUser) {
+            btnCloseAddUserModal.addEventListener("click", () => {
+                modalAddDbUser.classList.add("hidden");
+            });
+        }
+        if (btnCancelAddUser && modalAddDbUser) {
+            btnCancelAddUser.addEventListener("click", () => {
+                modalAddDbUser.classList.add("hidden");
+            });
+        }
+
+        if (formAddDbUser) {
+            formAddDbUser.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const nameInput = document.getElementById("input-new-user-name");
+                const emailInput = document.getElementById("input-new-user-email");
+                const roleInput = document.getElementById("select-new-user-role");
+                const accessInput = document.getElementById("select-new-user-access");
+
+                const name = nameInput ? nameInput.value.trim() : "New User";
+                const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
+                const role = roleInput ? roleInput.value : "student";
+                const access = accessInput ? accessInput.value : "granted";
+
+                if (!email || !email.includes("@")) {
+                    showToast("Please provide a valid email address.");
+                    return;
+                }
+
+                const uid = "user_" + email.replace(/[^a-zA-Z0-9]/g, "_");
+                const newUser = {
+                    uid: uid,
+                    displayName: name,
+                    name: name,
+                    email: email,
+                    accountRole: role,
+                    accessStatus: access,
+                    createdAt: new Date().toISOString()
+                };
+
+                const existingIdx = cachedDatabaseUsers.findIndex(u => u.email.toLowerCase() === email);
+                if (existingIdx >= 0) {
+                    cachedDatabaseUsers[existingIdx] = newUser;
+                } else {
+                    cachedDatabaseUsers.unshift(newUser);
+                }
+                saveStoredDatabaseUsers(cachedDatabaseUsers);
+
+                if (db) {
+                    try {
+                        await setDoc(doc(db, "users", uid), {
+                            uid: uid,
+                            displayName: name,
+                            name: name,
+                            email: email,
+                            accountRole: role,
+                            accessStatus: access,
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+
+                        const fDocId = email.replace(/[^a-zA-Z0-9]/g, "_");
+                        await setDoc(doc(db, "faculty_roles", fDocId), {
+                            email: email,
+                            name: name,
+                            role: role,
+                            dept: role === "hod" ? "CSE" : (role === "teacher" ? "CSE-A" : "ADMIN"),
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
+                    } catch (err) {
+                        console.warn("Firestore add user error:", err);
+                    }
+                }
+
+                if (modalAddDbUser) modalAddDbUser.classList.add("hidden");
+                formAddDbUser.reset();
+                renderDatabaseUsersTable(currentDbUsersSearchFilter);
+                showToast(`User ${name} added with ${formatRoleTitle(role).toUpperCase()} role! 🎉`);
+            });
+        }
+
+        if (btnOpenInteractiveMap && modalInteractiveMap) {
+            btnOpenInteractiveMap.addEventListener("click", () => {
+                modalInteractiveMap.classList.remove("hidden");
+            });
+        }
+        if (btnCloseMapModal && modalInteractiveMap) {
+            btnCloseMapModal.addEventListener("click", () => {
+                modalInteractiveMap.classList.add("hidden");
+            });
+        }
+
+        if (btnAccessLangEn && btnAccessLangTe) {
+            btnAccessLangEn.addEventListener("click", () => {
+                btnAccessLangEn.className = "px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-300 transition font-semibold";
+                btnAccessLangTe.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition font-semibold";
+            });
+            btnAccessLangTe.addEventListener("click", () => {
+                btnAccessLangTe.className = "px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 transition font-semibold";
+                btnAccessLangEn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition font-semibold";
+                showToast("భాష మార్చబడింది: తెలుగు (Telugu Active) 🌐");
+            });
+        }
+    }
+
+    // Auto-initialize Campus Hub Suite & Users Access Suite
     initCampusHubSuite();
+    initUsersAccessSuite();
 
     // Reconnect voice session if browser suspends tab in background (visibility change or pageshow)
     document.addEventListener("visibilitychange", () => {

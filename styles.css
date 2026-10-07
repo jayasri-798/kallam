@@ -1783,4 +1783,125 @@ body, main, header, #sidebar, .hub-card, .framer-neon-card, .framer-pill-button,
     background-color: rgba(241, 245, 249, 0.8) !important;
 }
 
+/* ==========================================================================
+   USERS & DATABASE ACCESS CONTROL WORKSPACE STYLING
+   Restricted Solely to chinthalacheruvuamareswar@gmail.com
+   ========================================================================== */
+
+.access-badge-granted {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+}
+
+.access-badge-revoked {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.role-badge-admin {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.role-badge-hod {
+    color: #c084fc;
+    background: rgba(192, 132, 252, 0.12);
+    border: 1px solid rgba(192, 132, 252, 0.25);
+}
+
+.role-badge-teacher {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.role-badge-student {
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Light Theme overrides for Users & Database Access Control */
+.light-theme #users-access-workspace {
+    background-color: #f8fafc !important;
+}
+
+.light-theme #users-access-workspace h1,
+.light-theme #users-access-workspace h2,
+.light-theme #users-access-workspace h3 {
+    color: #0f172a !important;
+}
+
+.light-theme #users-access-workspace .framer-neon-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme #users-access-workspace table thead tr {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+.light-theme #users-access-workspace table thead th {
+    color: #475569 !important;
+}
+
+.light-theme #users-access-workspace table tbody tr {
+    border-color: #f1f5f9 !important;
+}
+
+.light-theme #users-access-workspace table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+.light-theme #users-access-workspace select {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+.light-theme #input-search-db-users {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+.light-theme #modal-add-db-user > div,
+.light-theme #modal-interactive-map > div {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-theme #modal-add-db-user input,
+.light-theme #modal-add-db-user select {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+.light-theme #modal-add-db-user label {
+    color: #475569 !important;
+}
+
+
 
