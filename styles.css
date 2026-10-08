@@ -1849,10 +1849,32 @@ body, main, header, #sidebar, .hub-card, .framer-neon-card, .framer-pill-button,
     color: #0f172a !important;
 }
 
+.light-theme #users-access-workspace p,
+.light-theme #users-access-workspace td {
+    color: #334155 !important;
+}
+
+.light-theme #users-access-workspace .text-white {
+    color: #0f172a !important;
+}
+
+.light-theme #users-access-workspace .text-slate-400,
+.light-theme #users-access-workspace .text-slate-500 {
+    color: #64748b !important;
+}
+
+.light-theme #users-access-workspace .text-slate-300 {
+    color: #334155 !important;
+}
+
 .light-theme #users-access-workspace .framer-neon-card {
     background: #ffffff !important;
-    border-color: #e2e8f0 !important;
+    border: 1px solid #e2e8f0 !important;
     box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.light-theme #users-access-workspace table {
+    border-color: #e2e8f0 !important;
 }
 
 .light-theme #users-access-workspace table thead tr {
