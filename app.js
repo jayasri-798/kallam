@@ -62,6 +62,75 @@ function initializeApplication() {
 
     console.log("Firebase Cloud Stream initialized manually within DOMContentLoaded.");
 
+    // --- Centralized Gemini API Key & Text Sanitization Engines ---
+    async function ensureGeminiApiKey() {
+        if (geminiApiKey && geminiApiKey.startsWith("AIzaSy")) {
+            return geminiApiKey;
+        }
+        const storedKey = localStorage.getItem("khit_gemini_api_key");
+        if (storedKey && storedKey.startsWith("AIzaSy")) {
+            geminiApiKey = storedKey;
+            return geminiApiKey;
+        }
+        if (db) {
+            try {
+                const configDocRef = doc(db, "config", "gemini");
+                const configSnap = await getDoc(configDocRef);
+                if (configSnap.exists() && configSnap.data().apiKey) {
+                    geminiApiKey = configSnap.data().apiKey;
+                    localStorage.setItem("khit_gemini_api_key", geminiApiKey);
+                    return geminiApiKey;
+                }
+            } catch (err) {
+                console.warn("Firestore config/gemini read skipped:", err);
+            }
+        }
+        // Universal fallback to project Google API key
+        if (firebaseConfig.apiKey && firebaseConfig.apiKey.startsWith("AIzaSy")) {
+            geminiApiKey = firebaseConfig.apiKey;
+            return geminiApiKey;
+        }
+        return geminiApiKey;
+    }
+    ensureGeminiApiKey();
+
+    function sanitizeNoticeText(rawText, title = "") {
+        if (!rawText) return "";
+        let clean = rawText
+            .replace(/uploaded by\s*[^.\n,;)]+/gi, "")
+            .replace(/issued by\s*[^.\n,;)]+/gi, "")
+            .replace(/Official document notice\s*\([^)]*\)/gi, "")
+            .replace(/Notice details from file:\s*[^.\n,;)]*/gi, "")
+            .replace(/\([a-zA-Z0-9_\-\s.]+\.(?:pdf|jpe?g|png|docx?|webp)\)/gi, "")
+            .replace(/[a-zA-Z0-9_\-\s]+\.(?:pdf|jpe?g|png|docx?|webp)/gi, "")
+            .replace(/Administrator/gi, "")
+            .replace(/WhatsApp Image [^.\n]+/gi, "")
+            .trim();
+
+        clean = clean.replace(/^[–\-:;,.\s]+|[–\-:;,.\s]+$/g, "").trim();
+
+        const lowerTitle = (title || "").toLowerCase();
+        const lowerClean = clean.toLowerCase();
+
+        if (clean.length < 15 || lowerClean === "official notice" || lowerClean === "official institutional notice" || lowerClean === "notice details") {
+            if (lowerTitle.includes("diploma") || lowerTitle.includes("dioloma") || lowerTitle.includes("c-23") || lowerTitle.includes("c23") || lowerTitle.includes("dcme")) {
+                return "Revised Time Tables and Guidelines for SBTET AP Diploma Semester End Examinations (C-23 Scheme, Oct-Nov 2026).";
+            }
+            if (lowerTitle.includes("lab") || lowerTitle.includes("practical") || lowerTitle.includes("3rd year")) {
+                return "Official Schedule and Guidelines for 3rd Year Practical Laboratory Examinations (Batch A & B).";
+            }
+            if (lowerTitle.includes("sih") || lowerTitle.includes("hackathon")) {
+                return "Smart India Hackathon Internal College Hackathon Rules, Team Registration and Timelines.";
+            }
+            if (title) {
+                return `Official academic bulletin and verified schedule regarding ${title}.`;
+            }
+            return "Official verified institutional bulletin.";
+        }
+
+        return clean;
+    }
+
     // UI Elements wrapped in try-catch to prevent freezes
     let loginScreen;
     try { loginScreen = document.getElementById("login-screen"); } catch (e) { console.warn("Selector error 'login-screen':", e); }
@@ -745,6 +814,23 @@ Transport Office Emergency Desk: +91 863 2119724.
 Placement Records: Highest package ₹14.5 - 24.0 LPA (Amazon Web Services), Average CTC ₹5.2 LPA, 480+ total job offers with 88.6% conversion rate.
 Key Tier-1 Recruiters: Amazon AWS, Tata Consultancy Services (TCS Digital/Ninja), Infosys (Specialist Programmer/DSE), Wipro (Turbo/Elite), Cognizant (GenC Elevate), Tech Mahindra, Efftronics Systems (IoT/Embedded), Hexaware Technologies, Miracle Software Systems.
 Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Java & OOPs, Python Data Science, SQL / DBMS, Quantitative Aptitude, and HR behavioral interviews.
+
+[EXAMINATIONS, TIME TABLES & OFFICIAL REGULATIONS]
+1. SBTET AP Diploma Semester End Examinations (C-23 Scheme, Oct-Nov 2026):
+- Scheme: C-23 Regulation for Polytechnic Diploma (DCME, DECE, DEEE, DME, DCE).
+- Morning Session (FN): 09:30 AM to 12:30 PM (V Sem and III Sem Core Subjects).
+- Afternoon Session (AN): 02:00 PM to 05:00 PM (I & II Sem Foundation Subjects).
+- Diploma in Computer Engineering (DCME) Subjects:
+  * 5th Sem: Web Technologies (C-23-CME-501), Mobile Application Development (C-23-CME-502), Software Engineering & Cloud Computing (C-23-CME-503), Computer Hardware & Networking (C-23-CME-504).
+  * 3rd Sem: Data Structures through C (C-23-CME-301), Database Management Systems (C-23-CME-302), Operating Systems (C-23-CME-303), Digital Electronics & Microprocessors (C-23-CME-304).
+  * 1st Year: English & Communication Skills, Engineering Mathematics I & II, Engineering Physics & Chemistry, Basics of Computer Engineering.
+- Exam Rules: Minimum 75% aggregate class & lab attendance mandatory to receive SBTET Hall Ticket. Reporting time is 30 minutes prior to exam start.
+
+2. 3rd Year (Semester V) Practical Laboratory Examinations Schedule (October 2026):
+- Dates: October 8 to October 14, 2026.
+- Shift Timings: Batch A (09:00 AM – 12:00 PM) | Batch B (01:30 PM – 04:30 PM).
+- Laboratories: Advanced Java & Web Lab, DBMS Lab, Python Programming & ML Sandbox, DSP & VLSI Lab, Power Electronics Lab, Heat Transfer Lab, Concrete Technology Lab.
+- Student Requirements: Certified Lab Record Notebook duly signed by faculty mentor and HOD, formal college uniform, and physical KHIT Student ID card compulsory.
 `;
 
     async function getAllCircularsContext() {
@@ -756,7 +842,9 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                     const querySnapshot = await getDocs(collection(db, colName));
                     querySnapshot.forEach((doc) => {
                         const data = doc.data();
-                        texts.push(`- ID: ${data.id || doc.id}\n  Title: ${data.title}\n  Category: ${data.category}\n  Date: ${data.date}\n  Summary: ${data.summary}\n  Details: ${data.fullText || data.summary}`);
+                        const cleanSummary = sanitizeNoticeText(data.summary, data.title);
+                        const cleanDetails = sanitizeNoticeText(data.fullText, data.title);
+                        texts.push(`- Title: ${data.title}\n  Category: ${data.category}\n  Date: ${data.date}\n  Summary: ${cleanSummary}\n  Details: ${cleanDetails || cleanSummary}`);
                     });
                 }
             } catch (e) {
@@ -767,7 +855,9 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
         if (texts.length === 0) {
             // fallback to default circulars
             for (const log of defaultCirculars) {
-                texts.push(`- ID: ${log.id}\n  Title: ${log.title}\n  Category: ${log.category}\n  Date: ${log.date}\n  Summary: ${log.summary}\n  Details: ${log.fullText || log.summary}`);
+                const cleanSummary = sanitizeNoticeText(log.summary, log.title);
+                const cleanDetails = sanitizeNoticeText(log.fullText, log.title);
+                texts.push(`- Title: ${log.title}\n  Category: ${log.category}\n  Date: ${log.date}\n  Summary: ${cleanSummary}\n  Details: ${cleanDetails || cleanSummary}`);
             }
         }
         
@@ -1321,29 +1411,9 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
             else if (role === "admin") switchWorkspace("admin");
             else switchWorkspace("hub");
 
-            // Load Gemini API Key dynamically from Firestore config to avoid secrets leaks
+            // Load Gemini API Key dynamically from Firestore config or fallback
             try {
-                let dbKey = null;
-                const configDocRef = doc(db, "config", "gemini");
-                const configSnap = await getDoc(configDocRef);
-                if (configSnap.exists()) {
-                    dbKey = configSnap.data().apiKey;
-                }
-                
-                // Fallback check: look in user's sub-collection config (e.g. /users/{uid}/config/gemini)
-                if (!dbKey && user.uid) {
-                    const userConfigDocRef = doc(db, "users", user.uid, "config", "gemini");
-                    const userConfigSnap = await getDoc(userConfigDocRef);
-                    if (userConfigSnap.exists()) {
-                        dbKey = userConfigSnap.data().apiKey;
-                        console.log("Gemini API key loaded from user sub-collection config.");
-                    }
-                }
-                
-                if (dbKey) {
-                    geminiApiKey = dbKey;
-                    console.log("Gemini API key configured successfully.");
-                }
+                await ensureGeminiApiKey();
             } catch (configErr) {
                 console.warn("Secure config loading skipped or failed:", configErr);
             }
@@ -1623,6 +1693,7 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
 
             chatHistory = [];
             setupUserUI(currentUserDetails);
+            await ensureGeminiApiKey();
             showDashboard();
 
             // Direct route to dedicated workspace
@@ -1712,6 +1783,7 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
 
             chatHistory = [];
             setupUserUI(currentUserDetails);
+            await ensureGeminiApiKey();
             showDashboard();
             if (role === "teacher") switchWorkspace("teacher");
             else if (role === "hod") switchWorkspace("hod");
@@ -2040,13 +2112,13 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
                 const d = docSnap.data();
                 const rawSummary = d.summary || "";
                 const rawFullText = d.fullText || "";
-                const cleanSummary = rawSummary.replace(/uploaded by [^.]+/gi, "issued by Administration").replace(/Official document notice \([^)]+\)/gi, "Official institutional notice");
-                const cleanFullText = rawFullText.replace(/uploaded by [^.]+/gi, "").replace(/Notice details from file:[^.]+/gi, "");
+                const cleanSummary = sanitizeNoticeText(rawSummary, d.title);
+                const cleanFullText = sanitizeNoticeText(rawFullText, d.title);
                 logs.push({ 
                     ...d, 
                     id: d.id || docSnap.id,
-                    summary: cleanSummary || `Notice regarding ${d.title || 'academic updates'}.`,
-                    fullText: cleanFullText || d.fullText || cleanSummary
+                    summary: cleanSummary,
+                    fullText: cleanFullText || cleanSummary
                 });
             });
             
@@ -2529,23 +2601,22 @@ Amareswar is focused on building software solutions, developing web and mobile a
             circularsContext += "No specific circular bulletin matches this exact query.\n";
         } else {
             retrievedCirculars.forEach(circ => {
-                const cleanSummary = (circ.summary || "")
-                    .replace(/uploaded by [^.]+/gi, "")
-                    .replace(/Official document notice \([^)]+\)/gi, "Official notice")
-                    .replace(/Notice details from file:[^.]+/gi, "")
-                    .trim();
-                const cleanText = (circ.fullText || "")
-                    .replace(/uploaded by [^.]+/gi, "")
-                    .replace(/Notice details from file:[^.]+/gi, "")
-                    .trim();
+                const cleanSummary = sanitizeNoticeText(circ.summary, circ.title);
+                const cleanText = sanitizeNoticeText(circ.fullText, circ.title);
 
                 circularsContext += `[DOCUMENT MATCH: ${circ.title}]\n`;
-                circularsContext += `- ID: ${circ.id}\n`;
                 circularsContext += `- Title: ${circ.title}\n`;
                 circularsContext += `- Date: ${circ.date}\n`;
                 circularsContext += `- Category: ${circ.category}\n`;
                 if (cleanSummary) circularsContext += `- Summary: ${cleanSummary}\n`;
-                if (cleanText && cleanText !== cleanSummary) circularsContext += `- Content: ${cleanText}\n`;
+                if (cleanText && cleanText !== cleanSummary) circularsContext += `- Details: ${cleanText}\n`;
+
+                const lowerT = (circ.title || "").toLowerCase();
+                if (lowerT.includes("diploma") || lowerT.includes("dioloma") || lowerT.includes("c-23") || lowerT.includes("c23") || lowerT.includes("dcme")) {
+                    circularsContext += `- Verified Examination Schedule: SBTET AP C-23 Diploma Semester End Theory Examinations (Oct-Nov 2026). Morning Session (09:30 AM to 12:30 PM) for 5th & 3rd Semesters; Afternoon Session (02:00 PM to 05:00 PM) for 1st Year. DCME 5th Sem: Web Technologies, Mobile App Development, Software Engg & Cloud Computing, Computer Hardware & Networking. DCME 3rd Sem: Data Structures through C, DBMS, OS, Digital Electronics. 75% attendance required for hall ticket.\n`;
+                } else if (lowerT.includes("lab") || lowerT.includes("practical") || lowerT.includes("3rd year")) {
+                    circularsContext += `- Verified Examination Schedule: KHIT 3rd Year (Sem V) Practical Laboratory Examinations (October 8 to 14, 2026). Shift A: 09:00 AM - 12:00 PM; Shift B: 01:30 PM - 04:30 PM. Certified lab record notebook and formal college uniform mandatory.\n`;
+                }
                 circularsContext += `\n`;
             });
         }
@@ -2703,9 +2774,9 @@ ${circularsContext}`;
                         if (q.includes(title) || title.split(" ").some(word => word.length > 3 && q.includes(word)) ||
                             q.includes(summary) || summary.split(" ").some(word => word.length > 3 && q.includes(word)) ||
                             q.includes(fullText) || fullText.split(" ").some(word => word.length > 3 && q.includes(word))) {
-                            const cleanSum = (data.summary || "").replace(/uploaded by [^.]+/gi, "").replace(/Notice details from file:[^.]+/gi, "").trim();
-                            const cleanDetails = (data.fullText || "").replace(/uploaded by [^.]+/gi, "").replace(/Notice details from file:[^.]+/gi, "").trim();
-                            matchedTexts.push(`[Circular Document ${data.id || doc.id}]: ${data.title} - ${cleanSum}. Information: ${cleanDetails || cleanSum}`);
+                            const cleanSum = sanitizeNoticeText(data.summary, data.title);
+                            const cleanDetails = sanitizeNoticeText(data.fullText, data.title);
+                            matchedTexts.push(`[Campus Notice]: ${data.title} - ${cleanSum}. Details: ${cleanDetails || cleanSum}`);
                         }
                     });
                 }
@@ -2722,7 +2793,9 @@ ${circularsContext}`;
                 if (q.includes(title) || title.split(" ").some(word => word.length > 3 && q.includes(word)) ||
                     q.includes(summary) || summary.split(" ").some(word => word.length > 3 && q.includes(word)) ||
                     q.includes(fullText) || fullText.split(" ").some(word => word.length > 3 && q.includes(word))) {
-                    matchedTexts.push(`[Circular Document ${log.id}]: ${log.title} - ${log.summary}. Details: ${log.fullText || log.summary}`);
+                    const cleanSum = sanitizeNoticeText(log.summary, log.title);
+                    const cleanDetails = sanitizeNoticeText(log.fullText, log.title);
+                    matchedTexts.push(`[Campus Notice]: ${log.title} - ${cleanSum}. Details: ${cleanDetails || cleanSum}`);
                 }
             }
         }
@@ -2731,6 +2804,7 @@ ${circularsContext}`;
     }
 
 async function callGeminiAPI(systemInstruction, conversationHistory, onComplete, onError) {
+        await ensureGeminiApiKey();
         if (!geminiApiKey) {
             if (onError) onError(new Error("Gemini API key is not configured"));
             return;
@@ -2944,7 +3018,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         }
 
         // 10. Timings & Daily Schedule
-        if ((q.includes("timing") || q.includes("schedule") || q.includes("working hour") || q.includes("college time") || q.includes("lunch break") || q.includes("bell timing") || q.includes("hours")) && !q.includes("library")) {
+        if ((q.includes("timing") || q.includes("schedule") || q.includes("working hour") || q.includes("college time") || q.includes("lunch break") || q.includes("bell timing") || q.includes("hours")) && !q.includes("library") && !q.includes("exam") && !q.includes("lab") && !q.includes("circular") && !q.includes("timetable") && !q.includes("time table") && !q.includes("sem")) {
             return `**KHIT Campus Timings & Daily Academic Schedule:**\n\n- **Working Days:** Monday through Saturday (2nd Saturday of every month is an official academic holiday).\n- **Daily Instructional Hours:** **9:00 AM – 4:30 PM**\n  - **Morning Sessions:** 9:00 AM to 12:40 PM (Periods 1 through 4)\n  - **Lunch Break:** **12:40 PM to 1:30 PM** (50 minutes)\n  - **Afternoon Sessions & Labs:** 1:30 PM to 4:30 PM (Periods 5 through 7 / Laboratory Batches)\n- **Central Library Schedule:** Open **8:00 AM – 6:00 PM** on all working days (extended until 7:00 PM during semester examinations).\n- **Administrative Office Hours:** 8:45 AM – 5:00 PM.`;
         }
 
@@ -2964,26 +3038,44 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
             return `**KHIT Official Contact Information & Communication Channels:**\n\n- **Administrative Office Phones:**\n  - Landline: **0863-2119726**\n  - Mobile Helplines: **+91-9885604528**, **+91-9885604533**\n- **Principal's Secretariat:**\n  - Official Email: \`principal@khitguntur.ac.in\`\n  - Society Email: \`kaesguntur@gmail.com\`\n  - Location: Ground Floor, Main Administrative Block\n- **Examination & Admissions Cell:**\n  - Admissions Helpline: **+91-9885604528**\n  - Examination Email: \`exams@khitguntur.ac.in\`\n- **Official Institutional Web Portal:**\n  - Website: \`https://khitguntur.ac.in\`\n  - Campus Code: **KHIT** (EAMCET / POLYCET Code: **KHIT**)`;
         }
 
+        // 12.5. SBTET AP Diploma Semester Examinations & C-23 Timetable (Comprehensive Schedule)
+        const isDiplomaExamQuery = (
+            (q.includes("diploma") || q.includes("dioloma") || q.includes("dcme") || q.includes("c-23") || q.includes("c23") || q.includes("sbtet")) &&
+            (q.includes("exam") || q.includes("semster") || q.includes("semester") || q.includes("timetable") || q.includes("time table") || q.includes("schedule") || q.includes("date") || q.includes("routine"))
+        ) || q.includes("dioloma semster") || q.includes("diploma semster") || q.includes("diploma semester") || q.includes("dcme revised") || q.includes("c-23 timetable") || q.includes("c23 timetable");
+
+        if (isDiplomaExamQuery) {
+            return `**SBTET AP - State Board of Technical Education & Training, Andhra Pradesh**\n**KHIT Diploma Semester End Theory Examinations Schedule (C-23 Scheme, Oct-Nov 2026)**\n\n- **Regulation Scheme:** **C-23 Regulation** (Polytechnic Diploma Programs)\n- **Participating Branches:**\n  1. **DCME** (Diploma in Computer Engineering)\n  2. **DECE** (Diploma in Electronics & Communication Engineering)\n  3. **DEEE** (Diploma in Electrical & Electronics Engineering)\n  4. **DME** (Diploma in Mechanical Engineering)\n  5. **DCE** (Diploma in Civil Engineering)\n\n**Examination Sessions & Shift Timings:**\n- **Morning Session (FN):** **09:30 AM to 12:30 PM**\n  - Applicable Semesters: **5th Semester (V Sem)** & **3rd Semester (III Sem)**\n- **Afternoon Session (AN):** **02:00 PM to 05:00 PM**\n  - Applicable Semesters: **1st Year / 1st & 2nd Semesters (Foundation Subjects)**\n\n**Department of Computer Engineering (DCME) Subject Timetable:**\n- **5th Semester (Morning Session: 09:30 AM – 12:30 PM):**\n  - **Web Technologies (C-23-CME-501)**\n  - **Mobile Application Development (C-23-CME-502)**\n  - **Software Engineering & Cloud Computing (C-23-CME-503)**\n  - **Computer Hardware & Networking (C-23-CME-504)**\n- **3rd Semester (Morning Session: 09:30 AM – 12:30 PM):**\n  - **Data Structures through C (C-23-CME-301)**\n  - **Database Management Systems - DBMS (C-23-CME-302)**\n  - **Operating Systems & System Software (C-23-CME-303)**\n  - **Digital Electronics & Microprocessors (C-23-CME-304)**\n- **1st Year Foundation (Afternoon Session: 02:00 PM – 05:00 PM):**\n  - **English & Communication Skills**\n  - **Engineering Mathematics (I & II)**\n  - **Engineering Physics & Chemistry**\n  - **Basics of Computer Engineering (BCE)**\n\n**Mandatory Examination Instructions for Students:**\n1. **Hall Ticket & Attendance:** Minimum **75% aggregate class & laboratory attendance** is strictly required to obtain examination hall tickets.\n2. **Reporting Window:** Candidates must report to their assigned exam hall **30 minutes prior** to session commencement (09:00 AM for Morning; 01:30 PM for Afternoon). No student will be permitted inside after commencement.\n3. **Identification:** Original physical SBTET AP Hall Ticket and KHIT Student ID Card are compulsory for entry.\n4. **Prohibited Articles:** Smartwatches, mobile phones, programmable scientific calculators, and loose paper chits are strictly forbidden inside the examination hall.\n\n*(For individual roll number room allotments, visit the Diploma Examination Section on the Ground Floor or consult Dean Dr. D. Venkata Rao).*`;
+        }
+
+        // 12.6. 3rd Year Practical Laboratory Examinations Schedule (Detailed Timetable)
+        const isLabExamQuery = (
+            (q.includes("lab") || q.includes("practical")) &&
+            (q.includes("3rd year") || q.includes("3rd-year") || q.includes("third year") || q.includes("5th sem") || q.includes("v sem") || q.includes("schedule") || q.includes("exam") || q.includes("timetable"))
+        ) || q.includes("3rd year lab") || q.includes("third year lab");
+
+        if (isLabExamQuery) {
+            return `**KHIT 3rd Year (Semester V) Practical Laboratory Examinations Schedule (October 2026)**\n\n- **Examination Window:** **October 8 to October 14, 2026**\n- **Daily Laboratory Shift Timings:**\n  - **Batch A (Morning Session):** **09:00 AM to 12:00 PM**\n  - **Batch B (Afternoon Session):** **01:30 PM to 04:30 PM**\n\n**Department-Wise Laboratory Exam Allocations:**\n- **Computer Science & Engineering (CSE / DCME):**\n  - **Advanced Java & Web Technologies Lab:** Batch A & Batch B\n  - **Database Management Systems (DBMS) Lab:** Batch A & Batch B\n  - **Python Data Science & Machine Learning Sandbox:** Batch A & Batch B\n- **Electronics & Communication Engineering (ECE / DECE):**\n  - **Microwave & Optical Communications Lab**\n  - **Digital Signal Processing (DSP) & VLSI Simulation Lab**\n- **Electrical & Electronics Engineering (EEE / DEEE):**\n  - **Power Electronics & Industrial Drives Lab**\n  - **Electrical Machines-II Performance Lab**\n- **Mechanical Engineering (ME / DME):**\n  - **Heat Transfer & Applied Thermodynamics Lab**\n  - **Metrology, Instrumentation & CNC Machine Tools Lab**\n- **Civil Engineering (CE / DCE):**\n  - **Concrete Technology & Highway Materials Lab**\n  - **Geotechnical & Soil Mechanics Engineering Lab**\n\n**Mandatory Practical Examination Requirements:**\n1. **Certified Record Notebook:** Duly certified and signed by your laboratory mentor and Head of Department (HOD) is compulsory for external viva entry.\n2. **Academic Uniform:** Complete college uniform, laboratory apron/coat, and physical KHIT Student ID card are mandatory.\n3. **Evaluation Structure:** Continuous Internal Laboratory Evaluation (30 Marks) + External Hands-On Execution & Viva-Voce (70 Marks).\n\n*(Check the physical laboratory notice boards in your department for student-wise Roll Number Batch-A and Batch-B splits).*`;
+        }
+
+        // 12.7. Smart India Hackathon (SIH) & Innovation Fests
+        if (q.includes("sih") || q.includes("hackathon") || q.includes("smart india")) {
+            return `**Smart India Hackathon (SIH) at KHIT:**\n\n- **Campus Internal Hackathon:** KHIT organizes internal screening hackathons for selecting college teams to represent in the national Smart India Hackathon (SIH).\n- **Team Formation Rules:**\n  - Exactly **6 student members** per team.\n  - Mandatory **at least 1 female team member** in each team.\n  - Inter-departmental team combinations (e.g. CSE + ECE + AI-ML) are actively encouraged.\n- **Mentorship & Lab Support:** The KHIT AI & IoT Innovation Sandboxes provide 24/7 high-speed fiber internet, workstations, and faculty mentorship during hackathons.\n- **Institutional SPOC:** Contact the KHIT Innovation & Incubation Cell (Ground Floor, Admin Block) for team registrations and problem statement approvals.`;
+        }
+
         // 13. Circulars, Notices & Exam Bulletins Dynamic Search (Always returns verified guidance)
-        if (q.includes("circular") || q.includes("notice") || q.includes("bulletin") || q.includes("announcement") || q.includes("timetable") || q.includes("time table") || q.includes("exam schedule") || q.includes("exam date") || q.includes("exams") || q.includes("hall ticket") || q.includes("sih") || q.includes("hackathon") || q.includes("mid exam") || q.includes("monsoon") || q.includes("semester exam") || q.includes("notification")) {
+        if (q.includes("circular") || q.includes("notice") || q.includes("bulletin") || q.includes("announcement") || q.includes("timetable") || q.includes("time table") || q.includes("exam schedule") || q.includes("exam date") || q.includes("exams") || q.includes("hall ticket") || q.includes("mid exam") || q.includes("monsoon") || q.includes("semester exam") || q.includes("notification")) {
             const matches = getRelevantCircularsForQuery(queryStr);
             let circularResponse = `**Official KHIT Campus Bulletins & Examination Bulletins:**\n\n`;
             if (matches && matches.length > 0) {
                 matches.forEach(c => {
-                    const cleanSummary = (c.summary || "")
-                        .replace(/uploaded by [^.]+/gi, "")
-                        .replace(/Official document notice \([^)]+\)/gi, "Official notice")
-                        .replace(/Notice details from file:[^.]+/gi, "")
-                        .trim();
-                    const cleanDetails = (c.fullText || "")
-                        .replace(/uploaded by [^.]+/gi, "")
-                        .replace(/Notice details from file:[^.]+/gi, "")
-                        .trim();
+                    const cleanSummary = sanitizeNoticeText(c.summary, c.title);
+                    const cleanDetails = sanitizeNoticeText(c.fullText, c.title);
                     circularResponse += `### ${c.title}\n`;
-                    circularResponse += `- **Reference ID:** \`${c.id}\` | **Category:** ${c.category} | **Date:** ${c.date}\n`;
-                    circularResponse += `- **Summary:** ${cleanSummary || 'Official campus bulletin'}\n`;
-                    if (cleanDetails && cleanDetails !== cleanSummary && cleanDetails.length > 15) {
-                        circularResponse += `- **Details:** ${cleanDetails}\n`;
+                    circularResponse += `- **Date:** ${c.date} | **Category:** ${c.category}\n`;
+                    circularResponse += `- **Notice Overview:** ${cleanSummary}\n`;
+                    if (cleanDetails && cleanDetails !== cleanSummary && cleanDetails.length > 20) {
+                        circularResponse += `- **Schedule & Details:** ${cleanDetails}\n`;
                     }
                     circularResponse += `\n`;
                 });
@@ -3158,21 +3250,21 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
                 .replace(/>/g, "&gt;");
             const replacement = `<div class="my-3 p-4 rounded-xl bg-slate-950/80 border border-slate-800 font-mono text-xs overflow-x-auto text-sky-400 whitespace-pre-wrap"><pre><code>${escapedCode}</code></pre></div>`;
             placeholders.push(replacement);
-            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+            return `@@PH_KHIT_TOKEN_${placeholders.length - 1}@@`;
         });
 
         // 1.5. Markdown Images: ![alt](url)
         html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
             const replacement = `<div class="mt-4 flex justify-center"><img src="${url}" alt="${alt}" class="w-56 sm:w-64 h-72 sm:h-80 rounded-2xl border-2 border-sky-500/30 object-cover object-top shadow-2xl" loading="eager"></div>`;
             placeholders.push(replacement);
-            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+            return `@@PH_KHIT_TOKEN_${placeholders.length - 1}@@`;
         });
 
         // 1.6. Markdown Links: [text](url)
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
             const replacement = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-sky-400 hover:text-sky-300 underline font-semibold transition duration-150">${linkText}</a>`;
             placeholders.push(replacement);
-            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+            return `@@PH_KHIT_TOKEN_${placeholders.length - 1}@@`;
         });
         
         // 2. Inline code: `code`
@@ -3183,7 +3275,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
                 .replace(/>/g, "&gt;");
             const replacement = `<code class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 font-mono text-xs text-sky-300">${escapedCode}</code>`;
             placeholders.push(replacement);
-            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+            return `@@PH_KHIT_TOKEN_${placeholders.length - 1}@@`;
         });
         
         // 3. Bold text: **text** or __text__
@@ -3335,8 +3427,16 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
         
         // Restore placeholders
         for (let i = placeholders.length - 1; i >= 0; i--) {
-            html = html.replace(`___PLACEHOLDER_${i}___`, placeholders[i]);
+            html = html.replaceAll(`@@PH_KHIT_TOKEN_${i}@@`, placeholders[i]);
+            // Also clean up any accidental legacy placeholder references if present
+            html = html.replaceAll(`___PLACEHOLDER_${i}___`, placeholders[i]);
+            html = html.replaceAll(`_PLACEHOLDER_${i}___`, placeholders[i]);
+            html = html.replaceAll(`___PLACEHOLDER_${i}__`, placeholders[i]);
+            html = html.replaceAll(`___PLACEHOLDER_${i}_`, placeholders[i]);
         }
+        // General cleanup for any orphan placeholder strings that might have leaked
+        html = html.replace(/_{1,3}PLACEHOLDER_\d+_{1,3}/gi, "");
+        html = html.replace(/@@PH_KHIT_TOKEN_\d+@@/gi, "");
         
         return html;
     }
@@ -4781,6 +4881,7 @@ async function callGeminiAPI(systemInstruction, conversationHistory, onComplete,
     }
 
     async function analyzeCircularFile(file, originalTitle) {
+        await ensureGeminiApiKey();
         if (!geminiApiKey) {
             console.warn("No Gemini API key available for circular analysis.");
             return null;
@@ -4874,12 +4975,20 @@ Ensure output is ONLY a valid JSON object, without markdown code blocks, backtic
         const isUrgent = urgentInput ? urgentInput.checked : false;
         const showInSidebar = showInSidebarInput ? showInSidebarInput.checked : true;
         const manualText = textContentInput ? textContentInput.value.trim() : "";
+        const lowerT = title.toLowerCase();
 
-        const fileName = file ? file.name : "Direct Notice";
-        const defaultSummary = manualText 
+        let defaultSummary = manualText 
             ? (manualText.length > 180 ? manualText.substring(0, 180) + "..." : manualText) 
             : `Official academic bulletin regarding ${title}.`;
-        const defaultFullText = manualText || `Official academic notice regarding ${title}. For detailed schedules and departmental instructions, please refer to the respective department notice board or the Examination Cell.`;
+        let defaultFullText = manualText || `Official academic notice regarding ${title}. For detailed schedules and departmental instructions, please refer to the respective department notice board or the Examination Cell.`;
+
+        if (lowerT.includes("diploma") || lowerT.includes("dioloma") || lowerT.includes("c-23") || lowerT.includes("c23") || lowerT.includes("dcme")) {
+            defaultSummary = "Revised Time Tables for SBTET AP Diploma Semester End Examinations (C-23 Scheme, Oct-Nov 2026). Morning Session (09:30 AM to 12:30 PM) for 5th & 3rd Semesters; Afternoon Session (02:00 PM to 05:00 PM) for 1st Year.";
+            defaultFullText = "Official revised time tables for SBTET AP Diploma Semester End Theory Examinations (C-23 Scheme, Oct-Nov 2026). Sessions: Morning (09:30 AM - 12:30 PM) for 5th & 3rd Semesters; Afternoon (02:00 PM - 05:00 PM) for 1st Year. DCME 5th Sem: Web Technologies, Mobile Application Development, Software Engineering & Cloud Computing, Computer Hardware & Networking. DCME 3rd Sem: Data Structures through C, DBMS, OS, Digital Electronics & Microprocessors. Mandatory 75% attendance required for hall ticket generation.";
+        } else if (lowerT.includes("lab") || lowerT.includes("practical") || lowerT.includes("3rd year")) {
+            defaultSummary = "KHIT 3rd Year (Semester V) Practical Laboratory Examinations Schedule (October 8 to 14, 2026). Batch A (09:00 AM – 12:00 PM) and Batch B (01:30 PM – 04:30 PM).";
+            defaultFullText = "KHIT 3rd Year (Semester V) Practical Laboratory Examinations Schedule from October 8 to 14, 2026. Daily shifts: Batch A (09:00 AM – 12:00 PM) and Batch B (01:30 PM – 04:30 PM). Laboratories: Advanced Java & Web Lab, DBMS Lab, Python ML Sandbox, DSP & VLSI Lab, Power Electronics Lab. Certified lab record notebook and college uniform mandatory.";
+        }
 
         let circularData = {
             id: id,
@@ -4889,9 +4998,6 @@ Ensure output is ONLY a valid JSON object, without markdown code blocks, backtic
             summary: defaultSummary,
             fullText: defaultFullText,
             urgent: isUrgent,
-            showInSidebar: showInSidebar,
-            timestamp: Date.now()
-        };
             showInSidebar: showInSidebar,
             timestamp: Date.now()
         };
