@@ -1738,7 +1738,7 @@ Interactive CRT Training: Conducted across DSA (Striver SDE / LeetCode), Core Ja
     // 2.6. Direct 1-Click Role Testing Selectors on Login Screen
     const quickRoleButtons = document.querySelectorAll(".btn-login-quick-role");
     quickRoleButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", async () => {
             const role = btn.getAttribute("data-role") || "student";
             console.log("Login screen quick role selected:", role);
             if (loginError) loginError.classList.add("hidden");
